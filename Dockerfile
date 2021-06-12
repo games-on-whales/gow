@@ -13,7 +13,7 @@ FROM base AS sunshine-builder
 RUN apt-get install -y git build-essential cmake
 
 RUN git clone https://github.com/loki-47-6F-64/sunshine.git --recurse-submodules && \
-    cd sunshine && git reset --hard fe5375f17b2ae435250b52301059908453ec726d && mkdir build && cd build && \
+    cd sunshine && mkdir build && cd build && \
     cmake .. && \
     make -j ${nproc}
 
