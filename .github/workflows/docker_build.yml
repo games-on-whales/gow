@@ -20,7 +20,7 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            abeltramo/retroarch-docker
+            abeltramo/retroarch
           # generate Docker tags based on the following events/attributes
           tags: |
             type=sha
@@ -44,7 +44,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=abeltramo/retroarch-docker:latest
+          cache-from: type=registry,ref=abeltramo/retroarch:latest
           cache-to: type=inline
 
       - name: Image digest
