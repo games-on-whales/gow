@@ -45,12 +45,15 @@ sudo docker build -t abeltramo/retroarch .
 Start it
 
 ```console
-sudo docker run --privileged -d --rm --name retroarch --net=host \
+sudo docker run --privileged -it --rm --name retroarch --net=host \
     --volume /run/user/$(id -u)/pulse:/run/user/1000/pulse \
+    --env RESOLUTION=1920x1080x24 \
+    --env LOG_LEVEL=DEBUG \
     abeltramo/retroarch
 ```
 
+Visit https://localhost:47990/ for the web config view
 Validate pin on Moonlight Connection (on server)
 ```console
-curl localhost:47989/pin/6726
+curl localhost:47989/pin/XXXX
 ```

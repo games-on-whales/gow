@@ -13,7 +13,7 @@ FROM base AS sunshine-builder
 RUN apt-get install -y git build-essential cmake
 
 RUN git clone https://github.com/loki-47-6F-64/sunshine.git --recurse-submodules && \
-    cd sunshine && mkdir build && cd build && \
+    cd sunshine && git reset --hard fe5375f17b2ae435250b52301059908453ec726d && mkdir build && cd build && \
     cmake .. && \
     make -j ${nproc}
 
@@ -49,6 +49,6 @@ COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 ADD sunshine/sunshine.conf /sunshine/sunshine.conf
 ADD sunshine/apps.json /sunshine/apps.json
 COPY sunshine/pulse-client.conf /etc/pulse/client.conf
+COPY startup.sh /startup.sh
 
-CMD /usr/bin/xvfb-run /sunshine/sunshine /sunshine/sunshine.conf
-
+CMD /bin/bash /startup.sh
