@@ -3,6 +3,16 @@
 Running [RetroArch](https://www.retroarch.com/) on Docker with [Sunshine](https://github.com/loki-47-6F-64/sunshine) so that you can connecting to it using [Moonlight](https://moonlight-stream.org/) on any supported client.
 
 
+## Quickstart
+
+```
+sudo docker run --privileged -it --rm --name retroarch --net=host \
+    --volume /run/user/$(id -u)/pulse:/run/user/1000/pulse \
+    --env RESOLUTION=1920x1080x24 \
+    --env LOG_LEVEL=DEBUG \
+    abeltramo/retroarch
+```
+
 ## How to use
 
 On the host check that PulseAudio is up and running for the root user
@@ -36,7 +46,11 @@ Non permanent fix:
 sudo chmod 0660 /dev/uinput
 ```
 
-Build the docker image
+## Run it
+
+You can either build the docker image or use the pre-built one available at [DockerHub](https://hub.docker.com/r/abeltramo/retroarch-docker).
+
+To build it locally run:
 
 ```console
 sudo docker build -t abeltramo/retroarch .
