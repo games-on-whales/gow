@@ -1,4 +1,4 @@
-# abeltramo/retroarch-remote
+# ABeltramo/retroarch-docker
 
 Running [RetroArch](https://www.retroarch.com/) on Docker with [Sunshine](https://github.com/loki-47-6F-64/sunshine) so that you can connect to it using [Moonlight](https://moonlight-stream.org/) on any supported client.
 
@@ -14,7 +14,7 @@ sudo docker run --privileged -it --rm --name retroarch --net=host \
     abeltramo/retroarch
 ```
 
-Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/`) or directly calling: `curl <IP>:47989/pin/0706`.
+Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/0706`.
 
 From Moonlight start RetroArch, you should be able to see the main UI:
 
@@ -25,13 +25,13 @@ From Moonlight start RetroArch, you should be able to see the main UI:
 
 > Using the keyboard you can move using the arrows and get back to the previous menu by pressing backspace
 
-Start RetroArch, from the **Main Menu** > **Online Updater** and 
+From the **Main Menu** > **Online Updater** select:
 - Update Core Info Files
 - Update assets
 
 Get back to **Settings** > **Video** > **Fullscreen Mode** set **Start in Fullscreen Mode** to **ON**
 
-This should make the window take the full screen, giving you a nice results like:
+This should make the window take the full screen, giving you a nice result like:
 
 ![Screenshot of RetroArch UI](screen/RetroArch-UI.png)
 
