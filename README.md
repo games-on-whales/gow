@@ -9,6 +9,7 @@ Running [RetroArch](https://www.retroarch.com/) on Docker with [Sunshine](https:
 ```console
 sudo docker run --privileged -it --rm --name retroarch --net=host \
     --volume /run/user/$(id -u)/pulse:/run/user/1000/pulse \
+    --volume ~/retroarch:/retroarch/ \
     --env RESOLUTION=1920x1080x24 \
     --env LOG_LEVEL=DEBUG \
     abeltramo/retroarch

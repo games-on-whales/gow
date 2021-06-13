@@ -47,9 +47,10 @@ RUN apt-get install -y software-properties-common && \
 COPY --from=sunshine-builder /sunshine/build/ /sunshine/
 COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 
-ADD sunshine/sunshine.conf /sunshine/sunshine.conf
-ADD sunshine/apps.json /sunshine/apps.json
-ADD sunshine/pulse-client.conf /etc/pulse/client.conf
+ADD configs/sunshine.conf /sunshine/sunshine.conf
+ADD configs/apps.json /sunshine/apps.json
+ADD configs/pulse-client.conf /etc/pulse/client.conf
 ADD startup.sh /startup.sh
+ADD configs/retroarch.cfg /retroarch.cfg
 
 CMD /bin/bash /startup.sh

@@ -4,6 +4,11 @@ RESOLUTION=${RESOLUTION:-1024x768x24}
 LOG_LEVEL=${LOG_LEVEL:-INFO}
 echo "Starting sunshine with RESOLUTION=${RESOLUTION} and LOG_LEVEL=${LOG_LEVEL}"
 
+# Copying config in case it's the first time we mount from the host
+mkdir -p /retroarch/
+cp -u /retroarch.cfg /retroarch/retroarch.cfg
+chown -R root:root /retroarch/
+
 _kill_procs() {
   kill -TERM $sunshine
   wait $sunshine

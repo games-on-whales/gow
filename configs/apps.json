@@ -5,7 +5,7 @@
     "apps": [
         {
             "name": "Retroarch",
-            "cmd": "retroarch"
+            "cmd": "/usr/bin/retroarch --config /retroarch/retroarch.cfg"
         }
     ]
 }
