@@ -22,7 +22,7 @@ FROM base AS retroarch
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y xvfb retroarch pulseaudio-utils
+    apt-get install -y xvfb retroarch libretro-*
 
 # ENV UNAME retro
 
@@ -46,9 +46,10 @@ RUN apt-get install -y software-properties-common && \
 
 COPY --from=sunshine-builder /sunshine/build/ /sunshine/
 COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
+
 ADD sunshine/sunshine.conf /sunshine/sunshine.conf
 ADD sunshine/apps.json /sunshine/apps.json
-COPY sunshine/pulse-client.conf /etc/pulse/client.conf
-COPY startup.sh /startup.sh
+ADD sunshine/pulse-client.conf /etc/pulse/client.conf
+ADD startup.sh /startup.sh
 
 CMD /bin/bash /startup.sh
