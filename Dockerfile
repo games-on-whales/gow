@@ -7,13 +7,32 @@ RUN apt-get update -y && \
     apt-get install -y \
     libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev
 
+# Pulling Sunshine v0.7 with fixes for https://github.com/loki-47-6F-64/sunshine/issues/97
+ARG SUNSHINE_SHA=23b09e3d416cc57b812544c097682060be5b3dd3
+ENV SUNSHINE_SHA=${SUNSHINE_SHA}
+
+ENV UNAME retro
+
 ######################################
 FROM base AS sunshine-builder
 
 RUN apt-get install -y git build-essential cmake
 
-RUN git clone https://github.com/loki-47-6F-64/sunshine.git --recurse-submodules && \
-    cd sunshine && mkdir build && cd build && \
+RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
+    cd sunshine && \
+    # Fix the SHA commit
+    git checkout $SUNSHINE_SHA && \
+    # Just printing out git info so that I can double check on CI if the right version as been picked up
+    git show && \
+    # Recursively download submodules
+    git submodule update --init --recursive && \
+    # Hack: commenting out all create_symlink to avoid issues when running (it's only used for debug purpose)
+    # Here's the error I was getting:
+    #   terminate called after throwing an instance of 'std::filesystem::__cxx11::filesystem_error'
+    #   what():  filesystem error: cannot create symlink: Permission denied [/dev/input/event6] [sunshine_mouse]
+    awk '/std::filesystem::create_symlink/ {$0="//"$0}1' sunshine/platform/linux/input.cpp > /tmp/sunshine_input.cpp && mv /tmp/sunshine_input.cpp sunshine/platform/linux/input.cpp && \
+    # Normal compile
+    mkdir build && cd build && \
     cmake .. && \
     make -j ${nproc}
 
@@ -22,35 +41,46 @@ FROM base AS retroarch
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y xvfb retroarch libretro-*
+    apt-get install -y xvfb retroarch libretro-* && \
+    # Cleanup
+    apt-get remove -y software-properties-common
 
-# ENV UNAME retro
-
-# Set up the user
-# Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
-# RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-#     mkdir -p "/home/${UNAME}" && \
-#     echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:/home/${UNAME}:/bin/bash" >> /etc/passwd && \
-#     echo "${UNAME}:x:${UID}:" >> /etc/group && \
-#     mkdir -p /etc/sudoers.d && \
-#     echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
-#     chmod 0440 /etc/sudoers.d/${UNAME} && \
-#     chown ${UID}:${GID} -R /home/${UNAME} && \
-#     gpasswd -a ${UNAME} audio && \
-#     # Attempt to fix /dev/input permissions
-#     usermod -a -G systemd-resolve ${UNAME} && \
-#     usermod -a -G sudo ${UNAME}
-
-
-# USER $UNAME
-
+# Get compiled sunshine
 COPY --from=sunshine-builder /sunshine/build/ /sunshine/
 COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 
-ADD configs/sunshine.conf /sunshine/sunshine.conf
-ADD configs/apps.json /sunshine/apps.json
-ADD configs/pulse-client.conf /etc/pulse/client.conf
-ADD startup.sh /startup.sh
-ADD configs/retroarch.cfg /retroarch.cfg
+# Config files
+
+COPY configs/sunshine.conf /sunshine/sunshine.conf
+COPY configs/apps.json /sunshine/apps.json
+COPY configs/pulse-client.conf /etc/pulse/client.conf
+COPY startup.sh /startup.sh
+COPY configs/retroarch.cfg /retroarch.cfg
+
+# Set up the user
+# Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
+RUN export UNAME=$UNAME UID=1000 GID=1000 && \
+    mkdir -p "/home/${UNAME}" && \
+    echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:/home/${UNAME}:/bin/bash" >> /etc/passwd && \
+    echo "${UNAME}:x:${UID}:" >> /etc/group && \
+    mkdir -p /etc/sudoers.d && \
+    echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
+    chmod 0440 /etc/sudoers.d/${UNAME} && \
+    chown ${UID}:${GID} -R /home/${UNAME} && \
+    chown ${UID}:${GID} -R /sunshine/ && \
+    gpasswd -a ${UNAME} audio && \
+    # Attempt to fix /dev/input permissions
+    usermod -a -G systemd-resolve ${UNAME} && \
+    usermod -a -G sudo ${UNAME}
+
+
+USER $UNAME
+WORKDIR /sunshine/
+
+# Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
+EXPOSE 47984-47990/tcp
+EXPOSE 48010
+EXPOSE 48010/udp 
+EXPOSE 47998-48000/udp
 
 CMD /bin/bash /startup.sh

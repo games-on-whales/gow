@@ -7,15 +7,20 @@ Running [RetroArch](https://www.retroarch.com/) on Docker with [Sunshine](https:
 ## Quickstart
 
 ```console
-sudo docker run --privileged -it --rm --name retroarch --net=host \
+docker run --privileged -it --rm \
+    --name retroarch \
+    -p 47984-47990:47984-47990/tcp \
+    -p 48010:48010 \
+    -p 48010:48010/udp \
+    -p 47998-48000:47998-48000/udp \
     --volume /run/user/$(id -u)/pulse:/run/user/1000/pulse \
     --volume ~/retroarch:/retroarch/ \
     --env RESOLUTION=1920x1080x24 \
-    --env LOG_LEVEL=DEBUG \
+    --env LOG_LEVEL=INFO \
     abeltramo/retroarch
 ```
 
-Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/0706`.
+Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/<PIN>`.
 
 From Moonlight start RetroArch, you should be able to see the main UI:
 
@@ -38,9 +43,9 @@ This should make the window take the full screen, giving you a nice result like:
 
 ## Host troubleshooting
 
-On the host check that PulseAudio is up and running for the root user
+On the host check that PulseAudio is up and running for the current user
 ```console
-sudo pacat -vvvv /dev/urandom
+pacat -vvvv /dev/urandom
 
 Opening a playback stream with sample specification 's16le 2ch 44100Hz' and channel map 'front-left,front-right'.
 Connection established.
@@ -50,11 +55,6 @@ Using sample spec 's16le 2ch 44100Hz', channel map 'front-left,front-right'.
 Connected to device alsa_output.pci-0000_02_0c.0.analog-stereo (index: 0, suspended: no).
 Stream started.
 ...
-```
-
-If it's not running you can start it for root (NON PERMANENT SOLUTION)
-```console
-sudo pulseaudio -D
 ```
 
 Make sure that /dev/uinput have the correct permissions.
