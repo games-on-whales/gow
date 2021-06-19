@@ -1,0 +1,26 @@
+# Replace the *entire* content of this file with these few lines and
+# read the comments
+
+.fail
+    # Set tsched=0 here if you experience glitchy playback. This will
+    # revert back to interrupt-based scheduling and should fix it.
+    #
+    # Replace the device= part if you want pulse to use a specific device
+    # such as "dmix" and "dsnoop" so it doesn't lock an hw: device.
+    
+    # INPUT/RECORD
+    load-module module-alsa-source device="default" tsched=1
+    
+    # OUTPUT/PLAYBACK
+    load-module module-alsa-sink device="default" tsched=1 
+    
+    # Accept clients -- very important
+    load-module module-native-protocol-unix
+    load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/24 auth-anonymous=1
+
+.nofail
+.ifexists module-x11-publish.so
+    # Publish to X11 so the clients know how to connect to Pulse. Will
+    # clear itself on unload.
+    load-module module-x11-publish
+.endif

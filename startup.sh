@@ -9,24 +9,33 @@ echo "Starting sunshine with RESOLUTION=${RESOLUTION} and LOG_LEVEL=${LOG_LEVEL}
 mkdir -p /retroarch/
 cp -u /retroarch.cfg /retroarch/retroarch.cfg
 chown -R ${UNAME}:${UNAME} /retroarch/
+chown -R ${UNAME}:${UNAME} /sunshine/
 
 _kill_procs() {
   kill -TERM $sunshine
   wait $sunshine
+  kill -TERM $pulse
+  wait $pulse
   kill -TERM $xvfb
+  wait $xvfb
 }
 
 # Setup a trap to catch SIGTERM and relay it to child processes
 trap _kill_procs SIGTERM
 
+# Start pulseaudio
+runuser -u ${UNAME} -- pulseaudio &
+pulse=$!
+
 # Start Xvfb
-Xvfb :99 -ac -screen 0 $RESOLUTION -nolisten tcp &
+runuser -u ${UNAME} -- Xvfb :99 -ac -screen 0 $RESOLUTION -nolisten tcp &
 xvfb=$!
 export DISPLAY=:99
 
 # Start Sunshine
-/sunshine/sunshine min_log_level=$LOG_LEVEL /sunshine/sunshine.conf
+runuser -u ${UNAME} -- /sunshine/sunshine min_log_level=$LOG_LEVEL /sunshine/sunshine.conf
 sunshine=$!
 
 wait $sunshine
 wait $xvfb
+wait $pulse

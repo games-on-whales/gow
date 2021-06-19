@@ -11,8 +11,6 @@ RUN apt-get update -y && \
 ARG SUNSHINE_SHA=23b09e3d416cc57b812544c097682060be5b3dd3
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
 
-ENV UNAME retro
-
 ######################################
 FROM base AS sunshine-builder
 
@@ -37,7 +35,23 @@ RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     make -j ${nproc}
 
 ######################################
-FROM base AS retroarch
+FROM base as pulseaudio
+
+# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
+RUN apt-get install -y \
+    alsa-utils \
+    libasound2 \
+    libasound2-plugins \
+    pulseaudio \
+    pulseaudio-utils \
+    --no-install-recommends
+
+COPY configs/pulseaudio/default.pa /etc/pulse/default.pa
+COPY configs/pulseaudio/client.conf /etc/pulse/client.conf
+COPY configs/pulseaudio/daemon.conf /etc/pulse/daemon.conf
+
+######################################
+FROM pulseaudio AS retroarch
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository ppa:libretro/stable && \
@@ -50,12 +64,12 @@ COPY --from=sunshine-builder /sunshine/build/ /sunshine/
 COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 
 # Config files
-
 COPY configs/sunshine.conf /sunshine/sunshine.conf
 COPY configs/apps.json /sunshine/apps.json
-COPY configs/pulse-client.conf /etc/pulse/client.conf
 COPY startup.sh /startup.sh
 COPY configs/retroarch.cfg /retroarch.cfg
+
+ENV UNAME retro
 
 # Set up the user
 # Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
@@ -69,12 +83,11 @@ RUN export UNAME=$UNAME UID=1000 GID=1000 && \
     chown ${UID}:${GID} -R /home/${UNAME} && \
     chown ${UID}:${GID} -R /sunshine/ && \
     gpasswd -a ${UNAME} audio && \
-    # Attempt to fix /dev/input permissions
-    usermod -a -G systemd-resolve ${UNAME} && \
-    usermod -a -G sudo ${UNAME}
+    # Attempt to fix permissions
+    usermod -a -G systemd-resolve,audio,pulse,pulse-access ${UNAME}
 
 
-USER $UNAME
+USER root
 WORKDIR /sunshine/
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
