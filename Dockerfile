@@ -96,4 +96,8 @@ EXPOSE 48010
 EXPOSE 48010/udp 
 EXPOSE 47998-48000/udp
 
+# Nvidia GPU capabilities TODO
+# ENV NVIDIA_VISIBLE_DEVICES all
+# ENV NVIDIA_DRIVER_CAPABILITIES graphics,video,display
+
 CMD /bin/bash /startup.sh

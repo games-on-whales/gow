@@ -10,6 +10,7 @@ mkdir -p /retroarch/
 cp -u /retroarch.cfg /retroarch/retroarch.cfg
 chown -R ${UNAME}:${UNAME} /retroarch/
 chown -R ${UNAME}:${UNAME} /sunshine/
+chown -R ${UNAME}:${UNAME} /dev/uinput
 
 _kill_procs() {
   kill -TERM $sunshine

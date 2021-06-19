@@ -41,9 +41,15 @@ This should make the window take the full screen, giving you a nice result like:
 
 ![Screenshot of RetroArch UI](screen/RetroArch-UI.png)
 
-## Host troubleshooting
+## Troubleshooting
 
-Make sure that /dev/uinput have the correct permissions.
+You can access Retroarch logs at `~/retroarch/retroarch.log`
+
+### Error: Could not create Sunshine Mouse: No such file or directory
+
+Make sure that `/dev/uinput/` is present in the host and to pass `--device /dev/uinput` to the docker run command.
+
+If this is not enough, make sure that `/dev/uinput` have the correct permissions.
 Try following this: https://github.com/chrippa/ds4drv/issues/93#issuecomment-265300511
 (On Debian I had to modify `/etc/modules-load.d/modules.conf`, adding `/etc/modules-load.d/uinput.conf` didn't trigger anything to me)
 ```console
