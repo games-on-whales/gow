@@ -41,6 +41,43 @@ This should make the window take the full screen, giving you a nice result like:
 
 ![Screenshot of RetroArch UI](screen/RetroArch-UI.png)
 
+## GPU HW acceleration
+
+> **TESTING**: the following is still under development
+
+Pull the `:gpu` tag in order to try out hardware acceleration using the GPU.
+
+```console
+docker run -it --rm \
+    --name retroarch \
+    -p 47984-47990:47984-47990/tcp \
+    -p 48010:48010 \
+    -p 48010:48010/udp \
+    -p 47998-48000:47998-48000/udp \
+    --volume ~/retroarch:/retroarch/ \
+    --privileged \ # needed all devices for now
+    --env RESOLUTION=1920x1080x24 \
+    --env LOG_LEVEL=INFO \
+    abeltramo/retroarch:gpu # make sure to pick :gpu tag
+```
+
+Make sure that the host doesn't use proprietary drivers but it's using the open source `nouveau` drivers.
+```
+sudo lshw -class video | grep driver=
+       configuration: driver=nouveau latency=0
+```
+
+Double check that the GPU card is correctly listed under `/dev/dri/`:
+```
+ls -la /dev/dri/
+total 0
+drwxr-xr-x  3 root root        100 Jun 20 09:47 .
+drwxr-xr-x 17 root root       3100 Jun 20 10:33 ..
+drwxr-xr-x  2 root root         80 Jun 20 09:47 by-path
+crw-rw----  1 root video  226,   0 Jun 20 09:47 card0
+crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
+```
+
 ## Troubleshooting
 
 You can access Retroarch logs at `~/retroarch/retroarch.log`
