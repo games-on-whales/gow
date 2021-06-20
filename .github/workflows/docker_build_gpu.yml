@@ -41,7 +41,7 @@ jobs:
           context: .
           file: gpu.Dockerfile
           push: true
-          tags: ["abeltramo/retroarch:gpu"]
+          tags: abeltramo/retroarch:gpu
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Image digest
