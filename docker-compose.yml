@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  
+  # If you don't have a desktop environment we have to run Xorg
+  xorg:
+    build:
+      context: .
+      dockerfile: xorg.Dockerfile
+    image: abeltramo/xorg
+    network_mode: host
+    privileged: true
+    volumes: 
+      - /dev/input:/dev/input:ro
+      - /run/udev:/run/udev:ro
+      - /dev/shm:/dev/shm
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+
+      - xorg:/tmp/.X11-unix
+    environment: 
+      DISPLAY: ":0"
+  
+  retroarch:
+    depends_on: 
+      - xorg
+    build:
+      context: .
+      dockerfile: retroarch.Dockerfile
+    image: abeltramo/retroarch
+    network_mode: host
+    privileged: true
+    volumes: 
+      - /dev/input:/dev/input:ro
+      - /run/udev:/run/udev:ro
+      - /dev/shm:/dev/shm
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      
+      - xorg:/tmp/.X11-unix
+
+      - ~/retroarch:/retroarch/
+    environment: 
+      DISPLAY: ":0"
+      LOG_LEVEL: info
+
+
+  
+volumes:
+  xorg:

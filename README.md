@@ -69,15 +69,12 @@ crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
 ```console
 docker run -it --rm \
     --name retroarch \
-    -p 47984-47990:47984-47990/tcp \
-    -p 48010:48010 \
-    -p 48010:48010/udp \
-    -p 47998-48000:47998-48000/udp \
     --volume ~/retroarch:/retroarch/ \
-    --privileged \ # needed all devices for now
-    --env RESOLUTION=1920x1080x24 \
-    --env LOG_LEVEL=INFO \
-    abeltramo/retroarch:gpu # make sure to pick :gpu tag
+    --volume /dev/input:/dev/input:ro \
+    --volume /run/udev:/run/udev:ro \
+    --privileged \
+    --net=host \
+    abeltramo/retroarch:gpu
 ```
 ### Nvidia GPUs with proprietary drivers
 

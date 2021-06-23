@@ -24,11 +24,6 @@ RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     git show && \
     # Recursively download submodules
     git submodule update --init --recursive && \
-    # Hack: commenting out all create_symlink to avoid issues when running (it's only used for debug purpose)
-    # Here's the error I was getting:
-    #   terminate called after throwing an instance of 'std::filesystem::__cxx11::filesystem_error'
-    #   what():  filesystem error: cannot create symlink: Permission denied [/dev/input/event6] [sunshine_mouse]
-    awk '/std::filesystem::create_symlink/ {$0="//"$0}1' sunshine/platform/linux/input.cpp > /tmp/sunshine_input.cpp && mv /tmp/sunshine_input.cpp sunshine/platform/linux/input.cpp && \
     # Normal compile
     mkdir build && cd build && \
     cmake .. && \
@@ -66,7 +61,7 @@ COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 # Config files
 COPY configs/sunshine.conf /sunshine/sunshine.conf
 COPY configs/apps.json /sunshine/apps.json
-COPY startup.sh /startup.sh
+COPY scripts/startup.sh /startup.sh
 COPY configs/retroarch.cfg /retroarch.cfg
 
 ENV UNAME retro
@@ -95,9 +90,5 @@ EXPOSE 47984-47990/tcp
 EXPOSE 48010
 EXPOSE 48010/udp 
 EXPOSE 47998-48000/udp
-
-# Nvidia GPU capabilities TODO
-# ENV NVIDIA_VISIBLE_DEVICES all
-# ENV NVIDIA_DRIVER_CAPABILITIES graphics,video,display
 
 CMD /bin/bash /startup.sh
