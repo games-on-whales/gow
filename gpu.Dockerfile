@@ -77,7 +77,9 @@ COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 COPY configs/sunshine.conf /sunshine/sunshine.conf
 COPY configs/apps.json /sunshine/apps.json
 COPY startup-gpu.sh /startup.sh
+COPY ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
 COPY configs/retroarch.cfg /retroarch.cfg
+COPY configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
 
 ENV UNAME retro
 

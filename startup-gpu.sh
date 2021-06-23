@@ -13,6 +13,12 @@ chown -R ${UNAME}:${UNAME} /sunshine/
 chown -R ${UNAME}:${UNAME} /dev/uinput
 chown -R ${UNAME}:${UNAME} /usr/lib/x86_64-linux-gnu/dri/
 
+# If the host is using the proprietary Nvidia driver, make sure the
+# corresponding xorg driver is installed
+if [ -f /proc/driver/nvidia/version ]; then
+    bash /ensure-nvidia-xorg-driver.sh
+fi
+
 _kill_procs() {
   kill -TERM $sunshine
   wait $sunshine
