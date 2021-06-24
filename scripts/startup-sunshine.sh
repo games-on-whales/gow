@@ -1,33 +1,23 @@
 #!/bin/bash
 set -e 
 
+echo "Waiting for X11 to be up and running on ${DISPLAY}"
+while [ ! xdpyinfo -display "${DISPLAY}" >/dev/null 2>&1 ]; do 
+    sleep 0.1;
+done
+
 LOG_LEVEL=${LOG_LEVEL:-INFO}
 echo "Starting sunshine with DISPLAY=${DISPLAY} and LOG_LEVEL=${LOG_LEVEL}"
 
 # Copying config in case it's the first time we mount from the host
-mkdir -p /retroarch/
-cp -u /retroarch.cfg /retroarch/retroarch.cfg
-chown -R ${UNAME}:${UNAME} /retroarch/
-chown -R ${UNAME}:${UNAME} /sunshine/
-chown -R ${UNAME}:${UNAME} /dev/uinput
+mkdir -p $HOME/retroarch/
+cp -u /cfg/retroarch.cfg $HOME/retroarch/retroarch.cfg
 
-_kill_procs() {
-  kill -TERM $sunshine
-  wait $sunshine
-  kill -TERM $pulse
-  wait $pulse
-}
-
-# Setup a trap to catch SIGTERM and relay it to child processes
-trap _kill_procs SIGTERM
-
-# Start pulseaudio
-runuser -u ${UNAME} -- pulseaudio --start &
-pulse=$!
+mkdir -p $HOME/sunshine/
+cp -u /cfg/sunshine.conf $HOME/sunshine/sunshine.conf
+cp -u /cfg/apps.json $HOME/sunshine/apps.json
 
 # Start Sunshine
-runuser -u ${UNAME} -- /sunshine/sunshine min_log_level=$LOG_LEVEL /sunshine/sunshine.conf
-sunshine=$!
-
-wait $sunshine
-wait $pulse
+/sunshine/sunshine \
+  min_log_level=$LOG_LEVEL \
+  ${HOME}/sunshine/sunshine.conf

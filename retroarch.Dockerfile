@@ -6,7 +6,9 @@ ENV TZ="Europe/London"
 ENV UNAME retro
 
 RUN apt-get update -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
+    # x11 utils needed for xdpyinfo
+    x11-utils \
     libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev
 
 ######################################
@@ -32,23 +34,7 @@ RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     make -j ${nproc}
 
 ######################################
-FROM base as pulseaudio
-
-# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    alsa-utils \
-    libasound2 \
-    libasound2-plugins \
-    pulseaudio \
-    pulseaudio-utils \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY configs/pulseaudio/default.pa /etc/pulse/default.pa
-COPY configs/pulseaudio/client.conf /etc/pulse/client.conf
-COPY configs/pulseaudio/daemon.conf /etc/pulse/daemon.conf
-
-######################################
-FROM pulseaudio AS sunshine-retroarch
+FROM base AS sunshine-retroarch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Install retroarch
@@ -59,33 +45,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get remove -y software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# Get compiled sunshine
-COPY --from=sunshine-builder /sunshine/build/ /sunshine/
-COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 
-# Config files
-COPY configs/sunshine.conf /sunshine/sunshine.conf
-COPY configs/apps.json /sunshine/apps.json
-COPY scripts/startup-sunshine.sh /startup.sh
-COPY configs/retroarch.cfg /retroarch.cfg
-
+ENV HOME /home/$UNAME
 # Set up the user
 # Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
 RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-    mkdir -p "/home/${UNAME}" && \
-    echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:/home/${UNAME}:/bin/bash" >> /etc/passwd && \
+    mkdir -p ${HOME} && \
+    echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:${HOME}:/bin/bash" >> /etc/passwd && \
     echo "${UNAME}:x:${UID}:" >> /etc/group && \
     mkdir -p /etc/sudoers.d && \
     echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
     chmod 0440 /etc/sudoers.d/${UNAME} && \
-    chown ${UID}:${GID} -R /home/${UNAME} && \
-    chown ${UID}:${GID} -R /sunshine/ && \
+    chown ${UID}:${GID} -R ${HOME} && \
     gpasswd -a ${UNAME} audio && \
     # Attempt to fix permissions
     usermod -a -G systemd-resolve,audio,video,render ${UNAME}
 
-USER root
-WORKDIR /sunshine/
+
+WORKDIR $HOME
+USER ${UNAME}
+
+# Get compiled sunshine
+COPY --from=sunshine-builder /sunshine/build/ /sunshine/
+COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
+
+
+# Config files
+COPY configs/sunshine.conf /cfg/sunshine.conf
+COPY configs/apps.json /cfg/apps.json
+COPY scripts/startup-sunshine.sh /startup.sh
+COPY configs/retroarch.cfg /cfg/retroarch.cfg
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp

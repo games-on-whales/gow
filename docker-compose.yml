@@ -11,18 +11,39 @@ services:
     network_mode: host
     privileged: true
     volumes: 
+      # Shared with Sunshine in order to get mouse, joypad working
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
-      - /dev/shm:/dev/shm
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-
+      #- /dev/shm:/dev/shm TODO
+      # The xorg socket, it'll be populated when up and running
       - xorg:/tmp/.X11-unix
+    environment: 
+      DISPLAY: ":0"
+
+  # If you don't have a pulse server start it
+  pulse:
+    depends_on: 
+      - xorg
+    build:
+      context: .
+      dockerfile: pulse.Dockerfile
+    image: abeltramo/pulseaudio
+    ports: 
+      - 4713:4713
+    volumes:
+      # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      # Xorg socket needed since we are publish to X11 so the clients know how to connect to Pulse
+      - xorg:/tmp/.X11-unix
+      # This will hold cookies so that we can connect to it using auth
+      - /home/ale/retro/.config/pulse:/home/retro/.config/pulse
     environment: 
       DISPLAY: ":0"
   
   retroarch:
     depends_on: 
       - xorg
+      - pulse
     build:
       context: .
       dockerfile: retroarch.Dockerfile
@@ -30,19 +51,22 @@ services:
     network_mode: host
     privileged: true
     volumes: 
+      # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
-      - /dev/shm:/dev/shm
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-      
+      # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
-
-      - ~/retroarch:/retroarch/
+      # Home directory: sunshine state + configs + retroarch games, downloads, cores etc
+      - /home/ale/retro:/home/retro/
     environment: 
       DISPLAY: ":0"
-      LOG_LEVEL: info
+      LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Using network in order to connect to pulse 
+      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+      # and mount the host socket to the instance
+      PULSE_SERVER: 127.0.0.1 
 
 
   
 volumes:
-  xorg:
+  xorg: # This will hold the xorg socket file and it'll be shared between containers
