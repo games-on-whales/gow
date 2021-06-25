@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e 
 
-echo "Waiting for X11 to be up and running on ${DISPLAY}"
-while [ ! xdpyinfo -display "${DISPLAY}" >/dev/null 2>&1 ]; do 
-    sleep 0.1;
-done
-
 LOG_LEVEL=${LOG_LEVEL:-INFO}
 echo "Starting sunshine with DISPLAY=${DISPLAY} and LOG_LEVEL=${LOG_LEVEL}"
 

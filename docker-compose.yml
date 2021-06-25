@@ -36,7 +36,7 @@ services:
       # Xorg socket needed since we are publish to X11 so the clients know how to connect to Pulse
       - xorg:/tmp/.X11-unix
       # This will hold cookies so that we can connect to it using auth
-      - /home/ale/retro/.config/pulse:/home/retro/.config/pulse
+      - ${local_state}/.config/pulse:/home/retro/.config/pulse
     environment: 
       DISPLAY: ":0"
   
@@ -57,7 +57,7 @@ services:
       # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
       # Home directory: sunshine state + configs + retroarch games, downloads, cores etc
-      - /home/ale/retro:/home/retro/
+      - ${local_state}/:/home/retro/
     environment: 
       DISPLAY: ":0"
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
@@ -65,6 +65,20 @@ services:
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
       PULSE_SERVER: 127.0.0.1 
+  
+  # An example of running an unprivileged X11 app in this environment
+  
+  # firefox:
+  #   image: andrewmackrodt/firefox-x11
+  #   volumes:       
+  #     - xorg:/tmp/.X11-unix
+  #     # If you have permission errors make sure to chomd ${id}:${id} ./local_state
+  #     - ${local_state}/ffox:/run/user/1000
+  #     - ${local_state}/.config/pulse:/home/ubuntu/.config/pulse:ro
+  #   environment: 
+  #     DISPLAY: ":0"
+  #     LOG_LEVEL: info
+  #     PULSE_SERVER: pulse # The name of the pulse container is the hostname in the virtual network
 
 
   

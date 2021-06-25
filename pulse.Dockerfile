@@ -11,9 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasound2 \
     libasound2-plugins \
     pulseaudio \
-    pulseaudio-utils \
-    # x11 utils needed for xdpyinfo
-    x11-utils \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/$UNAME

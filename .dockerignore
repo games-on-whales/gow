@@ -1,6 +1,3 @@
 *
 !configs/
 !scripts/
-!startup.sh
-!startup-gpu.sh
-!ensure-nvidia-xorg-driver.sh

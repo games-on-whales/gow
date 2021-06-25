@@ -5,11 +5,11 @@ ENV TZ="Europe/London"
 
 ENV UNAME retro
 
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    # x11 utils needed for xdpyinfo
-    x11-utils \
-    libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    # Sunshine dependencies, taken from  sunshine/gen-deb.in 
+    # Depends: libssl1.1, libavdevice58, libboost-thread1.67.0 | libboost-thread1.71.0, libboost-filesystem1.67.0 | libboost-filesystem1.71.0, libboost-log1.67.0 | libboost-log1.71.0, libpulse0, libopus0, libxcb-shm0, libxcb-xfixes0
+    libssl1.1 libavdevice58 libboost-thread1.71.0 libboost-filesystem1.71.0 libboost-log1.71.0 libpulse0 libopus0 libxcb-shm0 libxcb-xfixes0 \
+    && rm -rf /var/lib/apt/lists/*
 
 ######################################
 FROM base AS sunshine-builder
@@ -18,7 +18,12 @@ FROM base AS sunshine-builder
 ARG SUNSHINE_SHA=23b09e3d416cc57b812544c097682060be5b3dd3
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
 
-RUN apt-get install -y git build-essential cmake
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    git ca-certificates apt-transport-https build-essential cmake \
+    # Packages needed to build sunshine
+    libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 
 RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     cd sunshine && \

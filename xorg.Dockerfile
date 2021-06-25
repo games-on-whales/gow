@@ -13,10 +13,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	x11-session-utils x11-utils x11-xfs-utils x11-xserver-utils xauth x11-common \
     # Input drivers
     xserver-xorg-input-libinput \
+    # Window manager
+    jwm libxft2 libxext6 breeze-cursor-theme \
     && rm -rf /var/lib/apt/lists/*
 
 
 COPY configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
+COPY configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
+
+COPY scripts/ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
 COPY scripts/xorg_startup.sh /xorg_startup.sh
+
+COPY configs/desktop.jwmrc.xml /root/.jwmrc
 
 CMD /bin/bash /xorg_startup.sh
