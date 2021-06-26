@@ -73,7 +73,7 @@ environment:
 To get the correct UUID for your GPU, use the `nvidia-container-cli` command:
 ```console
 $ sudo nvidia-container-cli --load-kmods info
-NVRM version:   465.27
+NVRM version:   [version]
 CUDA version:   11.3
 
 Device Index:   0
@@ -87,25 +87,31 @@ Architecture:   7.5
 
 ##### Xorg drivers
 
-Because Nvidia does not officially support running Xorg inside a container with their Container Toolkit, it does not automatically provide you with the `nvidia_drv.so` driver module that Xorg requires.  The preferred method for making it available inside the container is to map it in from the host as a bind volume.  This ensures it is always the correct version. Find the module on your host, then add a volume mapping like this to your `docker run` command:
-```console
---volume /path/to/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
+Although the NVIDIA Container Toolkit automatically provides most of the drivers needed to use the GPU inside a container, Xorg is _not_ officially supported.  This means that the runtime will not automatically map in the specific drivers needed by Xorg.
+
+There are two libraries needed by Xorg: `nvidia_drv.so` and `libglxserver_nvidia.so.[version]`.  It is preferred to map these into the container as a bind volume from the host, because this guarantees that the version will exactly match between the container and the host.  Locate the two modules and add a section like this to the `xorg` service in your `docker-compose.yml`:
+```yaml
+volumes:
+  - /path/to/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
+  - /path/to/libglxserver_nvidia.so.[version]:/nvidia/xorg/libglxserver_nvidia.so:ro
 ```
+
+Be sure to replace `[version]` with the correct version number from the `nvidia-container-cli` command above.
 
 Some common locations for `nvidia_drv.so` include:
- * /usr/lib64/xorg/modules/drivers/nvidia_drv.so (Unraid)
- * /usr/lib/x86_64-linux-gnu/nvidia/xorg/nvidia_drv.so (Ubuntu 20.04)
+ * `/usr/lib64/xorg/modules/drivers/` (Unraid)
+ * `/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
 
-If you don't want to do this, or if you can't find the driver on your host for some reason, the container will attempt to install the correct version for you automatically.  However, there are some drawbacks: first, it can take a long time, and second, there is no guarantee that it will be able to find a version that exactly matches the driver version on your host.
+Some common locations for `libglxserver_nvidia.so.[version]` include:
+ * `/usr/lib64/xorg/modules/extensions/` (Unraid)
+ * `/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
 
-If the automatic option is working for you and you want to speed up future launches of the container, you can provide a persistent volume for it to cache some of the setup work, using a mapping like this:
-```console
---volume ~/dr-cache:/var/cache/dummy
-```
+If you don't want to do this, or if you can't find the driver on your host for some reason, the container will attempt to install the correct version for you automatically.  However, there is no guarantee that it will be able to find a version that exactly matches the driver version on your host.
 
 If for some reason you want to skip the entire process and just assume the driver is already installed, you can do that too:
-```console
---env SKIP_NVIDIA_DRIVER_CHECK=1
+```yaml
+environment:
+    SKIP_NVIDIA_DRIVER_CHECK: 1
 ```
 
 ## Troubleshooting
