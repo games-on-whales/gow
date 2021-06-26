@@ -25,6 +25,7 @@ jobs:
           images: gameonwhales/${{ matrix.image_name }}
           # generate Docker tags based on the following events/attributes
           tags: type=sha
+          flavor: latest=true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
