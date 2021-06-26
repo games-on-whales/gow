@@ -3,10 +3,5 @@
         "PATH": "$(PATH):$(HOME)/.local/bin"
     },
     "apps": [
-        {
-            "name": "Retroarch",
-            "cmd": "/usr/bin/retroarch --config /retroarch/retroarch.cfg --verbose",
-            "output": "/retroarch/retroarch.log"
-        }
     ]
 }

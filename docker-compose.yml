@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  
+  # If you don't have a desktop environment we have to run Xorg
+  xorg:
+    build:
+      context: .
+      dockerfile: xorg.Dockerfile
+    image: gameonwhales/xorg
+    network_mode: host
+    privileged: true
+    volumes: 
+      # Shared with Sunshine in order to get mouse, joypad working
+      - /dev/input:/dev/input:ro
+      - /run/udev:/run/udev:ro
+      #- /dev/shm:/dev/shm TODO
+      # The xorg socket, it'll be populated when up and running
+      - xorg:/tmp/.X11-unix
+    environment: 
+      DISPLAY: ":0"
+
+  # If you don't have a pulse server start it
+  pulse:
+    depends_on: 
+      - xorg
+    build:
+      context: .
+      dockerfile: pulse.Dockerfile
+    image: gameonwhales/pulseaudio
+    ports: 
+      - 4713:4713
+    volumes:
+      # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      # Xorg socket needed since we are publish to X11 so the clients know how to connect to Pulse
+      - xorg:/tmp/.X11-unix
+      # This will hold cookies so that we can connect to it using auth
+      - ${local_state}/.config/pulse:/home/retro/.config/pulse
+    environment: 
+      DISPLAY: ":0"
+  
+  sunshine:
+    depends_on: 
+      - xorg
+      - pulse
+    build:
+      context: .
+      dockerfile: sunshine.Dockerfile
+    image: gameonwhales/sunshine
+    network_mode: host
+    privileged: true
+    volumes: 
+      # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
+      - /dev/input:/dev/input:ro
+      - /run/udev:/run/udev:ro
+      # Xorg socket in order to get the screen
+      - xorg:/tmp/.X11-unix
+      # Home directory: sunshine state + configs
+      - ${local_state}/:/home/retro/
+    environment: 
+      DISPLAY: ":0"
+      LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Using network in order to connect to pulse 
+      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+      # and mount the host socket to the instance
+      PULSE_SERVER: 127.0.0.1 
+  
+  retroarch:
+    depends_on: 
+      - xorg
+      - pulse
+      - sunshine
+    build:
+      context: .
+      dockerfile: retroarch.Dockerfile
+    image: gameonwhales/retroarch
+    volumes: 
+      # Xorg socket in order to get the screen
+      - xorg:/tmp/.X11-unix
+      # Home directory: retroarch games, downloads, cores etc
+      - ${local_state}/:/home/retro/
+    environment: 
+      DISPLAY: ":0"
+      LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Using network in order to connect to pulse 
+      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+      # and mount the host socket to the instance
+      PULSE_SERVER: pulse
+
+  # An example of running an unprivileged X11 app in this environment
+  # firefox:
+  #   depends_on: 
+  #     - xorg
+  #     - pulse
+  #     - sunshine
+  #   image: andrewmackrodt/firefox-x11
+  #   volumes:       
+  #     - xorg:/tmp/.X11-unix
+  #     # If you have permission errors make sure to chomd ${id}:${id} ./local_state
+  #     - ${local_state}/ffox:/run/user/1000
+  #     - ${local_state}/.config/pulse:/home/ubuntu/.config/pulse:ro
+  #   environment: 
+  #     DISPLAY: ":0"
+  #     LOG_LEVEL: info
+  #     PULSE_SERVER: pulse # The name of the pulse container is the hostname in the virtual network
+
+
+  
+volumes:
+  xorg: # This will hold the xorg socket file and it'll be shared between containers
