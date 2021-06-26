@@ -29,10 +29,10 @@ RUN export UNAME=$UNAME UID=1000 GID=1000 && \
 WORKDIR $HOME
 USER $UNAME
 
-COPY configs/pulseaudio/default.pa /etc/pulse/default.pa
-COPY configs/pulseaudio/client.conf /etc/pulse/client.conf
-COPY configs/pulseaudio/daemon.conf /etc/pulse/daemon.conf
-COPY scripts/pulse_startup.sh /startup.sh
+COPY configs/default.pa /etc/pulse/default.pa
+COPY configs/client.conf /etc/pulse/client.conf
+COPY configs/daemon.conf /etc/pulse/daemon.conf
+COPY scripts/startup.sh /startup.sh
 
 EXPOSE 4713
 

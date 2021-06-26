@@ -22,8 +22,8 @@ COPY configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
 COPY configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
 
 COPY scripts/ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
-COPY scripts/xorg_startup.sh /xorg_startup.sh
+COPY scripts/startup.sh /startup.sh
 
 COPY configs/desktop.jwmrc.xml /root/.jwmrc
 
-CMD /bin/bash /xorg_startup.sh
+CMD /bin/bash /startup.sh

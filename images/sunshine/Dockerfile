@@ -64,7 +64,7 @@ COPY --from=sunshine-builder /sunshine/assets/ /sunshine/assets
 # Config files
 COPY configs/sunshine.conf /cfg/sunshine.conf
 COPY configs/apps.json /cfg/apps.json
-COPY scripts/startup-sunshine.sh /startup.sh
+COPY scripts/startup.sh /startup.sh
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp

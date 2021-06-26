@@ -4,9 +4,7 @@ services:
   
   # If you don't have a desktop environment we have to run Xorg
   xorg:
-    build:
-      context: .
-      dockerfile: xorg.Dockerfile
+    build: ./images/xorg/
     image: gameonwhales/xorg
     network_mode: host
     privileged: true
@@ -24,9 +22,7 @@ services:
   pulse:
     depends_on: 
       - xorg
-    build:
-      context: .
-      dockerfile: pulse.Dockerfile
+    build: ./images/pulseaudio/
     image: gameonwhales/pulseaudio
     ports: 
       - 4713:4713
@@ -44,9 +40,7 @@ services:
     depends_on: 
       - xorg
       - pulse
-    build:
-      context: .
-      dockerfile: sunshine.Dockerfile
+    build: ./images/sunshine/
     image: gameonwhales/sunshine
     network_mode: host
     privileged: true
@@ -71,9 +65,7 @@ services:
       - xorg
       - pulse
       - sunshine
-    build:
-      context: .
-      dockerfile: retroarch.Dockerfile
+    build: ./images/retroarch/
     image: gameonwhales/retroarch
     volumes: 
       # Xorg socket in order to get the screen

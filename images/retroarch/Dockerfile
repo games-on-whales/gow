@@ -31,6 +31,6 @@ WORKDIR $HOME
 USER ${UNAME}
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
-COPY scripts/retroarch_startup.sh /startup.sh
+COPY scripts/startup.sh /startup.sh
 
 CMD /bin/bash /startup.sh
