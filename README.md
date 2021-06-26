@@ -1,4 +1,4 @@
-# GOW - Games on Whales
+# GOW - Games on Whales [![Discord](https://img.shields.io/discord/856434175455133727.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/kRGUDHNHt2)
 
 Stream games (and GUI) over Docker with HW acceleration and low latency
 
@@ -9,6 +9,7 @@ Stream games (and GUI) over Docker with HW acceleration and low latency
 ```console
 git clone https://github.com/games-on-whales/gow.git
 cd gow
+docker-compose pull
 docker-compose up
 ```
 
