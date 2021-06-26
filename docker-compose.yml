@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: xorg.Dockerfile
-    image: abeltramo/xorg
+    image: gameonwhales/xorg
     network_mode: host
     privileged: true
     volumes: 
@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: pulse.Dockerfile
-    image: abeltramo/pulseaudio
+    image: gameonwhales/pulseaudio
     ports: 
       - 4713:4713
     volumes:
@@ -40,14 +40,14 @@ services:
     environment: 
       DISPLAY: ":0"
   
-  retroarch:
+  sunshine:
     depends_on: 
       - xorg
       - pulse
     build:
       context: .
-      dockerfile: retroarch.Dockerfile
-    image: abeltramo/retroarch
+      dockerfile: sunshine.Dockerfile
+    image: gameonwhales/sunshine
     network_mode: host
     privileged: true
     volumes: 
@@ -56,7 +56,7 @@ services:
       - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
-      # Home directory: sunshine state + configs + retroarch games, downloads, cores etc
+      # Home directory: sunshine state + configs
       - ${local_state}/:/home/retro/
     environment: 
       DISPLAY: ":0"
@@ -66,9 +66,34 @@ services:
       # and mount the host socket to the instance
       PULSE_SERVER: 127.0.0.1 
   
+  retroarch:
+    depends_on: 
+      - xorg
+      - pulse
+      - sunshine
+    build:
+      context: .
+      dockerfile: retroarch.Dockerfile
+    image: gameonwhales/retroarch
+    volumes: 
+      # Xorg socket in order to get the screen
+      - xorg:/tmp/.X11-unix
+      # Home directory: retroarch games, downloads, cores etc
+      - ${local_state}/:/home/retro/
+    environment: 
+      DISPLAY: ":0"
+      LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Using network in order to connect to pulse 
+      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+      # and mount the host socket to the instance
+      PULSE_SERVER: pulse
+
   # An example of running an unprivileged X11 app in this environment
-  
   # firefox:
+  #   depends_on: 
+  #     - xorg
+  #     - pulse
+  #     - sunshine
   #   image: andrewmackrodt/firefox-x11
   #   volumes:       
   #     - xorg:/tmp/.X11-unix

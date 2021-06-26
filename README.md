@@ -1,30 +1,20 @@
-# ABeltramo/retroarch-docker
+# GOW - Games on Whales
 
-Running [RetroArch](https://www.retroarch.com/) on Docker with [Sunshine](https://github.com/loki-47-6F-64/sunshine) so that you can connect to it using [Moonlight](https://moonlight-stream.org/) on any supported client.
+Stream games (and GUI) over Docker with HW acceleration and low latency
 
-![Screenshot of DOOM](screen/DOOM.png)
+![Screenshot of GOW running](screen/GOW-running.jpg)
 
 ## Quickstart
 
 ```console
-docker run -it --rm \
-    --name retroarch \
-    -p 47984-47990:47984-47990/tcp \
-    -p 48010:48010 \
-    -p 48010:48010/udp \
-    -p 47998-48000:47998-48000/udp \
-    --volume ~/retroarch:/retroarch/ \
-    --device /dev/uinput \
-    --env RESOLUTION=1920x1080x24 \
-    --env LOG_LEVEL=INFO \
-    abeltramo/retroarch
+git clone https://github.com/games-on-whales/gow.git
+cd gow
+docker-compose up
 ```
 
-Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/<PIN>`.
+Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine, password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/<PIN>`.
 
-From Moonlight start RetroArch, you should be able to see the main UI:
-
-![Screenshot of RetroArch UI](screen/RetroArch-First-UI.png)
+From Moonlight open the `Desktop` app, from there you should be able to see your X11 apps running!
 
 
 ## RetroArch first time configuration
@@ -35,17 +25,12 @@ From the **Main Menu** > **Online Updater** select:
 - Update Core Info Files
 - Update assets
 
-Get back to **Settings** > **Video** > **Fullscreen Mode** set **Start in Fullscreen Mode** to **ON**
+Press `F` to toggle fullscreen.
 
-This should make the window take the full screen, giving you a nice result like:
-
-![Screenshot of RetroArch UI](screen/RetroArch-UI.png)
 
 ## GPU HW acceleration
 
 > **TESTING**: the following is still under development
-
-Pull the `:gpu` tag in order to try out hardware acceleration using the GPU.
 
 ### Nvidia GPUs with `nouveau` drivers
 
@@ -66,16 +51,6 @@ crw-rw----  1 root video  226,   0 Jun 20 09:47 card0
 crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
 ```
 
-```console
-docker run -it --rm \
-    --name retroarch \
-    --volume ~/retroarch:/retroarch/ \
-    --volume /dev/input:/dev/input:ro \
-    --volume /run/udev:/run/udev:ro \
-    --privileged \
-    --net=host \
-    abeltramo/retroarch:gpu
-```
 ### Nvidia GPUs with proprietary drivers
 
 You can see if your host is using the proprietary driver using `lshw`:
@@ -86,21 +61,12 @@ $ lshw -class video | grep -i driver
 
 In order to make use of your GPU inside docker containers, you'll need to set up the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 
-Once that's done, you can run the container:
-```console
-docker run --runtime=nvidia -it --rm \
-    --name retroarch \
-    -p 47984-47990:47984-47990/tcp \
-    -p 48010:48010 \
-    -p 48010:48010/udp \
-    -p 47998-48000:47998-48000/udp \
-    --volume ~/retroarch:/retroarch/ \
-    --privileged \ # needed all devices for now
-    --env RESOLUTION=1920x1080x24 \
-    --env LOG_LEVEL=INFO \
-    --env NVIDIA_VISIBLE_DEVICES=GPU-[uuid] \
-    --env NVIDIA_DRIVER_CAPABILITIES=utility,graphics,video,display \
-    abeltramo/retroarch:gpu
+Once that's done, you can run the container, you should add the following ENV variables to the docker-compose file
+
+```yaml
+environment: 
+    NVIDIA_VISIBLE_DEVICES: GPU-[uuid] # Replace [uuid] (see the instructions)
+    NVIDIA_DRIVER_CAPABILITIES: utility,graphics,video,display
 ```
 
 To get the correct UUID for your GPU, use the `nvidia-container-cli` command:
@@ -147,15 +113,16 @@ You can access Retroarch logs at `~/retroarch/retroarch.log`
 
 ### Error: Could not create Sunshine Mouse: No such file or directory
 
-Make sure that `/dev/uinput/` is present in the host and to pass `--device /dev/uinput` to the docker run command.
+Make sure that `/dev/uinput/` is present in the host and that it does have the correct permissions:
 
-If this is not enough, make sure that `/dev/uinput` have the correct permissions.
-Try following this: https://github.com/chrippa/ds4drv/issues/93#issuecomment-265300511
-(On Debian I had to modify `/etc/modules-load.d/modules.conf`, adding `/etc/modules-load.d/uinput.conf` didn't trigger anything to me)
 ```console
 ls -la /dev/uinput
 crw-rw---- 1 $USER input 10, 223 Jun  9 08:57 /dev/uinput # Check that $USER is not root but your current user
 ```
+
+Try following this: https://github.com/chrippa/ds4drv/issues/93#issuecomment-265300511
+(On Debian I had to modify `/etc/modules-load.d/modules.conf`, adding `/etc/modules-load.d/uinput.conf` didn't trigger anything to me)
+
 Non permanent fix:
 ```console
 sudo chmod 0660 /dev/uinput
@@ -163,10 +130,10 @@ sudo chmod 0660 /dev/uinput
 
 ## Docker build
 
-You can either build the docker image or use the pre-built one available at [DockerHub](https://hub.docker.com/r/abeltramo/retroarch).
+You can either build the docker image or use the pre-built one available at [DockerHub](https://hub.docker.com/u/gameonwhales).
 
 To build it locally run:
 
 ```console
-sudo docker build -t abeltramo/retroarch .
+docker-compose build
 ```
