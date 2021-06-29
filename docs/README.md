@@ -6,7 +6,7 @@ If something is missing here feel free to reach us on [Discord](https://discord.
 
  - [Overview](overview.md)
  - [Components overview](components-overview.md)
- - Roadmap
+ - [Roadmap](roadmap.md)
 
 ## Running GOW
 
@@ -29,5 +29,5 @@ If something is missing here feel free to reach us on [Discord](https://discord.
 
 ## Contributing
  
- - How can I help?
+ - [How can I help?](contributing.md)
  - [Building manually](docker-build.md)
