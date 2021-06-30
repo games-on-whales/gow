@@ -4,30 +4,49 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Europe/London"
 
 ENV UNAME retro
-ENV HOME /home/$UNAME
-ARG SUNSHINE_VERSION=v0.7.7
-ENV SUNSHINE_VERSION=${SUNSHINE_VERSION}
+# Pulling latest Sunshine
+ARG SUNSHINE_SHA=c1697c8562ebd5a6e12ea5d6f5f72cc421120b71
+ENV SUNSHINE_SHA=${SUNSHINE_SHA}
 
-# Installing Sunshine using the .deb package
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    curl ca-certificates && \
-    curl -L -o /tmp/sunshine20-04.deb https://github.com/loki-47-6F-64/sunshine/releases/download/${SUNSHINE_VERSION}/sunshine20-04.deb && \
-    apt-get install -y --no-install-recommends -f /tmp/sunshine20-04.deb && \
-    # Cleanup
-    apt-get remove -y curl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+######################################
+FROM base AS sunshine-builder
 
-# Unfortunately this seems to not be enough since at runtime I get:
-# sunshine: error while loading shared libraries: libXtst.so.6: cannot open shared object file: No such file or directory
-# Sunshine dependencies, taken from  sunshine/gen-deb.in 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    # Depends: libssl1.1, libavdevice58, libboost-thread1.67.0 | libboost-thread1.71.0, libboost-filesystem1.67.0 | libboost-filesystem1.71.0, libboost-log1.67.0 | libboost-log1.71.0, libpulse0, libopus0, libxcb-shm0, libxcb-xfixes0
-    libssl1.1 libavdevice58 libboost-thread1.71.0 libboost-filesystem1.71.0 libboost-log1.71.0 libpulse0 libopus0 libxcb-shm0 libxcb-xfixes0 libxtst6 \
-    # This is still not enough since then it complains about:
-    # sunshine: error while loading shared libraries: libevdev.so.2: cannot open shared object file: No such file or directory
-    libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+    # Packages needed to build sunshine
+    build-essential fakeroot gcc-10 g++-10 cmake libssl-dev libavdevice-dev libboost-thread-dev libboost-filesystem-dev libboost-log-dev libpulse-dev libopus-dev libxtst-dev libx11-dev libxrandr-dev libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+    git ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
+    cd sunshine && \
+    # Fix the SHA commit
+    git checkout $SUNSHINE_SHA && \
+    # Just printing out git info so that I can double check on CI if the right version as been picked up
+    git show && \
+    # Recursively download submodules
+    git submodule update --init --recursive && \
+    # Normal compile
+    mkdir build && cd build && \
+    cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=Release -DSUNSHINE_EXECUTABLE_PATH=sunshine -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
+    make -j ${nproc} && \
+    # Generate the debian install package
+    ./gen-deb
+
+######################################
+FROM base AS sunshine
+
+# Get compiled sunshine
+COPY --from=sunshine-builder /sunshine/build/package-deb/sunshine.deb /sunshine.deb
+
+# Install using the official .deb package
+# This will take care of installing the required dependencies
+RUN apt-get update -y && \
+    apt-get install -y -f /sunshine.deb \
+    # Seems that libgbm1 is missing
+    && apt-get install -y --no-install-recommends libgbm1 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV HOME /home/$UNAME
 # Set up the user
 # Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
 RUN export UNAME=$UNAME UID=1000 GID=1000 && \
