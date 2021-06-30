@@ -1,23 +1,37 @@
 version: "3.9"
 
 services:
-  
+
+  ##########################################
+  # There's a lot going on in this file, 
+  # it's normal to get lost with all the options and variables 
+  #
+  # Before diving in, make sure to take a look at the documentation.
+  # in particular read the components-overview section (https://github.com/games-on-whales/gow/blob/master/docs/components-overview.md)
+  # in order to get a view on how the components are tied together
+  ####################  
+
+
+  ####################
   # If you don't have a desktop environment we have to run Xorg
   xorg:
     build: ./images/xorg/
     image: gameonwhales/xorg
-    network_mode: host
+    network_mode: host # Needed by uinput
     privileged: true
     volumes: 
-      # Shared with Sunshine in order to get mouse, joypad working
+      # Shared with Sunshine in order to get mouse and joypad working
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
-      #- /dev/shm:/dev/shm TODO
+      # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
       # The xorg socket, it'll be populated when up and running
       - xorg:/tmp/.X11-unix
+    ipc: shareable # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
       DISPLAY: ":0"
 
+  ####################
   # If you don't have a pulse server start it
   pulse:
     depends_on: 
@@ -36,6 +50,7 @@ services:
     environment: 
       DISPLAY: ":0"
   
+  ####################
   sunshine:
     depends_on: 
       - xorg
@@ -52,14 +67,17 @@ services:
       - xorg:/tmp/.X11-unix
       # Home directory: sunshine state + configs
       - ${local_state}/:/home/retro/
+    ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
       DISPLAY: ":0"
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
-      PULSE_SERVER: 127.0.0.1 
-  
+      PULSE_SERVER: 127.0.0.1
+      
+      
+  ####################
   retroarch:
     depends_on: 
       - xorg
@@ -67,19 +85,26 @@ services:
       - sunshine
     build: ./images/retroarch/
     image: gameonwhales/retroarch
+    network_mode: host
+    privileged: true
     volumes: 
+      # Followings are needed in order to get joystick support
+      - /dev/input:/dev/input:ro
+      - /run/udev:/run/udev:ro
+      - /dev/uinput:/dev/uinput:ro
       # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
       # Home directory: retroarch games, downloads, cores etc
       - ${local_state}/:/home/retro/
+    ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
       DISPLAY: ":0"
-      LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
-      PULSE_SERVER: pulse
+      PULSE_SERVER: 127.0.0.1
 
+  # ####################
   # An example of running an unprivileged X11 app in this environment
   # firefox:
   #   depends_on: 
@@ -98,6 +123,6 @@ services:
   #     PULSE_SERVER: pulse # The name of the pulse container is the hostname in the virtual network
 
 
-  
+####################
 volumes:
   xorg: # This will hold the xorg socket file and it'll be shared between containers

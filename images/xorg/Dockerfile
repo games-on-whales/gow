@@ -26,4 +26,6 @@ COPY scripts/startup.sh /startup.sh
 
 COPY configs/desktop.jwmrc.xml /root/.jwmrc
 
+ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
+
 CMD /bin/bash /startup.sh

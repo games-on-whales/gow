@@ -24,7 +24,9 @@ RUN export UNAME=$UNAME UID=1000 GID=1000 && \
     mkdir -p /etc/sudoers.d && \
     echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
     chmod 0440 /etc/sudoers.d/${UNAME} && \
-    chown ${UID}:${GID} -R ${HOME}
+    chown ${UID}:${GID} -R ${HOME} && \
+    # messagebus is mapped to input this is needed in order to get joypad support TODO: double check this?
+    usermod -a -G messagebus ${UNAME}
 
 
 WORKDIR $HOME
@@ -32,5 +34,7 @@ USER ${UNAME}
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY scripts/startup.sh /startup.sh
+
+ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
 CMD /bin/bash /startup.sh
