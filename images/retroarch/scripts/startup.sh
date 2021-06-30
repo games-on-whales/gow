@@ -9,4 +9,4 @@ mkdir -p $HOME/retroarch/
 cp -u /cfg/retroarch.cfg $HOME/retroarch/retroarch.cfg
 
 # Start Sunshine
-/usr/bin/retroarch --config /home/retro/retroarch/retroarch.cfg
+/usr/bin/retroarch --config /home/retro/retroarch/retroarch.cfg #--verbose
