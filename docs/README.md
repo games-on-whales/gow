@@ -6,6 +6,7 @@ If something is missing here feel free to reach us on [Discord](https://discord.
 
  - [Overview](overview.md)
  - [Components overview](components-overview.md)
+ - [How can I use GOW?](how-to-use.md)
  - [Roadmap](roadmap.md)
 
 ## Running GOW
