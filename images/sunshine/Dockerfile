@@ -46,19 +46,27 @@ RUN apt-get update -y && \
     && apt-get install -y --no-install-recommends libgbm1 \
     # Install xdpyinfo so that we can wait for X11 on startup
     x11-utils \
+    # sudo isn't installed by default
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/$UNAME
 # Set up the user
-# Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
 RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-    mkdir -p ${HOME} && \
-    echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:${HOME}:/bin/bash" >> /etc/passwd && \
-    echo "${UNAME}:x:${UID}:" >> /etc/group && \
+    # Create the user and a home dir for them \
+    groupadd -f -g "${GID}" "${UNAME}" && \
+    useradd -mk $(mktemp -d) -u "${UID}" -g "${GID}" "${UNAME}" && \
+    # \
+    # Set up sudoers \
     mkdir -p /etc/sudoers.d && \
-    echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
-    chmod 0440 /etc/sudoers.d/${UNAME} && \
-    chown ${UID}:${GID} -R ${HOME}
+    # $UNAME should be able to add groups without a password \
+    echo "${UNAME} ALL=(root) NOPASSWD: $(which groupadd)" >> /etc/sudoers.d/${UNAME} && \
+    # $UNAME should be able to add itself to groups without a password \
+    echo "${UNAME} ALL=(root) NOPASSWD: $(which usermod) -G * ${UNAME}" >> /etc/sudoers.d/${UNAME} && \
+    # $UNAME should be able to run any commands as itself without a password \
+    # this makes it easy to reload group memberships \
+    echo "${UNAME} ALL=($UNAME) NOPASSWD: ALL" >> /etc/sudoers.d/${UNAME} && \
+    chmod 0444 /etc/sudoers.d/${UNAME}
 
 
 WORKDIR $HOME
@@ -68,6 +76,7 @@ USER ${UNAME}
 COPY configs/sunshine.conf /cfg/sunshine.conf
 COPY configs/apps.json /cfg/apps.json
 COPY scripts/startup.sh /startup.sh
+COPY scripts/ensure-groups.sh /ensure-groups.sh
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp

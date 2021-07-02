@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e 
 
+/ensure-groups.sh ${GOW_REQUIRED_DEVICES:-/dev/uinput /dev/input/event*}
+
 # If the host is using the proprietary Nvidia driver, make sure the
 # corresponding xorg driver is installed
 if [ -f /proc/driver/nvidia/version ]; then
     echo "Detected Nvidia drivers, installing them..."
     bash /ensure-nvidia-xorg-driver.sh
 fi
-
 
 # Cleaning up /tmp/ otherwise Xorg will error out if you stop and restart the container
 DISPLAY_FILE=/tmp/.X11-unix/X${DISPLAY:1}
@@ -17,6 +18,12 @@ if [ -S ${DISPLAY_FILE} ]; then
   rm ${DISPLAY_FILE}
 fi
 
+# Launch the rest of the script in a subshell through sudo, to pick up any
+# group memberships that got added above.
+# Note: this isn't really necessary as long as the Xorg container still runs as
+# root.  If there aren't plans to change that in the future, we can get rid of
+# this extra level of indirection
+exec sudo -u $(whoami) -E cat <<'EOF' | bash
 _kill_procs() {
   kill -TERM $xorg
   wait $xorg
@@ -38,3 +45,4 @@ jwm=$!
 
 wait $xorg
 wait $jwm
+EOF

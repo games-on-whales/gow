@@ -104,6 +104,11 @@ services:
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Which devices does GoW need to be able to use? The docker user will be
+      # added to the groups that own these devices, to help with permissions
+      # issues
+      # These values are the defaults, but you can add others if needed
+      # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
