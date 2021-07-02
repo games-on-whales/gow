@@ -29,7 +29,7 @@ services:
       - xorg:/tmp/.X11-unix
     ipc: shareable # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
-      DISPLAY: ":0"
+      DISPLAY: ${DISPLAY}
 
   ####################
   # If you don't have a pulse server start it
@@ -48,7 +48,7 @@ services:
       # This will hold cookies so that we can connect to it using auth
       - ${local_state}/.config/pulse:/home/retro/.config/pulse
     environment: 
-      DISPLAY: ":0"
+      DISPLAY: ${DISPLAY}
   
   ####################
   sunshine:
@@ -69,7 +69,7 @@ services:
       - ${local_state}/:/home/retro/
     ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
-      DISPLAY: ":0"
+      DISPLAY: ${DISPLAY}
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
@@ -83,6 +83,8 @@ services:
       - xorg
       - pulse
       - sunshine
+    # runtime: nvidia
+    # restart: on-failure
     build: ./images/retroarch/
     image: gameonwhales/retroarch
     network_mode: host
@@ -98,7 +100,10 @@ services:
       - ${local_state}/:/home/retro/
     ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
-      DISPLAY: ":0"
+      DISPLAY: ${DISPLAY}
+      NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
+      NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
+      LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance

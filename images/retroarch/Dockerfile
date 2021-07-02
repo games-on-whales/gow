@@ -10,9 +10,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Install retroarch
     software-properties-common && \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y retroarch libretro-* && \
+    apt-get install -y retroarch libretro-* \
+    # Install xdpyinfo so that we can wait for X11 on startup
+    x11-utils \
     # Cleanup
-    apt-get remove -y software-properties-common \
+    && apt-get remove -y software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up the user

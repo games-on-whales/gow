@@ -44,6 +44,8 @@ RUN apt-get update -y && \
     apt-get install -y -f /sunshine.deb \
     # Seems that libgbm1 is missing
     && apt-get install -y --no-install-recommends libgbm1 \
+    # Install xdpyinfo so that we can wait for X11 on startup
+    x11-utils \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/$UNAME

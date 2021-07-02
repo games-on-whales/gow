@@ -4,6 +4,7 @@ set -e
 # If the host is using the proprietary Nvidia driver, make sure the
 # corresponding xorg driver is installed
 if [ -f /proc/driver/nvidia/version ]; then
+    echo "Detected Nvidia drivers, installing them..."
     bash /ensure-nvidia-xorg-driver.sh
 fi
 
