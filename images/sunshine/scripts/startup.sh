@@ -27,11 +27,13 @@ done
 LOG_LEVEL=${LOG_LEVEL:-INFO}
 LOG "Starting sunshine with DISPLAY=${DISPLAY} and LOG_LEVEL=${LOG_LEVEL}"
 
+/ensure-groups.sh ${GOW_REQUIRED_DEVICES:-/dev/uinput /dev/input/event*}
+
 mkdir -p $HOME/sunshine/
 cp -u /cfg/sunshine.conf $HOME/sunshine/sunshine.conf
 cp -u /cfg/apps.json $HOME/sunshine/apps.json
 
 # Start Sunshine
-sunshine \
+sudo -u $(whoami) -E sunshine \
   min_log_level=$LOG_LEVEL \
   ${HOME}/sunshine/sunshine.conf
