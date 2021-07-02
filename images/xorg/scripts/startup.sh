@@ -7,6 +7,15 @@ if [ -f /proc/driver/nvidia/version ]; then
     bash /ensure-nvidia-xorg-driver.sh
 fi
 
+
+# Cleaning up /tmp/ otherwise Xorg will error out if you stop and restart the container
+DISPLAY_FILE=/tmp/.X11-unix/X${DISPLAY:1}
+if [ -S ${DISPLAY_FILE} ]; then
+  echo "Removing ${DISPLAY_FILE} before starting"
+  rm -f /tmp/.X0-lock
+  rm ${DISPLAY_FILE}
+fi
+
 _kill_procs() {
   kill -TERM $xorg
   wait $xorg

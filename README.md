@@ -11,8 +11,9 @@ Read more on our [documentation](docs/README.md)
 ```console
 git clone https://github.com/games-on-whales/gow.git
 cd gow
-docker-compose pull
-docker-compose up
+mkdir local_state
+sudo docker-compose pull
+sudo docker-compose up
 ```
 
 Wait, are you seriously running code from the internet?

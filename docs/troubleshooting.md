@@ -1,8 +1,15 @@
 # Troubleshooting
 
 Here's a list of common problems, feel free to [open an issue](https://github.com/games-on-whales/gow/issues/new) if something is not listed here.
-Make sure to read first the [overview](overview.md) and [components overview](overview.md) if some terms that is used here doesn't sound familiar to you.
- 
+Make sure to read first the [overview](overview.md) and the [components overview](overview.md) pages of the docs.
+
+## mkdir: cannot create directory '/home/retro/sunshine/': Permission denied
+
+This means that your `local_state` folder as defined in the [`.env`](../.env) file is not owned by user 1000. You can fix this by 
+
+```
+sudo chown -R 1000:1000 local_state
+```
 
 ## Error: Could not create Sunshine Mouse: No such file or directory
 
@@ -13,13 +20,20 @@ ls -la /dev/uinput
 crw-rw---- 1 $USER input 10, 223 Jun  9 08:57 /dev/uinput # Check that $USER is not root but your current user
 ```
 
-Try following this: https://github.com/chrippa/ds4drv/issues/93#issuecomment-265300511
-(On Debian I had to modify `/etc/modules-load.d/modules.conf`, adding `/etc/modules-load.d/uinput.conf` didn't trigger anything to me)
+If that's not the case try following:
+ - The official Sunshine instructions about `udev` at: https://github.com/loki-47-6F-64/sunshine#setup
+ - The solution proposed at: https://github.com/chrippa/ds4drv/issues/93#issuecomment-265300511
+    - (On Debian I had to modify `/etc/modules-load.d/modules.conf`, adding `/etc/modules-load.d/uinput.conf` didn't trigger anything to me)
 
-Non permanent fix:
+Or if you are in a rush you can run the following:
+
 ```console
 sudo chmod 0660 /dev/uinput
+sudo chown 1000:input /dev/uinput
 ```
+
+but remember that on startup you'll have to do it again.
+
 
 ## I can use my mouse and keyboard but my joypad doesn't work
 
@@ -59,6 +73,16 @@ docker exec -it gow_retroarch_1 id
 
 uid=1000(retro) gid=1000(retro) groups=1000(retro),105(messagebus)
 ```
+
+## RetroArch is missing icons!
+
+> Using the keyboard you can move using the arrows and get back to the previous menu by pressing backspace
+
+From the **Main Menu** > **Online Updater** select:
+- Update Core Info Files
+- Update assets
+
+Press `F` to toggle fullscreen if you need to.
 
 ## How can I get the full logs of Xorg?
 
