@@ -40,7 +40,8 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: ./images/${{ matrix.image_name }}
+          context: ./images/
+          file: ./images/${{ matrix.image_name }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
