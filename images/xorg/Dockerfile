@@ -19,14 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
-COPY configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
+COPY xorg/configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
+COPY xorg/configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
+COPY xorg/configs/desktop.jwmrc.xml /root/.jwmrc
 
-COPY scripts/ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
-COPY scripts/ensure-groups.sh /ensure-groups.sh
-COPY scripts/startup.sh /startup.sh
-
-COPY configs/desktop.jwmrc.xml /root/.jwmrc
+COPY xorg/scripts/ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
+COPY xorg/scripts/startup.sh /startup.sh
+# Common scripts
+COPY --chmod=777 common/* /bin/
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

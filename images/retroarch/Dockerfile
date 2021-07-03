@@ -42,9 +42,10 @@ RUN export UNAME=$UNAME UID=1000 GID=1000 && \
 WORKDIR $HOME
 USER ${UNAME}
 
-COPY configs/retroarch.cfg /cfg/retroarch.cfg
-COPY scripts/ensure-groups.sh /ensure-groups.sh
-COPY scripts/startup.sh /startup.sh
+COPY retroarch/configs/retroarch.cfg /cfg/retroarch.cfg
+COPY retroarch/scripts/startup.sh /startup.sh
+# Common scripts
+COPY --chmod=777 common/* /bin/
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

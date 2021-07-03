@@ -1,19 +1,22 @@
 #!/bin/bash
 set -e 
+function LOG {
+    echo $(date -R): $0: $*
+}
 
-/ensure-groups.sh ${GOW_REQUIRED_DEVICES:-/dev/uinput /dev/input/event*}
+ensure-groups ${GOW_REQUIRED_DEVICES:-/dev/uinput /dev/input/event*}
 
 # If the host is using the proprietary Nvidia driver, make sure the
 # corresponding xorg driver is installed
 if [ -f /proc/driver/nvidia/version ]; then
-    echo "Detected Nvidia drivers, installing them..."
+    LOG "Detected Nvidia drivers, installing them..."
     bash /ensure-nvidia-xorg-driver.sh
 fi
 
 # Cleaning up /tmp/ otherwise Xorg will error out if you stop and restart the container
 DISPLAY_FILE=/tmp/.X11-unix/X${DISPLAY:1}
 if [ -S ${DISPLAY_FILE} ]; then
-  echo "Removing ${DISPLAY_FILE} before starting"
+  LOG "Removing ${DISPLAY_FILE} before starting"
   rm -f /tmp/.X0-lock
   rm ${DISPLAY_FILE}
 fi

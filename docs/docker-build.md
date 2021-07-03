@@ -27,8 +27,9 @@ Digest:sha256:6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61
 
 ## I don't trust you let me build the images myself
 
-You sure can, in order to build it locally run:
+You sure can! We use docker buildkit, make sure it's installed in your environment.
+In order to build it locally run:
 
 ```console
-docker-compose build
+sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 ```

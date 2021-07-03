@@ -73,10 +73,11 @@ WORKDIR $HOME
 USER ${UNAME}
 
 # Config files
-COPY configs/sunshine.conf /cfg/sunshine.conf
-COPY configs/apps.json /cfg/apps.json
-COPY scripts/startup.sh /startup.sh
-COPY scripts/ensure-groups.sh /ensure-groups.sh
+COPY sunshine/configs/sunshine.conf /cfg/sunshine.conf
+COPY sunshine/configs/apps.json /cfg/apps.json
+COPY sunshine/scripts/startup.sh /startup.sh
+# Common scripts
+COPY --chmod=777 common/* /bin/
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp

@@ -15,7 +15,9 @@ services:
   ####################
   # If you don't have a desktop environment we have to run Xorg
   xorg:
-    build: ./images/xorg/
+    build: 
+      context: ./images/
+      dockerfile: xorg/Dockerfile
     image: gameonwhales/xorg
     network_mode: host # Needed by uinput
     privileged: true
@@ -36,7 +38,9 @@ services:
   pulse:
     depends_on: 
       - xorg
-    build: ./images/pulseaudio/
+    build: 
+      context: ./images/
+      dockerfile: pulseaudio/Dockerfile
     image: gameonwhales/pulseaudio
     ports: 
       - 4713:4713
@@ -55,7 +59,9 @@ services:
     depends_on: 
       - xorg
       - pulse
-    build: ./images/sunshine/
+    build: 
+      context: ./images/
+      dockerfile: sunshine/Dockerfile
     image: gameonwhales/sunshine
     network_mode: host
     privileged: true
@@ -85,7 +91,9 @@ services:
       - sunshine
     # runtime: nvidia
     # restart: on-failure
-    build: ./images/retroarch/
+    build: 
+      context: ./images/
+      dockerfile: retroarch/Dockerfile
     image: gameonwhales/retroarch
     network_mode: host
     privileged: true
