@@ -27,6 +27,12 @@ for dev in "$@"; do
     fi
 done
 
+# uinput is usually set to be read/write only by user root, we want to allow the group too
+if [ -e /dev/uinput ]; then
+    echo "Allow /dev/uinput r/w to the group"
+    sudo chmod 0660 /dev/uinput
+fi
+
 groups=$(join_by "," "${!group_map[@]}")
 if [ "$groups" != "" ]; then
     echo "Adding user '$(whoami)' to groups: $groups"

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+UUID=1000
+UGID=1000
+
+echo "Setting up $UNAME ($UUID:$UGID)"
+
+# Create the user and a home dir for them \
+groupadd -f -g "${UGID}" "${UNAME}"
+useradd -mk $(mktemp -d) -u "${UUID}" -g "${UGID}" "${UNAME}"
+
+# Set up sudoers 
+mkdir -p /etc/sudoers.d
+
+# $UNAME should be able to add groups without a password
+echo "${UNAME} ALL=(root) NOPASSWD: $(which groupadd)" >> /etc/sudoers.d/${UNAME}
+# $UNAME should be able to chmod without a password
+echo "${UNAME} ALL=(root) NOPASSWD: $(which chmod)" >> /etc/sudoers.d/${UNAME}
+# $UNAME should be able to add itself to groups without a password
+echo "${UNAME} ALL=(root) NOPASSWD: $(which usermod) -G * ${UNAME}" >> /etc/sudoers.d/${UNAME}
+# $UNAME should be able to run any commands as itself without a password
+# this makes it easy to reload group memberships
+echo "${UNAME} ALL=($UNAME) NOPASSWD: ALL" >> /etc/sudoers.d/${UNAME}
+chmod 0444 /etc/sudoers.d/${UNAME}

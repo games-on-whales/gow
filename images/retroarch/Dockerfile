@@ -21,22 +21,10 @@ RUN apt-get update && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
+# Common scripts
+COPY --chmod=777 common/* /bin/
 # Set up the user
-RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-    # Create the user and a home dir for them \
-    groupadd -f -g "${GID}" "${UNAME}" && \
-    useradd -mk $(mktemp -d) -u "${UID}" -g "${GID}" "${UNAME}" && \
-    # \
-    # Set up sudoers \
-    mkdir -p /etc/sudoers.d && \
-    # $UNAME should be able to add groups without a password \
-    echo "${UNAME} ALL=(root) NOPASSWD: $(which groupadd)" >> /etc/sudoers.d/${UNAME} && \
-    # $UNAME should be able to add itself to groups without a password \
-    echo "${UNAME} ALL=(root) NOPASSWD: $(which usermod) -G * ${UNAME}" >> /etc/sudoers.d/${UNAME} && \
-    # $UNAME should be able to run any commands as itself without a password \
-    # this makes it easy to reload group memberships \
-    echo "${UNAME} ALL=($UNAME) NOPASSWD: ALL" >> /etc/sudoers.d/${UNAME} && \
-    chmod 0444 /etc/sudoers.d/${UNAME}
+RUN setup-retro-user
 
 
 WORKDIR $HOME
@@ -44,8 +32,6 @@ USER ${UNAME}
 
 COPY retroarch/configs/retroarch.cfg /cfg/retroarch.cfg
 COPY retroarch/scripts/startup.sh /startup.sh
-# Common scripts
-COPY --chmod=777 common/* /bin/
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

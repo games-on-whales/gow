@@ -67,7 +67,6 @@ services:
     privileged: true
     volumes: 
       # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
-      - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
@@ -99,9 +98,7 @@ services:
     privileged: true
     volumes: 
       # Followings are needed in order to get joystick support
-      - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
-      - /dev/uinput:/dev/uinput:ro
       # Xorg socket in order to get the screen
       - xorg:/tmp/.X11-unix
       # Home directory: retroarch games, downloads, cores etc
