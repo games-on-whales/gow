@@ -14,10 +14,11 @@ if [ -f /proc/driver/nvidia/version ]; then
 fi
 
 # Cleaning up /tmp/ otherwise Xorg will error out if you stop and restart the container
-DISPLAY_FILE=/tmp/.X11-unix/X${DISPLAY:1}
+DISPLAY_NUMBER=${DISPLAY:1}
+DISPLAY_FILE=/tmp/.X11-unix/X${DISPLAY_NUMBER}
 if [ -S ${DISPLAY_FILE} ]; then
   LOG "Removing ${DISPLAY_FILE} before starting"
-  rm -f /tmp/.X0-lock
+  rm -f /tmp/.X${DISPLAY_NUMBER}-lock
   rm ${DISPLAY_FILE}
 fi
 

@@ -51,23 +51,11 @@ RUN apt-get update -y && \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/$UNAME
-# Set up the user
-RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-    # Create the user and a home dir for them \
-    groupadd -f -g "${GID}" "${UNAME}" && \
-    useradd -mk $(mktemp -d) -u "${UID}" -g "${GID}" "${UNAME}" && \
-    # \
-    # Set up sudoers \
-    mkdir -p /etc/sudoers.d && \
-    # $UNAME should be able to add groups without a password \
-    echo "${UNAME} ALL=(root) NOPASSWD: $(which groupadd)" >> /etc/sudoers.d/${UNAME} && \
-    # $UNAME should be able to add itself to groups without a password \
-    echo "${UNAME} ALL=(root) NOPASSWD: $(which usermod) -G * ${UNAME}" >> /etc/sudoers.d/${UNAME} && \
-    # $UNAME should be able to run any commands as itself without a password \
-    # this makes it easy to reload group memberships \
-    echo "${UNAME} ALL=($UNAME) NOPASSWD: ALL" >> /etc/sudoers.d/${UNAME} && \
-    chmod 0444 /etc/sudoers.d/${UNAME}
 
+# Common scripts
+COPY --chmod=777 common/* /bin/
+# Set up the user
+RUN setup-retro-user
 
 WORKDIR $HOME
 USER ${UNAME}
@@ -76,8 +64,6 @@ USER ${UNAME}
 COPY sunshine/configs/sunshine.conf /cfg/sunshine.conf
 COPY sunshine/configs/apps.json /cfg/apps.json
 COPY sunshine/scripts/startup.sh /startup.sh
-# Common scripts
-COPY --chmod=777 common/* /bin/
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp
