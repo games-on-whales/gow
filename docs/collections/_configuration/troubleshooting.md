@@ -1,7 +1,25 @@
+---
+layout: default
+title: Troubleshooting
+nav_order: 2
+---
+
 # Troubleshooting
+{: .no_toc }
 
 Here's a list of common problems, feel free to [open an issue](https://github.com/games-on-whales/gow/issues/new) if something is not listed here.
-Make sure to read first the [overview](overview.md) and the [components overview](overview.md) pages of the docs.
+Make sure to read first the [overview](/overview/overview/) and the [components overview](/overview/components-overview/) pages of the docs.
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+
 
 ## mkdir: cannot create directory '/home/retro/sunshine/': Permission denied
 
@@ -15,7 +33,7 @@ sudo chown -R 1000:1000 local_state
 
 Make sure that `/dev/uinput/` is present in the host and that it does have the correct permissions:
 
-```console
+```
 ls -la /dev/uinput
 crw-rw---- 1 $USER input 10, 223 Jun  9 08:57 /dev/uinput # Check that $USER is not root but your current user
 ```
@@ -27,7 +45,7 @@ If that's not the case try following:
 
 Or if you are in a rush you can run the following:
 
-```console
+```
 sudo chmod 0660 /dev/uinput
 sudo chown 1000:input /dev/uinput
 ```
@@ -51,7 +69,7 @@ volumes:
 ```
 
 If this is already present in your `docker-compose.yml` you have to check for file permissions. Make sure that `messagebus` gid inside the containers maps to `input` gid on your host, in order to do that first check what's the gid of the files inside `/dev/input` as seen by the docker container:
-```console
+```
 docker exec -it gow_retroarch_1 ls -la /dev/input
 
 drwxr-xr-x  4 root root          380 Jun 30 17:25 .
@@ -68,7 +86,7 @@ crw-rw----  1 root messagebus 13, 68 Jun 27 09:43 event4
 ```
 
 Then check that the current user inside the container is part of the `messagebus` group:
-```console
+```
 docker exec -it gow_retroarch_1 id
 
 uid=1000(retro) gid=1000(retro) groups=1000(retro),105(messagebus)

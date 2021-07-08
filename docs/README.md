@@ -1,34 +1,13 @@
 # Documentation
 
-If something is missing here feel free to reach us on [Discord](https://discord.gg/kRGUDHNHt2) or open up a [discussion](https://github.com/games-on-whales/gow/discussions/new) here on Github.
+This is a Jekyll themed documentation that you can see at https://games-on-whales.github.io/gow/
 
-## What is Games on Whales?
+Markdown pages are accessible under [collections](collections/).
 
- - [Overview](overview.md)
- - [Components overview](components-overview.md)
- - [How can I use GOW?](how-to-use.md)
- - [Roadmap](roadmap.md)
+We use [Just the Docs](https://github.com/pmarsceill/just-the-docs) for theming with a different dark theme that you can see at [_sass/color_schemes/gow-dark.scss](_sass/color_schemes/gow-dark.scss)
 
-## Running GOW
+In order to build it locally use:
 
- - GNU/Linux
-    - I have a headless server (CLI only)
-        - [Debian/Ubuntu](debian-instructions.md)
-        - [Unraid](https://github.com/games-on-whales/unraid-plugin)
-    - [I already have a Desktop environment](desktop-instructions.md)
- - [Windows](https://github.com/games-on-whales/gow/issues/13)
- - OSX
-
-## HW Acceleration
-
- - [Nvidia GPU](nvidia.md)
- - [iGPU](https://github.com/games-on-whales/gow/issues/21)
-
-## Troubleshooting
-
- - [Common errors](troubleshooting.md)
-
-## Contributing
- 
- - [How can I help?](contributing.md)
- - [Building manually](docker-build.md)
+```
+bundle exec jekyll serve
+```

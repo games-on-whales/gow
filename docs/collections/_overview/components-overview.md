@@ -1,9 +1,24 @@
+---
+layout: default
+title: Components
+nav_order: 2
+---
 # Components Overview
+{: .no_toc }
 
-Make sure to read first the [overview](overview.md) section to get a grasp on what's the idea behind GOW.
+Make sure to read first the [overview](/overview/overview/) section to get a grasp on what's the idea behind GOW.
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
 
 <p align="center">
-  <img width="500" src="img/gow-diagram.svg">
+  <img width="500" src="/assets/img/gow-diagram.svg">
 </p>
 
 GOW is a composition of Docker containers that enable users to stream graphical applications to Moonlight clients.
@@ -43,7 +58,7 @@ While PulseAudio runs just fine without a real sound device, Xorg can (and shoul
 Graphical applications can run easily on top of Xorg and PulseAudio, that's how most desktop environment works!
 
 <p align="center">
-  <img width="300" src="img/gui-overview.svg">
+  <img width="300" src="/assets/img/gui-overview.svg">
 </p>
 
 Sharing [sockets](https://en.wikipedia.org/wiki/Unix_domain_socket) between containers is the mechanism that enables us to have proper isolation. Instead of having a big single Docker image which installs and runs all these softwares together we can decouple them and share only a communication channel.
@@ -54,4 +69,4 @@ This means that it's very simple to make a Docker container of any given GUI app
 
 A GPU is not required to run any of this, but it's highly recommended.
 
-Sharing a GPU across Docker containers is possible and it's generally done by sharing the [DRM devices (`/dev/dri/cardX`)](https://en.wikipedia.org/wiki/Direct_Rendering_Manager). As always there are exceptions and we have specific instructions for [Nvidia cards](nvidia.md).
+Sharing a GPU across Docker containers is possible and it's generally done by sharing the [DRM devices (`/dev/dri/cardX`)](https://en.wikipedia.org/wiki/Direct_Rendering_Manager). As always there are exceptions and we have specific instructions for [Nvidia cards](/configuration/nvidia/).

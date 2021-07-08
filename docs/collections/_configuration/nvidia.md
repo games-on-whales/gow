@@ -1,6 +1,20 @@
-# GPU HW acceleration
+---
+layout: default
+title: Nvidia GPU
+nav_order: 1
+---
+# Nvidia HW acceleration
+{: .no_toc }
 
-> **TESTING**: the following is still under development
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 
 ## Nvidia GPUs with `nouveau` drivers
 
@@ -24,7 +38,7 @@ crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
 ## Nvidia GPUs with proprietary drivers
 
 You can see if your host is using the proprietary driver using `lshw`:
-```console
+```
 $ lshw -class video | grep -i driver
        configuration: driver=nvidia latency=0
 ```
@@ -40,7 +54,7 @@ environment:
 ```
 
 To get the correct UUID for your GPU, use the `nvidia-container-cli` command:
-```console
+```
 $ sudo nvidia-container-cli --load-kmods info
 NVRM version:   [version]
 CUDA version:   11.3

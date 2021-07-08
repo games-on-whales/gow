@@ -1,3 +1,8 @@
+---
+layout: default
+title: Docker Build
+nav_order: 2
+---
 # Docker build
 
 So you don't trust downloading Docker images from the web eh? You are right! No one should trust *the internet*!
@@ -30,6 +35,6 @@ Digest:sha256:6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61
 You sure can! We use docker buildkit, make sure it's installed in your environment.
 In order to build it locally run:
 
-```console
+```
 sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 ```
