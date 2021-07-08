@@ -1,6 +1,11 @@
+---
+layout: default
+title: Contributing
+nav_order: 1
+---
 # How can I help?
 
-:tada: First off, thanks for taking the time to contribute! :tada:
+🎉 First off, thanks for taking the time to contribute! 🎉
 
 There are many ways to contribute to this project!
 
