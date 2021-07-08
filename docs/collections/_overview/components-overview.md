@@ -18,7 +18,7 @@ Make sure to read first the [overview](/overview/overview/) section to get a gra
 </details>
 
 <p align="center">
-  <img width="500" src="/assets/img/gow-diagram.svg">
+  <img width="500" src="{{ /assets/img/gow-diagram.svg  | relative_url}}">
 </p>
 
 GOW is a composition of Docker containers that enable users to stream graphical applications to Moonlight clients.
@@ -58,7 +58,7 @@ While PulseAudio runs just fine without a real sound device, Xorg can (and shoul
 Graphical applications can run easily on top of Xorg and PulseAudio, that's how most desktop environment works!
 
 <p align="center">
-  <img width="300" src="/assets/img/gui-overview.svg">
+  <img width="300" src="{{ /assets/img/gui-overview.svg | relative_url}}">
 </p>
 
 Sharing [sockets](https://en.wikipedia.org/wiki/Unix_domain_socket) between containers is the mechanism that enables us to have proper isolation. Instead of having a big single Docker image which installs and runs all these softwares together we can decouple them and share only a communication channel.

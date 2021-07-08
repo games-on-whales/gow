@@ -5,7 +5,7 @@ nav_order: 1
 ---
 # Overview
 
-<img width="100" src="/assets/img/gow-logo.png">
+<img width="100" src="{{ /assets/img/gow-logo.png | relative_url}}">
 {: .float-left .p-3}
 
 **Games on Whales (GOW)** let's you stream games (and GUI) running on Docker with HW acceleration and low latency.
@@ -31,7 +31,7 @@ We bring together a few different components in order to achieve that:
  - [RetroArch](https://en.wikipedia.org/wiki/RetroArch): An open source, crossplatform frontend for emulators, game engines and much more!
 
 <p align="center">
-  <img width="300" src="/assets/img/gow-diagram.svg">
+  <img width="300" src="{{ /assets/img/gow-diagram.svg | relative_url}}">
 </p>
 
  Head over to the [components overview](/overview/components-overview/) if you are interested in how these bunch of softwares are tied together by GOW
