@@ -1,8 +1,8 @@
 title: Games on Whales
 tagline: Stream games (and GUI) running on Docker with HW acceleration and low latency!
 description: GOW let's you stream games (and GUI) running on Docker with HW acceleration and low latency!
-url: 
-baseurl: "" # the subpath of your site, e.g. /blog
+url: "//games-on-whales.github.io/"
+baseurl: "gow/" # the subpath of your site, e.g. /blog
 
 # Build settings
 remote_theme: pmarsceill/just-the-docs
