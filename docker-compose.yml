@@ -76,6 +76,9 @@ services:
     environment: 
       DISPLAY: ${DISPLAY}
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990 
+      SUNSHINE_USER: admin
+      SUNSHINE_PASS: admin
       # Using network in order to connect to pulse 
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
