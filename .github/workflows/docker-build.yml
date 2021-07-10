@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image_name: [xorg, pulseaudio, sunshine, retroarch]
+        image_name: [xorg, pulseaudio, sunshine, retroarch, steam]
     steps:
 
       - name: Checkout

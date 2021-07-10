@@ -86,7 +86,46 @@ services:
       
       
   ####################
-  retroarch:
+  # retroarch:
+  #   depends_on: 
+  #     - xorg
+  #     - pulse
+  #     - sunshine
+  #   # runtime: nvidia
+  #   # restart: on-failure
+  #   build: 
+  #     context: ./images/
+  #     dockerfile: retroarch/Dockerfile
+  #   image: gameonwhales/retroarch
+  #   network_mode: host
+  #   privileged: true
+  #   volumes: 
+  #     # Followings are needed in order to get joystick support
+  #     - /dev/input:/dev/input:ro
+  #     - /run/udev:/run/udev:ro
+  #     # Xorg socket in order to get the screen
+  #     - xorg:/tmp/.X11-unix
+  #     # Home directory: retroarch games, downloads, cores etc
+  #     - ${local_state}/:/home/retro/
+  #   ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+  #   environment: 
+  #     DISPLAY: ${DISPLAY}
+  #     NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
+  #     NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
+  #     LOG_LEVEL: info # Set to debug or verbose if you want to see more
+  #     # Which devices does GoW need to be able to use? The docker user will be
+  #     # added to the groups that own these devices, to help with permissions
+  #     # issues
+  #     # These values are the defaults, but you can add others if needed
+  #     # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
+  #     # Using network in order to connect to pulse 
+  #     # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+  #     # and mount the host socket to the instance
+  #     PULSE_SERVER: 127.0.0.1
+
+    
+  ####################
+  steam:
     depends_on: 
       - xorg
       - pulse
@@ -95,8 +134,8 @@ services:
     # restart: on-failure
     build: 
       context: ./images/
-      dockerfile: retroarch/Dockerfile
-    image: gameonwhales/retroarch
+      dockerfile: steam/Dockerfile
+    image: gameonwhales/steam
     network_mode: host
     privileged: true
     volumes: 
@@ -112,7 +151,6 @@ services:
       DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
-      LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Which devices does GoW need to be able to use? The docker user will be
       # added to the groups that own these devices, to help with permissions
       # issues
