@@ -6,7 +6,7 @@ nav_order: 2
 # Components Overview
 {: .no_toc }
 
-Make sure to read first the [overview](/overview/overview/) section to get a grasp on what's the idea behind GOW.
+Make sure to read first the [overview]({{ site.baseurl }}{% link _overview/overview.md %}) section to get a grasp on what's the idea behind GOW.
 
 <details open markdown="block">
   <summary>
@@ -69,4 +69,4 @@ This means that it's very simple to make a Docker container of any given GUI app
 
 A GPU is not required to run any of this, but it's highly recommended.
 
-Sharing a GPU across Docker containers is possible and it's generally done by sharing the [DRM devices (`/dev/dri/cardX`)](https://en.wikipedia.org/wiki/Direct_Rendering_Manager). As always there are exceptions and we have specific instructions for [Nvidia cards](/configuration/nvidia/).
+Sharing a GPU across Docker containers is possible and it's generally done by sharing the [DRM devices (`/dev/dri/cardX`)](https://en.wikipedia.org/wiki/Direct_Rendering_Manager). As always there are exceptions and we have specific instructions for [Nvidia cards]({{ site.baseurl }}{% link _configuration/nvidia.md %}).

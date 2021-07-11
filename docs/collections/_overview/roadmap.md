@@ -18,4 +18,4 @@ We would like to achieve the followings:
  - support as much platforms as we can.
  - make a great documentation so that anybody can understand and learn from this project.
 
-Do you want to [contribute](/contributing/contributing/) to this project?
+Do you want to [contribute]({{ site.baseurl }}{% link _contributing/contributing.md %}) to this project?

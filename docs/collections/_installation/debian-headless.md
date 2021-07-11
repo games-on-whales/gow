@@ -6,7 +6,7 @@ nav_order: 1
 ---
 # Debian/Ubuntu instructions
 
-Make sure to checkout the [Overview](overview.md) first.
+Make sure to checkout the [Overview]({{ site.baseurl }}{% link _overview/overview.md %}) first.
 
 ## Requirement: uinput
 
@@ -35,5 +35,5 @@ From Moonlight open the `Desktop` app, from there you should be able to see your
 
 ## Next steps
 
- - Checkout the [troubleshooting](/configuration/troubleshooting/) page if anything is not working on your side
+ - Checkout the [troubleshooting]({{ site.baseurl }}{% link _configuration/troubleshooting.md %}) page if anything is not working on your side
  - Check out how to configure and use your GPU in order to get HW acceleration (if you have one)

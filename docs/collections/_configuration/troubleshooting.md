@@ -8,7 +8,7 @@ nav_order: 2
 {: .no_toc }
 
 Here's a list of common problems, feel free to [open an issue](https://github.com/games-on-whales/gow/issues/new) if something is not listed here.
-Make sure to read first the [overview](/overview/overview/) and the [components overview](/overview/components-overview/) pages of the docs.
+Make sure to read first the [overview]({{ site.baseurl }}{% link _overview/overview.md %}) and the [components overview]({{ site.baseurl }}{% link _overview/components-overview.md %}) pages of the docs.
 
 <details open markdown="block">
   <summary>
@@ -23,7 +23,7 @@ Make sure to read first the [overview](/overview/overview/) and the [components 
 
 ## mkdir: cannot create directory '/home/retro/sunshine/': Permission denied
 
-This means that your `local_state` folder as defined in the [`.env`](../.env) file is not owned by user 1000. You can fix this by 
+This means that your `local_state` folder as defined in the `.env` file is not owned by user 1000. You can fix this by 
 
 ```
 sudo chown -R 1000:1000 local_state

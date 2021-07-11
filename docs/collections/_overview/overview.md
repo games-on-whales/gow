@@ -34,5 +34,5 @@ We bring together a few different components in order to achieve that:
   <img width="300" src="{{ '/assets/img/gow-diagram.svg' | relative_url}}">
 </p>
 
- Head over to the [components overview](/overview/components-overview/) if you are interested in how these bunch of softwares are tied together by GOW
+ Head over to the [components overview]({{ site.baseurl }}{% link _overview/components-overview.md %}) if you are interested in how these bunch of softwares are tied together by GOW
 

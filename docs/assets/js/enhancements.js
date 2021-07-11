@@ -1,4 +1,4 @@
-function createGiscusEl(){
+function createGiscusEl() {
     let scr = document.createElement('script');
 
     scr.src = "https://giscus.app/client.js"
@@ -18,29 +18,34 @@ function createGiscusEl(){
     document.querySelector("#top").append(scr);
 }
 
-function reloadGiscus(){
-    let frame = document.querySelector(".giscus-frame");
-    
+function reloadGiscus() {
+    let frame = document.querySelector("iframe.giscus-frame");
+
     // Took this from https://giscus.app/client.js
-    let ogDescriptionMeta = document.querySelector("meta[property='og:description'],meta[name='description']");
-    let description = ogDescriptionMeta ? ogDescriptionMeta.content : ''
     let term = location.pathname.length < 2 ? 'index' : location.pathname.substr(1).replace(/\.\w+$/, '');
 
-    frame.src = `https://giscus.app/widget?origin=${ location.origin }&description=${ description }&term=${ term }&session=&theme=dark_dimmed&reactionsEnabled=1&repo=games-on-whales%2Fgow&repoId=MDEwOlJlcG9zaXRvcnkzNzYzMDczODk%3D&category=Documentation&categoryId=DIC_kwDOFm3-vc4B-QM2`
+    frame.contentWindow.postMessage({
+        giscus: {
+            setConfig: {
+                term: term,
+                repo: "games-on-whales/gow",
+            }
+        }},
+        'https://giscus.app')
 }
 
 // Set the link element as active to provide user feedback
-function setActive(element){
+function setActive(element) {
     element.classList.add("active");
     element.parentElement.classList.add("active");
 
     let parent_collection = element.closest("li.nav-list-item").parentElement.closest("li.nav-list-item");
-    if(parent_collection !== null){
+    if (parent_collection !== null) {
         parent_collection.classList.add("active");
     }
 }
 
-function removeAllActive(){
+function removeAllActive() {
     document.querySelectorAll(".active").forEach(el => {
         el.classList.remove("active");
     })
@@ -55,10 +60,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     createGiscusEl();
 
     // This works both on click and on history back/forward
-    Barba.Dispatcher.on('transitionCompleted', (currentStatus)=> {
+    Barba.Dispatcher.on('transitionCompleted', (currentStatus) => {
         removeAllActive();
         document.querySelectorAll("a.nav-list-link").forEach(element => {
-            if(element.href == currentStatus.url){
+            if (element.href == currentStatus.url) {
                 setActive(element);
             }
         });
@@ -66,4 +71,4 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 
 
-  })
+})
