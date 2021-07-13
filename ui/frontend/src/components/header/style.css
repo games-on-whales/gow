@@ -1,0 +1,8 @@
+.navbar {
+    background-color: #1488C6;
+}
+
+:global(.navbar-brand) {
+    font-weight: bold;
+    margin-left: 15px;
+}
