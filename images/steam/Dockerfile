@@ -16,6 +16,10 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends steam \
     # Adding Vulkan
     libvulkan1 libvulkan1:i386 mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
+    # Add libdbus to fix webui black screen (https://github.com/ValveSoftware/steam-for-linux/issues/7058)
+    libdbus-1-3 \
+    # Libraries needed to play games
+    libgtk-3-0 libegl1 libsdl2-2.0-0 \
     # Install xdpyinfo so that we can wait for X11 on startup
     x11-utils \
     && \
