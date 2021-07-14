@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "preact build --no-sw --no-prerender --no-esm",
-    "serve": "sirv build --port 8080 --cors --single",
+    "serve": "sirv build --host 0.0.0.0 --port 8080 --cors --single",
     "dev": "preact watch",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "jest ./tests"
@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@wailsapp/runtime": "^1.1.1",
     "bootstrap": "^5.0.2",
     "preact": "^10.3.1",
     "preact-render-to-string": "^5.1.4",
