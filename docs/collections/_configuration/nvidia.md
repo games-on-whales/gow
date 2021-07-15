@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Nvidia GPU
-nav_order: 1
+nav_order: 2
 ---
 # Nvidia HW acceleration
 {: .no_toc }

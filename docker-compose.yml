@@ -27,6 +27,7 @@ services:
       - /run/udev:/run/udev:ro
       # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /tmp/log:/var/log
       # The xorg socket, it'll be populated when up and running
       - xorg:/tmp/.X11-unix
     ipc: shareable # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
@@ -62,10 +63,14 @@ services:
     build: 
       context: ./images/
       dockerfile: sunshine/Dockerfile
+      # Uncomment the following to override the default sunshine version
+      #args:
+      #  SUNSHINE_SHA: v0.9.0
     image: gameonwhales/sunshine
     network_mode: host
+    # runtime: nvidia
     privileged: true
-    volumes: 
+    volumes:
       # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
       - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
@@ -73,33 +78,35 @@ services:
       # Home directory: sunshine state + configs
       - ${local_state}/:/home/retro/
     ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-    environment: 
+    environment:
       DISPLAY: ${DISPLAY}
+      NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
+      NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
-      # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990 
+      # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990
       SUNSHINE_USER: admin
       SUNSHINE_PASS: admin
-      # Using network in order to connect to pulse 
+      # Using network in order to connect to pulse
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
       PULSE_SERVER: 127.0.0.1
-      
-      
+
+
   ####################
   retroarch:
-    depends_on: 
+    depends_on:
       - xorg
       - pulse
       - sunshine
     # runtime: nvidia
     # restart: on-failure
-    build: 
+    build:
       context: ./images/
       dockerfile: retroarch/Dockerfile
     image: gameonwhales/retroarch
     network_mode: host
     privileged: true
-    volumes: 
+    volumes:
       # Followings are needed in order to get joystick support
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
@@ -108,7 +115,7 @@ services:
       # Home directory: retroarch games, downloads, cores etc
       - ${local_state}/:/home/retro/
     ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-    environment: 
+    environment:
       DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
@@ -118,10 +125,59 @@ services:
       # issues
       # These values are the defaults, but you can add others if needed
       # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
-      # Using network in order to connect to pulse 
+      # Using network in order to connect to pulse
       # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
       # and mount the host socket to the instance
       PULSE_SERVER: 127.0.0.1
+
+  ####################
+#  steam:
+#    depends_on:
+#      - xorg
+#      - pulse
+#      - sunshine
+#    runtime: nvidia
+#    # restart: on-failure
+#    build:
+#      context: ./images/
+#      dockerfile: steam/Dockerfile
+#    image: gameonwhales/steam
+#    network_mode: host
+#    privileged: true
+#    volumes:
+#      # Followings are needed in order to get joystick support
+#      - /dev/input:/dev/input:ro
+#      - /run/udev:/run/udev:ro
+#      # Xorg socket in order to get the screen
+#      - xorg:/tmp/.X11-unix
+#      # Home directory: retroarch games, downloads, cores etc
+#      - ${local_state}/:/home/retro/
+#      # Vulkan (taken from https://github.com/NVIDIA/libnvidia-container/issues/55)
+#      - /usr/share/vulkan/icd.d/nvidia_icd.json:/usr/share/vulkan/icd.d/nvidia_icd.json:ro
+#      - /usr/lib/x86_64-linux-gnu/libnvidia-glvkspirv.so.460.80:/usr/lib/x86_64-linux-gnu/libnvidia-glvkspirv.so.460.80:ro
+#      - /usr/lib/i386-linux-gnu/libnvidia-glvkspirv.so.460.80:/usr/lib/i386-linux-gnu/libnvidia-glvkspirv.so.460.80:ro
+#      # Needed by the webview otherwise you'll get Less than 64MB of free space in temporary directory (https://github.com/microsoft/vscode/issues/111729#issuecomment-737399692)
+#      # TODO: why shm_size doesn't work ??????
+#      - type: tmpfs
+#        target: /dev/shm
+#        tmpfs:
+#            size: 500M
+#    ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+#    environment:
+#      DISPLAY: ${DISPLAY}
+#      NVIDIA_DRIVER_CAPABILITIES: all
+#      NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
+#      PROTON_LOG: 1
+#      # LD_LIBRARY_PATH: /home/retro/.steam/ubuntu12_32/
+#      # Which devices does GoW need to be able to use? The docker user will be
+#      # added to the groups that own these devices, to help with permissions
+#      # issues
+#      # These values are the defaults, but you can add others if needed
+#      # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
+#      # Using network in order to connect to pulse
+#      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
+#      # and mount the host socket to the instance
+#      PULSE_SERVER: 127.0.0.1
 
   # ####################
   # An example of running an unprivileged X11 app in this environment

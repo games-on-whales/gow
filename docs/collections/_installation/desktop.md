@@ -16,3 +16,5 @@ There are still some benefits of *containerizing* GUI applications and run them 
 - You don't have to manage installation scripts, dependencies conflicts and updates. We'll do that for you.
 - You can easily delete all files created by the application by removing the docker container.
 - It's easier to backup configuration files and state.
+
+You should also checkout [x11docker](https://github.com/mviereck/x11docker): a project focused on running GUI apps on top of your existing Desktop environment

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Troubleshooting
-nav_order: 2
+nav_order: 3
 ---
 
 # Troubleshooting
@@ -108,3 +108,9 @@ Xorg is logging more than what you can see from the command line, you have to ge
 ```
 docker exec -it gow_xorg_1 cat /var/log/Xorg.0.log
 ```
+
+## Xorg: Failed to acquire modesetting permission
+
+I'm still not sure about this one, it happened to me when trying to start GOW on a Desktop system when the screen was locked. Unlocking the screen first and then running GOW solved the issue for me. 
+
+[Disabling modesetting](https://wiki.archlinux.org/title/Kernel_mode_setting#Disabling_modesetting) might be another way to get around it.

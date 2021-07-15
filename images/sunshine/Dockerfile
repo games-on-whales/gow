@@ -4,8 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Europe/London"
 
 ENV UNAME retro
-# Pulling Sunshine v0.8.0
-ARG SUNSHINE_SHA=ae04c4afbbc44e1b6e15fcb38e9afdd6473b5005
+# Pulling Sunshine v0.9.0
+ARG SUNSHINE_SHA=5ff5942258015d0c690c58cd5ed4b32b45e3a856
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
 
 ######################################
