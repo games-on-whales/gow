@@ -15,6 +15,7 @@ const Initialize: FunctionalComponent =
         useEffect(
             () => {
                 Wails.Init(() => {
+                    Wails.Events.Emit('frontend-ready');
                     setReady(true);
                 });
             },

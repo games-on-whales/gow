@@ -5,8 +5,8 @@ import (
 
 	"github.com/wailsapp/wails"
 
-	"github.com/gamesonwhales/gow/docker"
-	"github.com/gamesonwhales/gow/frontend"
+	"github.com/gamesonwhales/gow/ui/docker"
+	"github.com/gamesonwhales/gow/ui/frontend"
 )
 
 func main() {

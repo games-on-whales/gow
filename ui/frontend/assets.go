@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mime"
 	"path/filepath"
+	"strings"
 
 	"github.com/wailsapp/wails"
 	"github.com/wailsapp/wails/lib/logger"
@@ -28,7 +29,11 @@ func (assets *Assets) GetNumbers() []int32 {
 }
 
 func (assets *Assets) GetBytes(filename string) ([]byte, error) {
-	return files.ReadFile(filepath.Join("build", filename))
+	if strings.HasPrefix(filename, "build") {
+		return files.ReadFile(filename)
+	} else {
+		return files.ReadFile(filepath.Join("build", filename))
+	}
 }
 
 func (assets *Assets) GetString(filename string) (string, error) {
@@ -43,6 +48,7 @@ func (assets *Assets) GetString(filename string) (string, error) {
 func (assets *Assets) GetDataUri(filename string) (string, error) {
 	data, err := assets.GetBytes(filename)
 	if err != nil {
+		assets.log.Errorf("There was an error getting bytes: %s", err)
 		return "", err
 	}
 

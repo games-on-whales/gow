@@ -1,7 +1,7 @@
 import { FunctionalComponent, h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-
 import Navbar from 'react-bootstrap/Navbar';
+import isDataUrl from 'valid-data-url';
 
 import style from './style.css';
 
@@ -20,13 +20,17 @@ const Image: FunctionalComponent<ImageProps> =
         const [ data, setData ] = useState("");
         useEffect(
             () => {
-                // @ts-expect-error fixing the types
-                backend.Assets.GetDataUri(logo)
-                    .then(
-                        (uri: any) => {
-                            setData(uri);
-                        }
-                    );
+                if (isDataUrl(logo)) {
+                    setData(logo);
+                } else {
+                    // @ts-expect-error fixing the types
+                    backend.Assets.GetDataUri(logo)
+                        .then(
+                            (uri: any) => {
+                                setData(uri);
+                            }
+                        );
+                }
             },
             [ source ]
         );

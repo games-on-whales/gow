@@ -17,6 +17,7 @@ interface ContainerListProps {
     label: string;
 }
 
+/*
 function useContainerData(type: ContainerListType) {
     const [ data, setData ] = useState([] as Container[]);
 
@@ -30,21 +31,29 @@ function useContainerData(type: ContainerListType) {
                         ? ctr.ListAvailable
                         : undefined;
 
-            method?.().then(
-                (result) => {
-                    setData(result);
-                }
-            );
+            method?.()
+                .then(
+                    (result) => {
+                        setData(result ?? []);
+                    }
+                )
+                .catch(
+                    err => {
+                        console.error(err);
+                        setData([]);
+                    }
+                );
         },
         []
     );
 
     return data;
 }
+ */
 
 export const ContainerList: FunctionalComponent<ContainerListProps> =
     ({ type, label }) => {
-        const data = useContainerData(type);
+        const data = [] as Container[]; // useContainerData(type);
 
         if (data.length <= 0) return null;
 
@@ -70,7 +79,7 @@ interface DetailsPaneProps {
 
 export const DetailsPanes: FunctionalComponent<DetailsPaneProps> =
     ({ type }) => {
-        const data = useContainerData(type)
+        const data = [] as Container[]; // useContainerData(type)
         return (
             <Fragment>{
                 data.map(

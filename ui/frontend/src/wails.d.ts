@@ -7,17 +7,16 @@ interface Assets {
 }
 interface Containers {
 	InstallContainer(...args : any[]):Promise<any>
-	ListAvailable(...args : any[]):Promise<any>
-	ListInstalled(...args : any[]):Promise<any>
 	RemoveContainer(...args : any[]):Promise<any>
 	StartContainer(...args : any[]):Promise<any>
 	StopContainer(...args : any[]):Promise<any>
 	WailsInit(...args : any[]):Promise<any>
+	WailsShutdown(...args : any[]):Promise<any>
 }
 
 interface Backend {
-	Assets: Assets
 	Containers: Containers
+	Assets: Assets
 }
 
 declare global {
