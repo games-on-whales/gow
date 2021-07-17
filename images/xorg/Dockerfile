@@ -5,7 +5,7 @@ ENV TZ="Europe/London"
 ENV DISPLAY :0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo \
+    sudo software-properties-common \
     # Video driver taken from https://github.com/mviereck/x11docker/wiki/Hardware-acceleration#hardware-acceleration-with-open-source-drivers-mesa \
     mesa-utils mesa-utils-extra \
     # X11 taken from https://github.com/Kry07/docker-xorg/blob/xonly/Dockerfile\
