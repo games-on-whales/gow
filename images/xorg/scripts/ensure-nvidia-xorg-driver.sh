@@ -36,6 +36,8 @@ HOST_DRIVER_MAJOR_VERSION=$(echo "$HOST_DRIVER_VERSION" | sed -E 's/\..+//')
 XORG_PACKAGE_NAME="xserver-xorg-video-nvidia-$HOST_DRIVER_MAJOR_VERSION"
 GL_PACKAGE_NAME="libnvidia-gl-$HOST_DRIVER_MAJOR_VERSION"
 
+add-apt-repository -y ppa:graphics-drivers/ppa &>/dev/null
+
 # ensure the package info is up to date so we have the best chance of finding a
 # matching driver
 apt-get update &>/dev/null
