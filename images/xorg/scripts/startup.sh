@@ -22,12 +22,6 @@ if [ -S ${DISPLAY_FILE} ]; then
   rm ${DISPLAY_FILE}
 fi
 
-# Launch the rest of the script in a subshell through sudo, to pick up any
-# group memberships that got added above.
-# Note: this isn't really necessary as long as the Xorg container still runs as
-# root.  If there aren't plans to change that in the future, we can get rid of
-# this extra level of indirection
-exec sudo -u $(whoami) -E cat <<'EOF' | bash
 _kill_procs() {
   kill -TERM $xorg
   wait $xorg
@@ -47,6 +41,14 @@ xorg=$!
 jwm &
 jwm=$!
 
+# Setting up resolution
+RESOLUTION=${RESOLUTION:-1920x1080}
+REFRESH_RATE=${REFRESH_RATE:-60}
+wait-x11
+
+CURRENT_OUTPUT=$(xrandr --current | awk 'FNR==2{print $1;}')
+xrandr --addmode ${CURRENT_OUTPUT} ${RESOLUTION} 
+xrandr --output ${CURRENT_OUTPUT} --mode ${RESOLUTION} --rate ${REFRESH_RATE}
+
 wait $xorg
 wait $jwm
-EOF

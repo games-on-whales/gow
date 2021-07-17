@@ -33,6 +33,8 @@ services:
     ipc: shareable # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
       DISPLAY: ${DISPLAY}
+      RESOLUTION: 1920x1080
+      REFRESH_RATE: 60
 
   ####################
   # If you don't have a pulse server start it
