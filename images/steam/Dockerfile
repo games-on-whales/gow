@@ -31,6 +31,11 @@ RUN apt-get update -y && \
 
 # Common scripts
 COPY --chmod=777 common/* /bin/
+# Seems that nvidia-docker is taking care of passing:
+# /usr/lib/x86_64-linux-gnu/libnvidia-glvkspirv.so.460.80
+# /usr/lib/i386-linux-gnu/libnvidia-glvkspirv.so.460.80
+# But it's missing the following json file
+COPY steam/configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
 # Set up the user
 RUN setup-retro-user
 

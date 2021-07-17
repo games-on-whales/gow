@@ -47,8 +47,16 @@ REFRESH_RATE=${REFRESH_RATE:-60}
 wait-x11
 
 CURRENT_OUTPUT=$(xrandr --current | awk 'FNR==2{print $1;}')
-xrandr --addmode ${CURRENT_OUTPUT} ${RESOLUTION} 
-xrandr --output ${CURRENT_OUTPUT} --mode ${RESOLUTION} --rate ${REFRESH_RATE}
+echo "Setting ${CURRENT_OUTPUT} output to: ${RESOLUTION}@${REFRESH_RATE}"
+# First try to use an already set resolution, if available
+if ! xrandr --output ${CURRENT_OUTPUT} --mode ${RESOLUTION} --rate ${REFRESH_RATE}; then 
+  echo "${RESOLUTION} is not detected, trying to add it manually."
+  WIDTH_HEIGHT=(${RESOLUTION//x/ })
+  MODELINE=$(cvt ${WIDTH_HEIGHT[0]} ${WIDTH_HEIGHT[1]} ${REFRESH_RATE} | awk 'FNR==2{print substr($0, index($0,$3))}')
+  xrandr --newmode "${RESOLUTION}_${REFRESH_RATE}"  ${MODELINE}
+  xrandr --addmode ${CURRENT_OUTPUT} "${RESOLUTION}_${REFRESH_RATE}" 
+  xrandr --output ${CURRENT_OUTPUT} --mode "${RESOLUTION}_${REFRESH_RATE}" --rate ${REFRESH_RATE}
+fi
 
 wait $xorg
 wait $jwm
