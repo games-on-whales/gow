@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
 
@@ -25,37 +25,25 @@ services:
       # Shared with Sunshine in order to get mouse and joypad working
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
-      # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-      - /tmp/log:/var/log
       # The xorg socket, it'll be populated when up and running
-      - xorg:/tmp/.X11-unix
-    ipc: shareable # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+      - ${XORG_SOCKET}:/tmp/.X11-unix
+    ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
       DISPLAY: ${DISPLAY}
       RESOLUTION: 1920x1080
+      CURRENT_OUTPUT: HDMI-1
       REFRESH_RATE: 60
 
   ####################
   # If you don't have a pulse server start it
   pulse:
-    depends_on: 
-      - xorg
     build: 
       context: ./images/
       dockerfile: pulseaudio/Dockerfile
     image: gameonwhales/pulseaudio
-    ports: 
-      - 4713:4713
-    volumes:
-      # If you don't pass this it complains (but it runs anyway?) so probably it's not strictly needed
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-      # Xorg socket needed since we are publish to X11 so the clients know how to connect to Pulse
-      - xorg:/tmp/.X11-unix
-      # This will hold cookies so that we can connect to it using auth
-      - ${local_state}/.config/pulse:/home/retro/.config/pulse
-    environment: 
-      DISPLAY: ${DISPLAY}
+    ipc: ${XORG_IPC}
+    volumes: 
+      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
   
   ####################
   sunshine:
@@ -66,32 +54,37 @@ services:
       context: ./images/
       dockerfile: sunshine/Dockerfile
       # Uncomment the following to override the default sunshine version
-      #args:
-      #  SUNSHINE_SHA: v0.9.0
+      # args:
+      #  BUILD_TYPE: RELEASE # To debug run a console inside then gdb -args sunshine > r > on exception: bt
+      #  SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
     image: gameonwhales/sunshine
     network_mode: host
-    # runtime: nvidia
+    runtime: ${DOCKER_RUNTIME}
     privileged: true
     volumes:
       # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
       - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
-      - xorg:/tmp/.X11-unix
+      - ${XORG_SOCKET}:/tmp/.X11-unix
+      # Pulse socket, audio
+      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: sunshine state + configs
       - ${local_state}/:/home/retro/
-    ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+    ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
-      LOG_LEVEL: info # Set to debug or verbose if you want to see more
+      LOG_LEVEL: ${SUNSHINE_LOG_LEVEL}
+      GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/*
       # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990
-      SUNSHINE_USER: admin
-      SUNSHINE_PASS: admin
-      # Using network in order to connect to pulse
-      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
-      # and mount the host socket to the instance
-      PULSE_SERVER: 127.0.0.1
+      SUNSHINE_USER: ${SUNSHINE_USER}
+      SUNSHINE_PASS: ${SUNSHINE_PASS}
+      # Intel drivers, see https://wiki.debian.org/HardwareVideoAcceleration#Installation
+      # LIBVA_DRIVERS_PATH: /usr/lib/x86_64-linux-gnu/dri/
+      # LIBVA_DRIVER_NAME: i965 # or i965 for older generations
+      XDG_RUNTIME_DIR: /tmp/.X11-unix
+      PULSE_SERVER: ${PULSE_SERVER}
 
 
   ####################
@@ -100,8 +93,7 @@ services:
       - xorg
       - pulse
       - sunshine
-    # runtime: nvidia
-    # restart: on-failure
+    runtime: ${DOCKER_RUNTIME}
     build:
       context: ./images/
       dockerfile: retroarch/Dockerfile
@@ -113,10 +105,12 @@ services:
       - /dev/input:/dev/input:ro
       - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
-      - xorg:/tmp/.X11-unix
+      - ${XORG_SOCKET}:/tmp/.X11-unix
+      # Pulse socket, audio
+      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: retroarch games, downloads, cores etc
       - ${local_state}/:/home/retro/
-    ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+    ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
@@ -126,11 +120,8 @@ services:
       # added to the groups that own these devices, to help with permissions
       # issues
       # These values are the defaults, but you can add others if needed
-      # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
-      # Using network in order to connect to pulse
-      # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
-      # and mount the host socket to the instance
-      PULSE_SERVER: 127.0.0.1
+      GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/* /dev/snd/*
+      PULSE_SERVER: ${PULSE_SERVER}
 
   ####################
   # steam:
@@ -138,8 +129,7 @@ services:
   #     - xorg
   #     - pulse
   #     - sunshine
-  #   # runtime: nvidia
-  #   # restart: on-failure
+  #   runtime: ${DOCKER_RUNTIME}
   #   build:
   #     context: ./images/
   #     dockerfile: steam/Dockerfile
@@ -151,7 +141,9 @@ services:
   #     - /dev/input:/dev/input:ro
   #     - /run/udev:/run/udev:ro
   #     # Xorg socket in order to get the screen
-  #     - xorg:/tmp/.X11-unix
+  #     - ${XORG_SOCKET}:/tmp/.X11-unix
+  #     # Pulse socket, audio
+  #     - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
   #     # Home directory: client, games, downloads, etc
   #     - ${local_state}/:/home/retro/
   #     # The following is needed by the webview otherwise you'll get Less than 64MB of free space in temporary directory (https://github.com/microsoft/vscode/issues/111729#issuecomment-737399692)
@@ -160,22 +152,14 @@ services:
   #       target: /dev/shm
   #       tmpfs:
   #           size: 500M
-  #   ipc: service:xorg  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+  #   ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
   #   environment:
   #     DISPLAY: ${DISPLAY}
   #     NVIDIA_DRIVER_CAPABILITIES: compat32,graphics,utility,display,video
   #     NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
   #     PROTON_LOG: 1
   #     # LD_LIBRARY_PATH: /home/retro/.steam/ubuntu12_32/
-  #     # Which devices does GoW need to be able to use? The docker user will be
-  #     # added to the groups that own these devices, to help with permissions
-  #     # issues
-  #     # These values are the defaults, but you can add others if needed
-  #     # GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event*
-  #     # Using network in order to connect to pulse
-  #     # if you do have a pulse server already point this to the pulse socket like unix:/tmp/pulse-sock
-  #     # and mount the host socket to the instance
-  #     PULSE_SERVER: 127.0.0.1
+  #     PULSE_SERVER: ${PULSE_SERVER}
 
   # ####################
   # An example of running an unprivileged X11 app in this environment
@@ -186,16 +170,17 @@ services:
   #     - sunshine
   #   image: andrewmackrodt/firefox-x11
   #   volumes:       
-  #     - xorg:/tmp/.X11-unix
+  #     - ${XORG_SOCKET}:/tmp/.X11-unix
+  #     # Pulse socket, audio
+  #     - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
   #     # If you have permission errors make sure to chomd ${id}:${id} ./local_state
   #     - ${local_state}/ffox:/run/user/1000
-  #     - ${local_state}/.config/pulse:/home/ubuntu/.config/pulse:ro
   #   environment: 
-  #     DISPLAY: ":0"
+  #     DISPLAY: ${DISPLAY}
   #     LOG_LEVEL: info
-  #     PULSE_SERVER: pulse # The name of the pulse container is the hostname in the virtual network
-
+  #     PULSE_SERVER: ${PULSE_SERVER}
 
 ####################
 volumes:
   xorg: # This will hold the xorg socket file and it'll be shared between containers
+  pulse: # This will hold the xorg socket

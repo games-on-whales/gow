@@ -62,7 +62,7 @@ if ! xrandr --output ${CURRENT_OUTPUT} --mode ${RESOLUTION} --rate ${REFRESH_RAT
   MODELINE=$(cvt ${WIDTH_HEIGHT[0]} ${WIDTH_HEIGHT[1]} ${REFRESH_RATE} | awk 'FNR==2{print substr($0, index($0,$3))}')
   xrandr --newmode "${RESOLUTION}_${REFRESH_RATE}"  ${MODELINE}
   xrandr --addmode ${CURRENT_OUTPUT} "${RESOLUTION}_${REFRESH_RATE}"
-  xrandr --output ${CURRENT_OUTPUT} --mode "${RESOLUTION}_${REFRESH_RATE}" --rate ${REFRESH_RATE}
+  xrandr --output ${CURRENT_OUTPUT} --mode "${RESOLUTION}_${REFRESH_RATE}" --rate ${REFRESH_RATE} --primary
 fi
 
 wait $xorg

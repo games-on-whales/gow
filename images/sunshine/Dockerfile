@@ -1,12 +1,15 @@
-FROM ubuntu:20.04 AS base
+FROM ubuntu:21.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive 
 ENV TZ="Europe/London"
 
 ENV UNAME retro
+
 # Pulling Sunshine v0.9.0
 ARG SUNSHINE_SHA=5ff5942258015d0c690c58cd5ed4b32b45e3a856
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
+ARG BUILD_TYPE=RELEASE 
+ENV BUILD_TYPE=${BUILD_TYPE}
 
 ######################################
 FROM base AS sunshine-builder
@@ -20,15 +23,15 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     cd sunshine && \
     # Fix the SHA commit
-    git checkout $SUNSHINE_SHA && \
+    git checkout -qf $SUNSHINE_SHA && \
     # Just printing out git info so that I can double check on CI if the right version as been picked up
     git show && \
     # Recursively download submodules
     git submodule update --init --recursive && \
     # Normal compile
     mkdir build && cd build && \
-    cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=Release -DSUNSHINE_EXECUTABLE_PATH=sunshine -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
-    make -j ${nproc} && \
+    cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSUNSHINE_EXECUTABLE_PATH=sunshine -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
+    make -j${nproc} && \
     # Generate the debian install package
     ./gen-deb
 
@@ -42,8 +45,14 @@ COPY --from=sunshine-builder /sunshine/build/package-deb/sunshine.deb /sunshine.
 # This will take care of installing the required dependencies
 RUN apt-get update -y && \
     apt-get install -y -f /sunshine.deb \
-    # Seems that libgbm1 is missing
-    && apt-get install -y --no-install-recommends libgbm1 \
+    && apt-get install -y --no-install-recommends \
+    # Seems that libgbm1 and libgl is missing
+    libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
+    # Intel GPU drivers
+    i965-va-driver-shaders \
+    intel-media-va-driver-non-free \
+    libdrm-intel1 \
+    libva-drm2 libva-x11-2 va-driver-all \
     # Install xdpyinfo so that we can wait for X11 on startup
     x11-utils \
     # sudo isn't installed by default
@@ -56,6 +65,12 @@ ENV HOME /home/$UNAME
 COPY --chmod=777 common/* /bin/
 # Set up the user
 RUN setup-retro-user
+
+# Utils for debugging
+# RUN apt-get update -y && \
+#     apt-get install -y --no-install-recommends gdb vainfo ffmpeg \
+#     && apt-get remove -y software-properties-common \
+#     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR $HOME
 USER ${UNAME}
@@ -70,6 +85,5 @@ EXPOSE 47984-47990/tcp
 EXPOSE 48010
 EXPOSE 48010/udp 
 EXPOSE 47998-48000/udp
-
 
 CMD /bin/bash /startup.sh

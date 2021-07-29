@@ -3,16 +3,16 @@
 
 .fail
     # We don't do socket connection (YET?)
-    #load-module module-native-protocol-unix auth-anonymous=1
+    load-module module-native-protocol-unix auth-anonymous=1 socket=/tmp/pulse/pulse-socket
     
     # Needed in order for other containers to connect to this instance
     # add auth-anonymous=1 if you have permission errors
     # in theory we don't need it since we share the .config/pulse/cookie folder between containers
-    load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/24
+    #load-module module-native-protocol-tcp auth-anonymous=1
 
-.nofail
-.ifexists module-x11-publish.so
-    # Publish to X11 so the clients know how to connect to Pulse. Will
-    # clear itself on unload.
-    load-module module-x11-publish
-.endif
+#.nofail
+#.ifexists module-x11-publish.so
+#    # Publish to X11 so the clients know how to connect to Pulse. Will
+#    # clear itself on unload.
+#    load-module module-x11-publish
+#.endif
