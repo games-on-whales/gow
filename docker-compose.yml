@@ -29,10 +29,11 @@ services:
       - ${XORG_SOCKET}:/tmp/.X11-unix
     ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment: 
-      DISPLAY: ${DISPLAY}
-      RESOLUTION: 1920x1080
-      CURRENT_OUTPUT: HDMI-1
-      REFRESH_RATE: 60
+      DISPLAY: ${XORG_DISPLAY}
+      RESOLUTION: ${XORG_RESOLUTION}
+      CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}
+      REFRESH_RATE: ${XORG_REFRESH_RATE}
+      FORCE_RESOLUTION: ${XORG_FORCE_RESOLUTION}
 
   ####################
   # If you don't have a pulse server start it
@@ -72,7 +73,7 @@ services:
       - ${local_state}/:/home/retro/
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
-      DISPLAY: ${DISPLAY}
+      DISPLAY: ${XORG_DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
       LOG_LEVEL: ${SUNSHINE_LOG_LEVEL}
@@ -112,7 +113,7 @@ services:
       - ${local_state}/:/home/retro/
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
-      DISPLAY: ${DISPLAY}
+      DISPLAY: ${XORG_DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
       LOG_LEVEL: info # Set to debug or verbose if you want to see more
@@ -154,7 +155,7 @@ services:
   #           size: 500M
   #   ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
   #   environment:
-  #     DISPLAY: ${DISPLAY}
+  #     DISPLAY: ${XORG_DISPLAY}
   #     NVIDIA_DRIVER_CAPABILITIES: compat32,graphics,utility,display,video
   #     NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
   #     PROTON_LOG: 1
@@ -176,7 +177,7 @@ services:
   #     # If you have permission errors make sure to chomd ${id}:${id} ./local_state
   #     - ${local_state}/ffox:/run/user/1000
   #   environment: 
-  #     DISPLAY: ${DISPLAY}
+  #     DISPLAY: ${XORG_DISPLAY}
   #     LOG_LEVEL: info
   #     PULSE_SERVER: ${PULSE_SERVER}
 

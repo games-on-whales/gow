@@ -14,20 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/$UNAME
-# Set up the user
-# Taken from https://github.com/TheBiggerGuy/docker-pulseaudio-example
-RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-    mkdir -p "/home/${UNAME}" && \
-    echo "${UNAME}:x:${UID}:${GID}:${UNAME} User,,,:/home/${UNAME}:/bin/bash" >> /etc/passwd && \
-    echo "${UNAME}:x:${UID}:" >> /etc/group && \
-    mkdir -p /etc/sudoers.d && \
-    echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
-    chmod 0440 /etc/sudoers.d/${UNAME} && \
-    chown ${UID}:${GID} -R /home/${UNAME} && \
-    gpasswd -a ${UNAME} audio
-
 WORKDIR $HOME
-USER $UNAME
 
 COPY pulseaudio/configs/default.pa /etc/pulse/default.pa
 COPY pulseaudio/configs/client.conf /etc/pulse/client.conf
