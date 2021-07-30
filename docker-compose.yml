@@ -19,12 +19,12 @@ services:
       context: ./images/
       dockerfile: xorg/Dockerfile
     image: gameonwhales/xorg
-    network_mode: host # Needed by uinput
+    network_mode: ${UDEVD_NETWORK}
     privileged: true
     volumes: 
       # Shared with Sunshine in order to get mouse and joypad working
       - /dev/input:/dev/input:ro
-      - /run/udev:/run/udev:ro
+      - udev:/run/udev/:ro
       # The xorg socket, it'll be populated when up and running
       - ${XORG_SOCKET}:/tmp/.X11-unix
     ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
@@ -47,6 +47,26 @@ services:
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
   
   ####################
+  # This is not really needed right now
+  # It still relies on host udev
+  # I'll keep it so that we can isolate services that needs udev
+  # And it's good to log the events to debug Sunshine created devices
+  udevd:
+    build:
+      context: ./images/
+      dockerfile: udevd/Dockerfile
+    image: gameonwhales/udevd
+    # Setting network to host
+    # There must be a way to avoid this but I can't figure it out
+    # We need to be on the host network in order to get the PF_NETLINK socket
+    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
+    network_mode: host
+    privileged: true 
+    volumes:
+      - udev:/run/udev/
+
+
+  ####################
   sunshine:
     depends_on: 
       - xorg
@@ -59,12 +79,13 @@ services:
       #  BUILD_TYPE: RELEASE # To debug run a console inside then gdb -args sunshine > r > on exception: bt
       #  SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
     image: gameonwhales/sunshine
-    network_mode: host
+    ports: 
+      - 47984-47990:47984-47990/tcp
+      - 48010:48010
+      - 47998-48000:47998-48000/udp
     runtime: ${DOCKER_RUNTIME}
     privileged: true
     volumes:
-      # Followings are needed by Sunshine to create and manage virtual devices (mouse, joypad, ...)
-      - /run/udev:/run/udev:ro
       # Xorg socket in order to get the screen
       - ${XORG_SOCKET}:/tmp/.X11-unix
       # Pulse socket, audio
@@ -99,12 +120,13 @@ services:
       context: ./images/
       dockerfile: retroarch/Dockerfile
     image: gameonwhales/retroarch
-    network_mode: host
+    # network_mode: host
     privileged: true
+    network_mode: ${UDEVD_NETWORK}
     volumes:
       # Followings are needed in order to get joystick support
       - /dev/input:/dev/input:ro
-      - /run/udev:/run/udev:ro
+      - udev:/run/udev/:ro
       # Xorg socket in order to get the screen
       - ${XORG_SOCKET}:/tmp/.X11-unix
       # Pulse socket, audio
@@ -116,7 +138,6 @@ services:
       DISPLAY: ${XORG_DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
       NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
-      LOG_LEVEL: info # Set to debug or verbose if you want to see more
       # Which devices does GoW need to be able to use? The docker user will be
       # added to the groups that own these devices, to help with permissions
       # issues
@@ -135,12 +156,12 @@ services:
   #     context: ./images/
   #     dockerfile: steam/Dockerfile
   #   image: gameonwhales/steam
-  #   network_mode: host
+  #   network_mode: ${UDEVD_NETWORK}
   #   privileged: true
   #   volumes:
   #     # Followings are needed in order to get joystick support
   #     - /dev/input:/dev/input:ro
-  #     - /run/udev:/run/udev:ro
+  #     - udev:/run/udev:ro
   #     # Xorg socket in order to get the screen
   #     - ${XORG_SOCKET}:/tmp/.X11-unix
   #     # Pulse socket, audio
@@ -185,3 +206,4 @@ services:
 volumes:
   xorg: # This will hold the xorg socket file and it'll be shared between containers
   pulse: # This will hold the xorg socket
+  udev: # This will hold shared udev files
