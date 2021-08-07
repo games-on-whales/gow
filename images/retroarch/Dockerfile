@@ -11,7 +11,7 @@ RUN apt-get update && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y retroarch libretro-* \
+    apt-get install -y retroarch retroarch-assets libretro* \
     # Install xdpyinfo so that we can wait for X11 on startup
     x11-utils \
     && \
