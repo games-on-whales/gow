@@ -2,10 +2,17 @@ name: docker_build
 
 on:
   push:
-    branches:
-      - 'master'
     paths:
       - 'images/**'
+      - '.github/workflows/docker-build.yml'
+    branches:
+    - main
+  pull_request: #They will only build the containers, not push them
+    types:
+    - opened
+    - reopened
+  schedule:
+  - cron: "0 0 * * *" #nightly
   workflow_dispatch:
 
 jobs:
@@ -13,40 +20,119 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image_name: [xorg, pulseaudio, udevd, sunshine, retroarch, steam]
+        image:
+        - { name: xorg,       platforms: "linux/amd64,linux/arm64" }
+        - { name: pulseaudio, platforms: "linux/amd64,linux/arm64" }
+        - { name: udevd,      platforms: "linux/amd64,linux/arm64" }
+        - { name: sunshine,   platforms: "linux/amd64" }
+        - { name: retroarch,  platforms: "linux/amd64,linux/arm64" }
+        - { name: steam,      platforms: "linux/amd64"             }
+      fail-fast: false
     steps:
 
       - name: Checkout
         uses: actions/checkout@v2
+
+      # Set derived configuration variables:
+      # - images: images to build (docker and/or github)
+      # - push: if images need to be uploaded to repository (when secrets available)
+      # - has_docker_token
+      # - has_github_token
+      # - cache_from: image tag to use for imported cache
+      # - cache_to: image tag to use for exported cache
+      # - github_server_url: reference to source code repository
+
+      - name: Prepare
+        id: prep
+        run: |
+          IMAGES="${{ matrix.image.name }}"
+          PUSH=false
+
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            if [[ $github.repository_owner == game-on-whales ]]; then
+              # For oficial repository, github and org names do not match
+              IMAGES="gameonwhales/${{ matrix.image.name }}"
+            else
+              # By default, assume docker and github org names match
+              IMAGES="${{ github.repository_owner }}/${{ matrix.image.name }}"
+            fi
+            PUSH=true
+            echo ::set-output name=has_docker_token::true
+          fi
+
+          if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
+            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ matrix.image.name }}"
+            IMAGES="$IMAGES,ghcr.io/${REGISTRY_IMAGE}"
+            PUSH=true
+            echo ::set-output name=has_github_token::true
+            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+            echo ::set-output name=cache_to::"type=registry,ref=${REGISTRY_IMAGE}:buildcache,mode=max"
+          else
+            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+            echo ::set-output name=cache_to::""
+          fi
+
+          echo ::set-output name=images::"${IMAGES}"
+          echo ::set-output name=push::${PUSH}
+          echo ::set-output name=github_server_url::"${GITHUB_SERVER_URL}"
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v3
         with:
           # list of Docker images to use as base name for tags
-          images: gameonwhales/${{ matrix.image_name }}
+          images: ${{ steps.prep.outputs.images }}
           # generate Docker tags based on the following events/attributes
-          tags: type=sha
-          flavor: latest=true
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=edge,branch=master
+            type=sha
+          flavor: latest=auto #latest will point to last semver version (stable)
+
+      # Prepare for multi-arch
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+          version: latest
+          driver-opts: image=moby/buildkit:master
 
       - name: Login to DockerHub
+        if: steps.prep.outputs.has_docker_token != '' # secrets not available in PRs
         uses: docker/login-action@v1 
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Login to GitHub Container Registry
+        if: steps.prep.outputs.has_github_token != '' # secrets not available in PRs
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and Push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
+          builder: ${{ steps.buildx.outputs.name }}
           context: ./images/
-          file: ./images/${{ matrix.image_name }}/Dockerfile
-          push: true
+          file: ./images/${{ matrix.image.name }}/Dockerfile
+          platforms: ${{ matrix.image.platforms }}
+          push: ${{ steps.prep.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
+          cache-from: ${{ steps.prep.outputs.cache_from }}
+          cache-to: ${{ steps.prep.outputs.cache_to }}
 
       - name: Image digest
-        run: echo "${{ matrix.image_name }} > ${{ steps.docker_build.outputs.digest }}"
+        run: echo "${{ matrix.image.name }} > ${{ steps.docker_build.outputs.digest }}"
