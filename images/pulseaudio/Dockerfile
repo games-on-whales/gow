@@ -26,3 +26,6 @@ COPY --chmod=777 common/* /bin/
 EXPOSE 4713
 
 CMD /bin/bash /startup.sh
+
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE
