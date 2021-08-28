@@ -2,9 +2,8 @@ name: docker_build
 
 on:
   push:
-    paths:
-      - 'images/**'
-      - '.github/workflows/docker-build.yml'
+    tags:
+    - "v*.*.*"
     branches:
     - main
   pull_request: #They will only build the containers, not push them
