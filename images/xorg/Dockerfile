@@ -32,3 +32,6 @@ COPY --chmod=777 common/* /bin/
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
 CMD /bin/bash /startup.sh
+
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE

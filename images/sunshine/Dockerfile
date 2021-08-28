@@ -87,3 +87,6 @@ EXPOSE 48010/udp
 EXPOSE 47998-48000/udp
 
 CMD /bin/bash /startup.sh
+
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE
