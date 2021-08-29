@@ -133,6 +133,12 @@ services:
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: retroarch games, downloads, cores etc
       - ${local_state}/:/home/retro/
+      # some emulators need more than 64 MB of shared memory - see https://github.com/libretro/dolphin/issues/222
+      # TODO: why shm_size doesn't work ??????
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+            size: ${SHM_SIZE}
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${XORG_DISPLAY}
@@ -173,7 +179,7 @@ services:
   #     - type: tmpfs
   #       target: /dev/shm
   #       tmpfs:
-  #           size: 500M
+  #           size: ${SHM_SIZE}
   #   ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
   #   environment:
   #     DISPLAY: ${XORG_DISPLAY}
