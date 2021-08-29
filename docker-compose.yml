@@ -138,7 +138,7 @@ services:
       - type: tmpfs
         target: /dev/shm
         tmpfs:
-            size: 500M
+            size: ${SHM_SIZE}
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${XORG_DISPLAY}
@@ -179,7 +179,7 @@ services:
   #     - type: tmpfs
   #       target: /dev/shm
   #       tmpfs:
-  #           size: 500M
+  #           size: ${SHM_SIZE}
   #   ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
   #   environment:
   #     DISPLAY: ${XORG_DISPLAY}

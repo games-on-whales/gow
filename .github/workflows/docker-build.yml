@@ -48,16 +48,7 @@ jobs:
           PUSH=false
 
           if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            if [ -n "${{ secrets.DOCKERHUB_ORG }}" ]; then
-              # If explicitly set org, use it
-              IMAGES="${{ secrets.DOCKERHUB_ORG }}/${{ matrix.image.name }}"
-            elif [[ $github.repository_owner == games-on-whales ]]; then
-              # For oficial repository, github and org names do not match
-              IMAGES="gameonwhales/${{ matrix.image.name }}"
-            else
-              # By default, assume docker and github org names match
-              IMAGES="${{ github.repository_owner }}/${{ matrix.image.name }}"
-            fi
+            IMAGES="${{ secrets.DOCKERHUB_ORG }}/${{ matrix.image.name }}"
             PUSH=true
             echo ::set-output name=has_docker_token::true
           fi
