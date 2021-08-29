@@ -48,7 +48,10 @@ jobs:
           PUSH=false
 
           if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            if [[ $github.repository_owner == game-on-whales ]]; then
+            if [ -n "${{ secrets.DOCKERHUB_ORG }}" ]; then
+              # If explicitly set org, use it
+              IMAGES="${{ secrets.DOCKERHUB_ORG }}/${{ matrix.image.name }}"
+            elif [[ $github.repository_owner == games-on-whales ]]; then
               # For oficial repository, github and org names do not match
               IMAGES="gameonwhales/${{ matrix.image.name }}"
             else
