@@ -2,10 +2,6 @@ name: docker_build
 
 on:
   push:
-    tags:
-    - "v*.*.*"
-    branches:
-    - main
   pull_request: #They will only build the containers, not push them
     types:
     - opened
