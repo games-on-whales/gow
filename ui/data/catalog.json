@@ -1,0 +1,43 @@
+{
+    "containers": [
+        {
+            "id": "retroarch-1",
+            "name": "RetroArch",
+            "icon": "http://localhost:8081/retroarch-icon.png",
+            "banner": "http://localhost:8081/retroarch-banner.png",
+            "summary": "Cross-platform, sophisticated frontend for the libretro API",
+            "description": "A long description goes here"
+        },
+        {
+            "id": "steam-1",
+            "name": "Steam",
+            "icon": "http://localhost:8081/steam-icon.png",
+            "banner": "http://localhost:8081/steam-banner.png",
+            "summary": "Steam is steam.",
+            "description": "A long description goes here"
+        },
+        {
+            "id": "firefox-1",
+            "name": "Firefox",
+            "icon": "http://localhost:8081/firefox-icon.png",
+            "banner": "http://localhost:8081/firefox-banner.png",
+            "summary": "Browse the web with Firefox",
+            "description": "A long description goes here"
+        }
+    ],
+    "featured": [
+        "firefox-1",
+        "steam-1",
+        "retroarch-1"
+    ],
+    "lists": [
+        {
+            "name": "Popular",
+            "contents": [ "steam-1" ]
+        },
+        {
+            "name": "Another List",
+            "contents": [ "firefox-1", "retroarch-1" ]
+        }
+    ]
+}
