@@ -6,4 +6,18 @@ export interface Containers { }
 export interface Container {
     Name: string;
     Id: string;
+    Summary: string;
+    Description: string;
 }
+
+export interface ContainerList {
+    Name: string;
+    Contents: Container[];
+}
+
+export interface ContainerStore {
+    Available: Record<string, Container>;
+    Lists: ContainerList[];
+    Featured: Container[];
+}
+

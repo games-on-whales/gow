@@ -1,0 +1,21 @@
+.container-list {
+    margin-bottom: 30px;
+
+    & h1 {
+        font-weight: bold;
+        font-size: x-large;
+        color: #999;
+        margin-left: 6px;
+        margin-bottom: 4px;
+    }
+
+    & .card-group {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+
+        & .card-item {
+            width: 306px;
+        }
+    }
+}

@@ -2,96 +2,46 @@ import { Fragment, h } from 'preact';
 
 import { useState, useEffect } from 'preact/hooks';
 
-import TabPane from 'react-bootstrap/TabPane';
-import ListGroup from 'react-bootstrap/ListGroup';
+import CardGroup from 'react-bootstrap/CardGroup';
+import Card from 'react-bootstrap/Card';
+import Box from 'react-bootstrap/Container';
 
-import style from './style.css';
+import { run as runHolder } from 'holderjs';
+
+import style from './style.module.css';
 
 import type { FunctionalComponent } from 'preact';
 import type { Container } from '~/types';
 
-type ContainerListType =  'installed' | 'available';
-
-interface ContainerListProps {
-    type: ContainerListType;
-    label: string;
+interface ListProps {
+    name: string;
+    contents: Container[];
 }
 
-/*
-function useContainerData(type: ContainerListType) {
-    const [ data, setData ] = useState([] as Container[]);
-
-    useEffect(
-        () => {
-            const ctr = window.backend.Containers;
-            const method =
-                type === 'installed'
-                    ? ctr.ListInstalled
-                    : type === 'available'
-                        ? ctr.ListAvailable
-                        : undefined;
-
-            method?.()
-                .then(
-                    (result) => {
-                        setData(result ?? []);
-                    }
-                )
-                .catch(
-                    err => {
-                        console.error(err);
-                        setData([]);
-                    }
-                );
-        },
-        []
-    );
-
-    return data;
-}
- */
-
-export const ContainerList: FunctionalComponent<ContainerListProps> =
-    ({ type, label }) => {
-        const data = [] as Container[]; // useContainerData(type);
-
-        if (data.length <= 0) return null;
+export const ContainerList: FunctionalComponent<ListProps> =
+    ({ name, contents}) => {
+        useEffect(
+            () => {
+                runHolder(style['card-item'] as any)
+            }
+        );
 
         return (
-            <div className={style['container-list']}>
-                <h1>{label}</h1>
-                <ListGroup>{
-                    data.map(
-                        ({ Name, Id }, idx) => (
-                            <ListGroup.Item action key={Id} href={`#${Id}`}>
-                                {Name}
-                            </ListGroup.Item>
+            <Box className={style['container-list']}>
+                <h1>{name}</h1>
+                <div className={style['card-group']}>
+                    {contents.map(
+                        x => (
+                            <Card key={x.Id} className={style['card-item']}>
+                                <Card.Img src={`holder.js/306x160?text=${x.Name}&theme=sky`} variant="top" />
+                                <Card.Body>
+                                    <Card.Title>{x.Name}</Card.Title>
+                                    <Card.Text>{x.Summary}</Card.Text>
+                                </Card.Body>
+                            </Card>
                         )
-                    )
-                }</ListGroup>
-            </div>
-        )
+                    )}
+                </div>
+            </Box>
+        );
     };
-
-interface DetailsPaneProps {
-    type: ContainerListType;
-}
-
-export const DetailsPanes: FunctionalComponent<DetailsPaneProps> =
-    ({ type }) => {
-        const data = [] as Container[]; // useContainerData(type)
-        return (
-            <Fragment>{
-                data.map(
-                    ({ Name, Id }) => (
-                        <TabPane eventKey={`#${Id}`}>
-                            <div>
-                                Details for container "{Name}" ({Id})
-                            </div>
-                        </TabPane>
-                    )
-                )
-            }</Fragment>
-        )
-    }
-

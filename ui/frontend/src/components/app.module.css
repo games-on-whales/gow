@@ -1,0 +1,32 @@
+:root {
+    --carousel-item-dot-size: 12px;
+    --carousel-item-dot-gap: calc(var(--carousel-item-dot-size) / 2);
+}
+
+.content {
+    padding: 12px;
+}
+
+.full-width {
+    width: 100%;
+    padding: 0;
+}
+
+.featured-apps {
+    width: 100%;
+
+    & ol:global(.carousel-indicators) {
+        gap: 6px;
+
+        & > li {
+            background-color: white;
+            border-radius: 50%;
+            height: var(--carousel-item-dot-size);
+            width: var(--carousel-item-dot-size);
+
+            &:global(.active) {
+                background-color: rgb(160, 160, 160);
+            }
+        }
+    }
+}

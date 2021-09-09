@@ -10,13 +10,14 @@ interface Containers {
 	RemoveContainer(...args : any[]):Promise<any>
 	StartContainer(...args : any[]):Promise<any>
 	StopContainer(...args : any[]):Promise<any>
+	TriggerStoreUpdate(...args : any[]):Promise<any>
 	WailsInit(...args : any[]):Promise<any>
 	WailsShutdown(...args : any[]):Promise<any>
 }
 
 interface Backend {
-	Containers: Containers
 	Assets: Assets
+	Containers: Containers
 }
 
 declare global {

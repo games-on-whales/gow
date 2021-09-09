@@ -3,7 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import Navbar from 'react-bootstrap/Navbar';
 import isDataUrl from 'valid-data-url';
 
-import style from './style.css';
+import style from './style.module.css';
 
 import logo from './gow-header.png';
 

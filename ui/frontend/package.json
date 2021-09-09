@@ -21,8 +21,10 @@
     ]
   },
   "dependencies": {
+    "@dr.pogodin/babel-plugin-react-css-modules": "^6.1.1",
     "@wailsapp/runtime": "^1.1.1",
     "bootstrap": "^5.0.2",
+    "holderjs": "^2.9.9",
     "preact": "^10.3.1",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1",
@@ -31,10 +33,12 @@
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.5",
+    "@types/holderjs": "^2.9.2",
     "@types/jest": "^26.0.8",
+    "@types/react-css-modules": "^4.6.4",
     "@types/valid-data-url": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.25.0",
-    "@typescript-eslint/parser": "^2.25.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-preact-pure": "^3.1.0",
     "eslint": "^6.8.0",
@@ -42,10 +46,12 @@
     "jest": "^26.2.2",
     "jest-preset-preact": "^4.0.2",
     "mkdirp": "^1.0.4",
-    "preact-cli": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "preact-cli": "^3.2.2",
     "sirv-cli": "^1.0.0-next.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
-    "typescript": "^3.7.5"
+    "typescript": "^4.3.5",
+    "typescript-plugin-css-modules": "^3.4.0"
   },
   "jest": {
     "preset": "jest-preset-preact",
