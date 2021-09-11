@@ -16,17 +16,13 @@ data "template_cloudinit_config" "config" {
       write_files = [
         {
           encoding = "b64"
-          content = filebase64("${path.module}/../docker-compose.yml")
-          path = "/tmp/gow/docker-compose.yml"
-          owner = "ubuntu:ubuntu"
-          permissions = "0744"
+          content = filebase64("${path.module}/../.env")
+          path = "/tmp/gow/.env"
         },
         {
           encoding = "b64"
-          content = filebase64("${path.module}/../.env")
-          path = "/tmp/gow/.env"
-          owner = "ubuntu:ubuntu"
-          permissions = "0744"
+          content = filebase64("${path.module}/../docker-compose.yml")
+          path = "/tmp/gow/docker-compose.yml"
         }
       ]
     })

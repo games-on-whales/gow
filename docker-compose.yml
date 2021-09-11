@@ -82,7 +82,7 @@ services:
     ports: 
       - 47984-47990:47984-47990/tcp
       - 48010:48010
-      - 47998-48000:47998-48000/udp
+      - 47998-48002:47998-48002/udp
     runtime: ${DOCKER_RUNTIME}
     privileged: true
     volumes:

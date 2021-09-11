@@ -43,7 +43,7 @@ resource "aws_security_group_rule" "in_sunshine_4" {
   protocol = "udp"
   security_group_id = aws_security_group.sg.id
   from_port = 47998
-  to_port = 48000
+  to_port = 48002
   cidr_blocks = ["${local.local_ip}/32"]
 }
 

@@ -14,11 +14,12 @@ provider "aws" {
 
 data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners = ["099720109477"] # Canonical
+  owners = ["099720109477"]
+  # Canonical
 
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-hirsute-21.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-*-${var.ubuntu-version}-amd64-server-*"]
   }
 }
 
@@ -42,28 +43,28 @@ resource "aws_instance" "aws_instance" {
 
   user_data_base64 = data.template_cloudinit_config.config.rendered
 
-//  connection {
-//    host = self.public_ip
-//    type = "ssh"
-//    agent = false
-//    private_key = file("~/.ssh/gow-tf-key.pem")
-//    user = "ubuntu"
-//  }
-//
-//  provisioner "file" {
-//    source = "../docker-compose.yml"
-//    destination = "/tmp/gow/docker-compose.yml"
-//  }
-//
-//  provisioner "file" {
-//    source = "../.env"
-//    destination = "/tmp/gow/.env"
-//  }
-//
-//  provisioner "remote-exec" {
-//    inline = [
-//      "sh cd /tmp/gow && docker-compose pull",
-//      "sh cd /tmp/gow && docker-compose up -d",
-//    ]
-//  }
+  //  connection {
+  //    host = self.public_ip
+  //    type = "ssh"
+  //    agent = false
+  //    private_key = file("~/.ssh/gow-tf-key.pem")
+  //    user = "ubuntu"
+  //  }
+  //
+  //  provisioner "file" {
+  //    source = "../docker-compose.yml"
+  //    destination = "/tmp/gow/docker-compose.yml"
+  //  }
+  //
+  //  provisioner "file" {
+  //    source = "../.env"
+  //    destination = "/tmp/gow/.env"
+  //  }
+  //
+  //  provisioner "remote-exec" {
+  //    inline = [
+  //      "sh cd /tmp/gow && docker-compose pull",
+  //      "sh cd /tmp/gow && docker-compose up -d",
+  //    ]
+  //  }
 }

@@ -3,8 +3,14 @@ variable "aws-region" {
 }
 
 variable "instance-type" {
-  # Testing out a small image first
-  default = "t3.micro"
+  # g3s.xlarge == Lowest Nvidia capable instance
+  default = "g3s.xlarge"
+}
+
+variable "ubuntu-version" {
+  # Seems that 20.04 is the last version that supports nvidia-docker
+  # see: https://nvidia.github.io/nvidia-docker/
+  default = "20.04"
 }
 
 variable "ssh-key-name" {
