@@ -1,0 +1,21 @@
+package_update: true
+repo_upgrade: all
+packages:
+  - docker.io
+groups:
+  - docker
+users:
+  - default
+  - name: ubuntu
+    groups: docker
+runcmd:
+  # Update docker-compose
+  - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+  # Fix permissions
+  - mkdir /tmp/gow/images
+  - mkdir /tmp/gow/local_state
+  - chown -R ubuntu:ubuntu /tmp/gow
+  # Start docker-compose
+  - cd /tmp/gow && docker-compose pull
+  - cd /tmp/gow && docker-compose up -d
