@@ -20,6 +20,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     git ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 
+# Avoid caching if status has changed - https://stackoverflow.com/questions/36996046/how-to-prevent-dockerfile-caching-git-clone
+ARG GITHUB_API_FOR_CACHE /dev/null
+ADD ${GITHUB_API_FOR_CACHE} version.json
+
 RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
     cd sunshine && \
     # Fix the SHA commit
