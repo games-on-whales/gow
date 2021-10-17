@@ -5,8 +5,8 @@ ENV TZ="Europe/London"
 
 ENV UNAME retro
 
-# Pulling Sunshine v0.10.1
-ARG SUNSHINE_SHA=7a920da06d1417828674842f44b919b75d70d3fe
+# Pulling Sunshine v0.11.1
+ARG SUNSHINE_SHA=e4c9c292e57d39136df2d46d1e9b66eba53f3bd3
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
 ARG BUILD_TYPE=RELEASE 
 ENV BUILD_TYPE=${BUILD_TYPE}
@@ -55,6 +55,8 @@ RUN apt-get update -y && \
     libva-drm2 libva-x11-2 va-driver-all \
     # Install xdpyinfo so that we can wait for X11 on startup
     x11-utils \
+    # libavahi for LAN discovery
+    libavahi-client3 \
     # sudo isn't installed by default
     sudo \
     && rm -rf /var/lib/apt/lists/*
