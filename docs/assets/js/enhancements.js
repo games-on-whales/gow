@@ -49,6 +49,10 @@ function removeAllActive() {
     document.querySelectorAll(".active").forEach(el => {
         el.classList.remove("active");
     })
+    // On mobile, close on selection
+    document.querySelector(".site-nav").classList.remove("nav-open");
+    document.querySelector(".main-header").classList.remove("nav-open");
+    document.querySelector(".site-button").classList.remove("nav-open");
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
