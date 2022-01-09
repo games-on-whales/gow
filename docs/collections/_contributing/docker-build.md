@@ -5,13 +5,13 @@ nav_order: 2
 ---
 # Docker build
 
-So you don't trust downloading Docker images from the web eh? You are right! No one should trust *the internet*!
+So you don't trust downloading Docker images from the web, eh? You are right! No one should trust *the internet*!
 
-Our images are built and pushed using Github Actions, you can manually check if the images are being tampered by doing the followings:
+Our images are built and pushed using Github Actions. You can manually check if the images are being tampered by doing the followings:
 
 - Head over to the [`Actions`](https://github.com/games-on-whales/gow/runs/) section on Github and open up the build that you want to check
-- For each generated Docker image there's a step called `Image digest` here's the sha checksum of the image generated on Github
-- Head over to the [Docker hub](https://hub.docker.com/layers/gameonwhales/xorg/sha-98e5080/images/sha256-6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61?context=repo) and check that the sha for the image and the sha for the commit are the same as it's displayed in Github
+- For each generated Docker image there's a step called `Image digest` -- this is the sha256 checksum of the image generated on Github
+- Head over to the [Docker hub](https://hub.docker.com/layers/gameonwhales/xorg/sha-98e5080/images/sha256-6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61?context=repo) and check that the sha256 checksum for the image and the sha256 checksum for the commit are the same as it's displayed in Github
 
 ### Example
 
@@ -30,9 +30,9 @@ Digest:sha256:6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61
 ```
 
 
-## I don't trust you let me build the images myself
+## I don't trust you, let me build the images myself
 
-You sure can! We use docker buildkit, make sure it's installed in your environment.
+You sure can! We use docker buildkit -- make sure it's installed in your environment.
 In order to build it locally run:
 
 ```
