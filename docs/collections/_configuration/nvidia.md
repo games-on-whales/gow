@@ -18,7 +18,7 @@ nav_order: 2
 
 ## Nvidia GPUs with `nouveau` drivers
 
-Make sure that the host doesn't use proprietary drivers but it's using the open source `nouveau` drivers.
+Make sure that the host doesn't use proprietary drivers but that it's using the open source `nouveau` drivers.
 ```
 sudo lshw -class video | grep driver=
        configuration: driver=nouveau latency=0
@@ -43,9 +43,9 @@ $ lshw -class video | grep -i driver
        configuration: driver=nvidia latency=0
 ```
 
-In order to make use of your GPU inside docker containers, you'll need to set up the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
+In order to make use of your GPU inside a docker container, you'll need to set up the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 
-Once that's done, you can run the container, you should add the following ENV variables to the docker-compose file
+Once that's done, you can run the container. You should add the following ENV variables to the docker-compose file:
 
 ```yaml
 environment: 
