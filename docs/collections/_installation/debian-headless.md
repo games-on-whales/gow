@@ -10,7 +10,7 @@ Make sure to checkout the [Overview]({{ site.baseurl }}{% link _overview/overvie
 
 ## Requirement: uinput
 
-This is a required kernel module in order for Sunshine to manage and create virtual devices (mouse,joypad, etc etc.).
+This is a required kernel module in order for Sunshine to manage and create virtual devices (mouse, joypad, etc.).
 
 Make sure that `/dev/uinput/` is present in the host.
 
@@ -29,7 +29,7 @@ sudo docker-compose pull
 sudo docker-compose up
 ```
 
-Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine, password is auto generated on startup check the docker logs.) or directly calling: `curl <IP>:47989/pin/<PIN>`.
+Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine, password is auto generated on startup check the docker logs) or directly calling: `curl <IP>:47989/pin/<PIN>`.
 
 From Moonlight open the `Desktop` app, from there you should be able to see your X11 apps running!
 

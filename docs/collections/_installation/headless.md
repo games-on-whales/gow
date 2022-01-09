@@ -10,14 +10,14 @@ nav_order: 1
 This is where GOW really shines!
 
 We'll take care of running and configuring:
-- a desktop environment 
-- with audio 
-- inside Docker 
-- that can support HW acceleration
-- and with a streaming solution that:
-    - it's low latency
-    - supports keyboard, mouse and joypads
-    - can be HW accelerated
+- A desktop environment 
+- With audio 
+- Inside Docker 
+- That can support HW acceleration
+- And with a streaming solution that:
+    - It's low latency
+    - Supports keyboard, mouse and joypads
+    - Can be HW accelerated
 - **!!!**
 
-On top of that foundation layer you can run most of the GUI applications out there and even games!!
+On top of that foundation layer you can run most of the GUI applications out there and even games!

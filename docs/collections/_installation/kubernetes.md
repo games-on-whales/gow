@@ -12,13 +12,13 @@ Make sure to checkout the [Overview]({{ site.baseurl }}{% link _overview/overvie
 
 ### Kubernetes
 
-At least 1.18 is required.
+At least version 1.18 is required.
 
 If you are considering a cluster for multiple home applications then [this template](https://github.com/k8s-at-home/template-cluster-k3s) might be a good start.
 
 ### uinput
 
-This is a required kernel module in order for Sunshine to manage and create virtual devices (mouse,joypad, etc etc.).
+This is a required kernel module in order for Sunshine to manage and create virtual devices (mouse, joypad, etc.).
 
 Make sure that `/dev/uinput/` is present in the Kubernetes nodes where you intend to run.
 
