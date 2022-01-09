@@ -23,7 +23,7 @@ Make sure to read first the [overview]({{ site.baseurl }}{% link _overview/overv
 
 ## mkdir: cannot create directory '/home/retro/sunshine/': Permission denied
 
-This means that your `local_state` folder as defined in the `.env` file is not owned by user 1000. You can fix this by 
+This means that your `local_state` folder as defined in the `.env` file is not owned by user 1000. You can fix this by:
 
 ```
 sudo chown -R 1000:1000 local_state

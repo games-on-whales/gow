@@ -24,8 +24,8 @@ The idea is to use Xorg and PulseAudio from the host OS and mount only the socke
 > ⚠️ In order for Sunshine to stream your desktop you have to **have a monitor plugged** (or use a dummy plug) and **a user logged in** (or enable [autologin](https://help.ubuntu.com/community/AutoLogin)). 
 
 Getting a working configuration should be fairly straightforward:
- - From the default `docker-compose.yml` comment out `xorg`, `pulse` and `udevd` containers.
- - Update the `.env` file and set the right `XORG_SOCKET`, `PULSE_SOCKET_HOST` and `UDEVD_NETWORK` based on your host.
+ - From the default `docker-compose.yml` comment out `xorg`, `pulse` and `udevd` containers
+ - Update the `.env` file and set the right `XORG_SOCKET`, `PULSE_SOCKET_HOST` and `UDEVD_NETWORK` based on your host
 
 ## Full configuration
 
