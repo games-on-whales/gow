@@ -9,5 +9,5 @@ We use [Just the Docs](https://github.com/pmarsceill/just-the-docs) for theming 
 In order to build it locally use [Bundler](https://bundler.io/):
 
 ```
-bundle exec jekyll serve
+bundle exec jekyll serve --incremental
 ```

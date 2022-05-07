@@ -14,14 +14,14 @@ This is a required kernel module in order for Sunshine to manage and create virt
 
 Make sure that `/dev/uinput/` is present in the host.
 
-```
+```bash
 ls -la /dev/uinput
 crw------- 1 root root 10, 223 Jul 15 11:46 /dev/uinput
 ```
 
 ## Quickstart
 
-```
+```bash
 git clone https://github.com/games-on-whales/gow.git
 cd gow
 mkdir local_state
@@ -29,7 +29,7 @@ sudo docker-compose pull
 sudo docker-compose up
 ```
 
-Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` username: sunshine, password is auto generated on startup check the docker logs) or directly calling: `curl <IP>:47989/pin/<PIN>`.
+Connect over Moonlight by manually adding the IP address of the PC running the Docker container. To validate the PIN you can use the Sunshine web interface (at `https://<IP>:47990/` default username: `admin`, password: `admin`) or directly calling: `curl <IP>:47989/pin/<PIN>`.
 
 From Moonlight open the `Desktop` app, from there you should be able to see your X11 apps running!
 
