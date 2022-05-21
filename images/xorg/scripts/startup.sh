@@ -34,8 +34,8 @@ trap _kill_procs SIGTERM
 
 # Start Xorg
 # TODO: set $RESOLUTION
-echo "Starting Xorg (${DISPLAY})"
-Xorg -ac -noreset +extension GLX +extension RANDR +extension RENDER vt1 ${DISPLAY} &
+echo "Starting Xorg (${DISPLAY}, log level ${XORG_VERBOSE})"
+Xorg -logverbose ${XORG_VERBOSE} -ac -noreset +extension GLX +extension RANDR +extension RENDER vt1 ${DISPLAY} &
 xorg=$!
 
 jwm &
@@ -68,6 +68,11 @@ if ! xrandr --output ${CURRENT_OUTPUT} --mode ${RESOLUTION} --rate ${REFRESH_RAT
     xrandr --output ${CURRENT_OUTPUT} --mode "${RESOLUTION}_${REFRESH_RATE}" --rate ${REFRESH_RATE} --primary
   fi
 fi
+
+DISABLE_OUTPUTS=${DISABLE_OUTPUTS:-}
+for i in ${DISABLE_OUTPUTS//,/ }; do
+    xrandr --output "$i" --off
+done
 
 wait $xorg
 wait $jwm
