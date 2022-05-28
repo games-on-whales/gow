@@ -3,9 +3,10 @@ FROM ubuntu:21.04 AS base
 ENV DEBIAN_FRONTEND=noninteractive 
 ENV TZ="Europe/London"
 ENV DISPLAY :0
+ENV XORG_VERBOSE 3
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo software-properties-common \
+    sudo software-properties-common wget kmod \
     # Video driver taken from https://github.com/mviereck/x11docker/wiki/Hardware-acceleration#hardware-acceleration-with-open-source-drivers-mesa \
     mesa-utils mesa-utils-extra \
     # X11 taken from https://github.com/Kry07/docker-xorg/blob/xonly/Dockerfile\
