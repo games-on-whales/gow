@@ -1,3 +1,5 @@
 .DS_Store
 local_state/
 .idea/
+.terraform*
+terraform.tfs*
