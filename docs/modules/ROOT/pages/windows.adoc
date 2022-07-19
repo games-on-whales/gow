@@ -1,0 +1,14 @@
+== Windows
+
+On Windows your best bet is to just install the application like you’ll
+normally do without using Docker.
+
+It should be possible to run GOW on Windows but there are a few issues
+that we still haven’t figured out:
+
+* WSL2 is missing the uinput kernel module
+** We have built it from scratch by compiling the kernel, but even then,
+Xorg still fails to start
+
+https://github.com/games-on-whales/gow/issues/13[You can follow the
+progress here]

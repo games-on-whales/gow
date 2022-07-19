@@ -1,40 +1,34 @@
----
-layout: default
-title: Debian/Ubuntu
-parent: Desktop environment
-nav_order: 1
----
+== Debian/Ubuntu
 
-# Debian/Ubuntu
+When you already have a desktop environment you can still run our docker
+containers alongside normal desktop applications.
 
-When you already have a desktop environment you can still run our docker containers alongside normal desktop applications.
+Can you tell that Steam is runnning in Docker?
 
-<figure class="image">
-  <img src="{{ '/assets/img/GOW-ubnt-de.png' | relative_url}}" alt="Screenshot on Ubuntu 20.04">
-  <figcaption class="text-center">Can you tell that Steam is runnning in Docker?</figcaption>
-</figure>
+=== How it works
 
+You can easily run Sunshine and Steam on Docker without having to
+install a single package on your desktop! We all know
+https://youtu.be/0506yDSgU7M?t=619[how catastrophic that can be]. The
+idea is to use Xorg and PulseAudio from the host OS and mount only the
+sockets to the Docker containers.
 
-## How it works
+IMPORTANT: In order for Sunshine to stream your desktop you have to *have a monitor plugged* (or use a dummy plug) and *a user logged in* (or enable https://help.ubuntu.com/community/AutoLogin[autologin])
 
-You can easily run Sunshine and Steam on Docker without having to install a single package on your desktop! We all know [how catastrophic that can be](https://youtu.be/0506yDSgU7M?t=619).
-The idea is to use Xorg and PulseAudio from the host OS and mount only the sockets to the Docker containers.  
+Getting a working configuration should be fairly straightforward: - From
+the default `docker-compose.yml` comment out `xorg`, `pulse` and `udevd`
+containers - Update the `.env` file and set the right `XORG_SOCKET`,
+`PULSE_SOCKET_HOST` and `UDEVD_NETWORK` based on your host
 
+=== Full configuration
 
-> ⚠️ In order for Sunshine to stream your desktop you have to **have a monitor plugged** (or use a dummy plug) and **a user logged in** (or enable [autologin](https://help.ubuntu.com/community/AutoLogin)). 
+This has been tested on Ubuntu 20.04 LTS you might need to tweak the
+socket locations or `XORG_DISPLAY` based on your system.
 
-Getting a working configuration should be fairly straightforward:
- - From the default `docker-compose.yml` comment out `xorg`, `pulse` and `udevd` containers
- - Update the `.env` file and set the right `XORG_SOCKET`, `PULSE_SOCKET_HOST` and `UDEVD_NETWORK` based on your host
+==== `.env`
 
-## Full configuration
-
-This has been tested on Ubuntu 20.04 LTS you might need to tweak the socket locations or `XORG_DISPLAY` based on your system.
-
-
-### `.env`
-
-```conf
+[source,conf]
+----
 local_state=./local_state
 
 ####################
@@ -82,11 +76,12 @@ UDEVD_NETWORK=host
 # if your system already runs avahi-daemon just mount host /run/dbus into Sunshine
 # TODO: create avahi docker image instead
 DBUS=/run/dbus
-```
+----
 
-### `docker-compose.yml`
+==== `docker-compose.yml`
 
-```yaml
+[source,yaml]
+----
 version: "3"
 
 services:
@@ -208,5 +203,4 @@ services:
       PROTON_LOG: 1
       LD_LIBRARY_PATH: /home/retro/.steam/ubuntu12_32/
       PULSE_SERVER: ${PULSE_SERVER}
-
-```
+----

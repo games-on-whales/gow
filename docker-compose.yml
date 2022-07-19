@@ -14,71 +14,69 @@ services:
 
   ####################
   # If you don't have a desktop environment we have to run Xorg
-  xorg:
-    build: 
-      context: ./images/
-      dockerfile: xorg/Dockerfile
-    image: gameonwhales/xorg
-    network_mode: ${UDEVD_NETWORK}
-    privileged: true
-    volumes: 
-      # Shared with Sunshine in order to get mouse and joypad working
-      - /dev/input:/dev/input:ro
-      - udev:/run/udev/:ro
-      # The xorg socket, it'll be populated when up and running
-      - ${XORG_SOCKET}:/tmp/.X11-unix
-    ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-    environment: 
-      DISPLAY: ${XORG_DISPLAY}
-      RESOLUTION: ${XORG_RESOLUTION}
-      CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}
-      REFRESH_RATE: ${XORG_REFRESH_RATE}
-      FORCE_RESOLUTION: ${XORG_FORCE_RESOLUTION}
-
-  ####################
-  # If you don't have a pulse server start it
-  pulse:
-    build: 
-      context: ./images/
-      dockerfile: pulseaudio/Dockerfile
-    image: gameonwhales/pulseaudio
-    ipc: ${XORG_IPC}
-    volumes: 
-      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
-  
-  ####################
-  # This is not really needed right now
-  # It still relies on host udev
-  # I'll keep it so that we can isolate services that needs udev
-  # And it's good to log the events to debug Sunshine created devices
-  udevd:
-    build:
-      context: ./images/
-      dockerfile: udevd/Dockerfile
-    image: gameonwhales/udevd
-    # Setting network to host
-    # There must be a way to avoid this but I can't figure it out
-    # We need to be on the host network in order to get the PF_NETLINK socket
-    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
-    network_mode: host
-    privileged: true 
-    volumes:
-      - udev:/run/udev/
+#  xorg:
+#    build:
+#      context: ./images/
+#      dockerfile: xorg/Dockerfile
+#    image: gameonwhales/xorg
+#    network_mode: ${UDEVD_NETWORK}
+#    privileged: true
+#    volumes:
+#      # Shared with Sunshine in order to get mouse and joypad working
+#      - /dev/input:/dev/input:ro
+#      - udev:/run/udev/:ro
+#      # The xorg socket, it'll be populated when up and running
+#      - ${XORG_SOCKET}:/tmp/.X11-unix
+#      - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
+#    ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+#    environment:
+#      DISPLAY: ${XORG_DISPLAY}
+#      RESOLUTION: ${XORG_RESOLUTION}
+#      CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}
+#      REFRESH_RATE: ${XORG_REFRESH_RATE}
+#      FORCE_RESOLUTION: ${XORG_FORCE_RESOLUTION}
+#
+#  ####################
+#  # If you don't have a pulse server start it
+#  pulse:
+#    build:
+#      context: ./images/
+#      dockerfile: pulseaudio/Dockerfile
+#    image: gameonwhales/pulseaudio
+#    ipc: ${XORG_IPC}
+#    volumes:
+#      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
+#
+#  ####################
+#  # This is not really needed right now
+#  # It still relies on host udev
+#  # I'll keep it so that we can isolate services that needs udev
+#  # And it's good to log the events to debug Sunshine created devices
+#  udevd:
+#    build:
+#      context: ./images/
+#      dockerfile: udevd/Dockerfile
+#    image: gameonwhales/udevd
+#    # Setting network to host
+#    # There must be a way to avoid this but I can't figure it out
+#    # We need to be on the host network in order to get the PF_NETLINK socket
+#    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
+#    network_mode: host
+#    privileged: true
+#    volumes:
+#      - udev:/run/udev/
 
   ####################
   sunshine:
-    depends_on: 
-      - xorg
-      - pulse
-    build: 
+    build:
       context: ./images/
       dockerfile: sunshine/Dockerfile
       # Uncomment the following to override the default sunshine version
       # args:
       #  BUILD_TYPE: RELEASE # To debug run a console inside then gdb -args sunshine > r > on exception: bt
       #  SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
-    image: gameonwhales/sunshine
-    ports: 
+    image: ghcr.io/games-on-whales/sunshine:edge
+    ports:
       - 47984-47990:47984-47990/tcp
       - 48010:48010
       - 47998-48000:47998-48000/udp
@@ -92,7 +90,7 @@ services:
       # Home directory: sunshine state + configs
       - ${local_state}/:/home/retro/
       # OPTIONAL: host dbus used by avahi in order to publish Sunshine for auto network discovery
-      - ${DBUS}:/run/dbus:ro 
+      - ${DBUS}:/run/dbus:ro
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${XORG_DISPLAY}
@@ -113,8 +111,6 @@ services:
   ####################
   retroarch:
     depends_on:
-      - xorg
-      - pulse
       - sunshine
     runtime: ${DOCKER_RUNTIME}
     build:
@@ -139,7 +135,7 @@ services:
       - type: tmpfs
         target: /dev/shm
         tmpfs:
-            size: ${SHM_SIZE}
+          size: ${SHM_SIZE}
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     environment:
       DISPLAY: ${XORG_DISPLAY}

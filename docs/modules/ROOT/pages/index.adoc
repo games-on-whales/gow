@@ -1,0 +1,7 @@
+= GOW - Games on Whales
+
+https://discord.gg/kRGUDHNHt2[image:https://img.shields.io/discord/856434175455133727.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)[]]
+
+Stream games (and GUI) running on Docker with HW acceleration and low latency!
+
+image::ROOT:GOW-running.jpg[]
