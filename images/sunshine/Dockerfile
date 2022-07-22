@@ -5,10 +5,10 @@ ENV TZ="Europe/London"
 
 ENV UNAME retro
 
-# Pulling Sunshine v0.11.1
-ARG SUNSHINE_SHA=e4c9c292e57d39136df2d46d1e9b66eba53f3bd3
+# Pulling SunshineStream v0.14.0
+ARG SUNSHINE_SHA=70ae7a2fa9b33173eb949c86ec42a96e7b9e8c25
 ENV SUNSHINE_SHA=${SUNSHINE_SHA}
-ARG BUILD_TYPE=RELEASE 
+ARG BUILD_TYPE=RELEASE
 ENV BUILD_TYPE=${BUILD_TYPE}
 
 ######################################
@@ -20,26 +20,24 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     git ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/loki-47-6F-64/sunshine.git && \
+RUN git clone --recurse-submodule https://github.com/SunshineStream/Sunshine sunshine && \
     cd sunshine && \
     # Fix the SHA commit
     git checkout -qf $SUNSHINE_SHA && \
     # Just printing out git info so that I can double check on CI if the right version as been picked up
     git show && \
-    # Recursively download submodules
-    git submodule update --init --recursive && \
     # Normal compile
     mkdir build && cd build && \
     cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSUNSHINE_EXECUTABLE_PATH=sunshine -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
     make -j${nproc} && \
-    # Generate the debian install package
-    ./gen-deb
+    # Generate .DEB installation file
+    cpack -G DEB
 
 ######################################
 FROM base AS sunshine
 
 # Get compiled sunshine
-COPY --from=sunshine-builder /sunshine/build/package-deb/sunshine.deb /sunshine.deb
+COPY --from=sunshine-builder /sunshine/build/cpack_artifacts/Sunshine.deb /sunshine.deb
 
 # Install using the official .deb package
 # This will take care of installing the required dependencies
