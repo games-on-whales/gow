@@ -16,12 +16,24 @@ jobs:
     strategy:
       matrix:
         image:
-        - { name: xorg,       platforms: "linux/amd64,linux/arm64" }
-        - { name: pulseaudio, platforms: "linux/amd64,linux/arm64" }
-        - { name: udevd,      platforms: "linux/amd64,linux/arm64" }
-        - { name: sunshine,   platforms: "linux/amd64" }
-        - { name: retroarch,  platforms: "linux/amd64,linux/arm64" }
-        - { name: steam,      platforms: "linux/amd64"             }
+        - name: xorg
+          platforms: "linux/amd64,linux/arm64"
+        - name: pulseaudio
+          platforms: "linux/amd64,linux/arm64"
+        - name: udevd
+          platforms: "linux/amd64,linux/arm64"
+        - name: sunshine
+          platforms: "linux/amd64"
+        - name: sunshine
+          tag_prefix: upstream-
+          platforms: "linux/amd64"
+          docker_build-args: |
+            SUNSHINE_SHA=master
+            GITHUB_API_FOR_CACHE=https://api.github.com/repos/loki-47-6F-64/sunshine/git/refs/heads/master
+        - name: retroarch
+          platforms: "linux/amd64,linux/arm64"
+        - name: steam
+          platforms: "linux/amd64"
       fail-fast: false
     steps:
 
@@ -54,10 +66,10 @@ jobs:
             IMAGES="$IMAGES,ghcr.io/${REGISTRY_IMAGE}"
             PUSH=true
             echo ::set-output name=has_github_token::true
-            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
-            echo ::set-output name=cache_to::"type=registry,ref=${REGISTRY_IMAGE}:buildcache,mode=max"
+            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:${{ matrix.image.tag_prefix }}buildcache"
+            echo ::set-output name=cache_to::"type=registry,ref=${REGISTRY_IMAGE}:${{ matrix.image.tag_prefix }}buildcache,mode=max"
           else
-            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+            echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:${{ matrix.image.tag_prefix }}buildcache"
             echo ::set-output name=cache_to::""
           fi
 
@@ -76,8 +88,10 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=edge,branch=master
-            type=sha
-          flavor: latest=auto #latest will point to last semver version (stable)
+            type=sha,prefix=${{ matrix.image.tag_prefix }}sha-
+          flavor: |
+            latest=auto
+            prefix=${{ matrix.image.tag_prefix }}
 
       # Prepare for multi-arch
       - name: Set up QEMU
@@ -120,6 +134,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
+            ${{ matrix.image.docker_build-args }}
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
