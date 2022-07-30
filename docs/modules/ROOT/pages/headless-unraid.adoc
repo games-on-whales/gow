@@ -1,6 +1,6 @@
-== Unraid
+== unRAID
 
-Unraid is missing the required `uinput` kernel module out of the box. We
+unRAID is missing the required `uinput` kernel module out of the box. We
 have created https://github.com/games-on-whales/unraid-plugin[a plugin]
 that adds that and we automated the builds using Github Actions.
 
@@ -43,11 +43,16 @@ mkdir local_state
 
 Since GOW it’s a composition of multiple docker containers we use
 https://docs.docker.com/compose/[`docker-compose`] in order to manage
-and spin them up, let’s install it:
+and spin them up. unRAID doesn't come with `docker-compose` by default, but you
+can install the Docker Compose Manager plugin from Community Applications to
+install it.
 
+If for some reason you prefer to install it manually, you can follow these
+steps, but keep in mind that the version may be out of date, and you may have
+to reinstall after rebooting your unRAID server.
 [source,bash]
 ----
-curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64 --output /usr/local/bin/docker-compose
+curl -L https://github.com/docker/compose/releases/download/2.5.0/docker-compose-Linux-x86_64 --output /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 ----
 
@@ -57,20 +62,24 @@ Now it’s time to download the containers prebuilt images:
 
 [source,bash]
 ----
-docker-compose pull
+docker compose -f docker-compose.yml -f compose/headless.yml -f [application].yml pull
 ----
+
+Currently supported applications include `steam`, `retroarch`, and `firefox`,
+but you can add any others that you like. Use the existing ones as examples to
+create your own YAML file.
 
 And start it!
 
-IMPORTANT: Nvidia users: before running it you should modify `DOCKER_RUNTIME=` to `DOCKER_RUNTIME=nvidia` option in the `.env` file
+IMPORTANT: Nvidia users: before running it you should modify `DOCKER_RUNTIME=runc` to `DOCKER_RUNTIME=nvidia` option in the `.env` file
 
 [source,bash]
 ----
-docker-compose up -d # start the containers in background
+docker-compose -f docker-compose.yml -f compose/headless.yml -f [application].yml up -d # start the containers in background
 ----
 
-This will take a some time to start, you can check the status using:
-`docker-compose ps` in case one or more containers are stopped you can
+This will take some time to start; you can check the status using:
+`docker-compose ps`. If one or more containers are stopped, you can
 check the logs using: `docker-compose logs --follow`.
 
 === Accessing GOW

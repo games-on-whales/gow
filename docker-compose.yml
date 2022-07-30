@@ -1,86 +1,33 @@
 version: "3"
 
 services:
-
   ##########################################
-  # There's a lot going on in this file, 
-  # it's normal to get lost with all the options and variables 
+  # There's a lot going on in this file; it's normal to get lost with all the
+  # options and variables
   #
-  # Before diving in, make sure to take a look at the documentation.
-  # in particular read the components-overview section (https://github.com/games-on-whales/gow/blob/master/docs/components-overview.md)
-  # in order to get a view on how the components are tied together
-  ####################  
-
-
-  ####################
-  # If you don't have a desktop environment we have to run Xorg
-#  xorg:
-#    build:
-#      context: ./images/
-#      dockerfile: xorg/Dockerfile
-#    image: gameonwhales/xorg
-#    network_mode: ${UDEVD_NETWORK}
-#    privileged: true
-#    volumes:
-#      # Shared with Sunshine in order to get mouse and joypad working
-#      - /dev/input:/dev/input:ro
-#      - udev:/run/udev/:ro
-#      # The xorg socket, it'll be populated when up and running
-#      - ${XORG_SOCKET}:/tmp/.X11-unix
-#      - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
-#    ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-#    environment:
-#      DISPLAY: ${XORG_DISPLAY}
-#      RESOLUTION: ${XORG_RESOLUTION}
-#      CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}
-#      REFRESH_RATE: ${XORG_REFRESH_RATE}
-#      FORCE_RESOLUTION: ${XORG_FORCE_RESOLUTION}
-#
-#  ####################
-#  # If you don't have a pulse server start it
-#  pulse:
-#    build:
-#      context: ./images/
-#      dockerfile: pulseaudio/Dockerfile
-#    image: gameonwhales/pulseaudio
-#    ipc: ${XORG_IPC}
-#    volumes:
-#      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
-#
-#  ####################
-#  # This is not really needed right now
-#  # It still relies on host udev
-#  # I'll keep it so that we can isolate services that needs udev
-#  # And it's good to log the events to debug Sunshine created devices
-#  udevd:
-#    build:
-#      context: ./images/
-#      dockerfile: udevd/Dockerfile
-#    image: gameonwhales/udevd
-#    # Setting network to host
-#    # There must be a way to avoid this but I can't figure it out
-#    # We need to be on the host network in order to get the PF_NETLINK socket
-#    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
-#    network_mode: host
-#    privileged: true
-#    volumes:
-#      - udev:/run/udev/
+  # Before diving in, make sure to take a look at the documentation.  In
+  # particular, it will be helpful to read the components-overview section
+  # (https://games-on-whales.github.io/gow/components-overview.html)
+  # in order to get a view on how the various components are tied together.
+  ###################
 
   ####################
+  # Sunshine is the heart of the streaming setup; it takes your desktop and
+  # encodes it for delivery over the network
   sunshine:
-    build:
-      context: ./images/
-      dockerfile: sunshine/Dockerfile
-      # Uncomment the following to override the default sunshine version
-      # args:
-      #  BUILD_TYPE: RELEASE # To debug run a console inside then gdb -args sunshine > r > on exception: bt
-      #  SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
+  # build:
+  #   context: ./images/
+  #   dockerfile: sunshine/Dockerfile
+  # Uncomment the following to override the default sunshine version
+  #   args:
+  #     BUILD_TYPE: RELEASE
+  #     SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
     image: ghcr.io/games-on-whales/sunshine:edge
+    runtime: ${DOCKER_RUNTIME}
     ports:
       - 47984-47990:47984-47990/tcp
       - 48010:48010
       - 47998-48000:47998-48000/udp
-    runtime: ${DOCKER_RUNTIME}
     privileged: true
     volumes:
       # Xorg socket in order to get the screen
@@ -92,10 +39,12 @@ services:
       # OPTIONAL: host dbus used by avahi in order to publish Sunshine for auto network discovery
       - ${DBUS}:/run/dbus:ro
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+
+    env_file:
+      - env/common.env
+      - env/xorg.env
+      - env/nvidia.env
     environment:
-      DISPLAY: ${XORG_DISPLAY}
-      NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
-      NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
       LOG_LEVEL: ${SUNSHINE_LOG_LEVEL}
       GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/*
       # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990
@@ -106,107 +55,3 @@ services:
       # LIBVA_DRIVER_NAME: i965 # or i965 for older generations
       XDG_RUNTIME_DIR: /tmp/.X11-unix
       PULSE_SERVER: ${PULSE_SERVER}
-
-
-  ####################
-  retroarch:
-    depends_on:
-      - sunshine
-    runtime: ${DOCKER_RUNTIME}
-    build:
-      context: ./images/
-      dockerfile: retroarch/Dockerfile
-    image: gameonwhales/retroarch
-    # network_mode: host
-    privileged: true
-    network_mode: ${UDEVD_NETWORK}
-    volumes:
-      # Followings are needed in order to get joystick support
-      - /dev/input:/dev/input:ro
-      - udev:/run/udev/:ro
-      # Xorg socket in order to get the screen
-      - ${XORG_SOCKET}:/tmp/.X11-unix
-      # Pulse socket, audio
-      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
-      # Home directory: retroarch games, downloads, cores etc
-      - ${local_state}/:/home/retro/
-      # some emulators need more than 64 MB of shared memory - see https://github.com/libretro/dolphin/issues/222
-      # TODO: why shm_size doesn't work ??????
-      - type: tmpfs
-        target: /dev/shm
-        tmpfs:
-          size: ${SHM_SIZE}
-    ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-    environment:
-      DISPLAY: ${XORG_DISPLAY}
-      NVIDIA_DRIVER_CAPABILITIES: utility,video,graphics,display
-      NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
-      # Which devices does GoW need to be able to use? The docker user will be
-      # added to the groups that own these devices, to help with permissions
-      # issues
-      # These values are the defaults, but you can add others if needed
-      GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/* /dev/snd/*
-      PULSE_SERVER: ${PULSE_SERVER}
-
-  ####################
-  # steam:
-  #   depends_on:
-  #     - xorg
-  #     - pulse
-  #     - sunshine
-  #   runtime: ${DOCKER_RUNTIME}
-  #   build:
-  #     context: ./images/
-  #     dockerfile: steam/Dockerfile
-  #   image: gameonwhales/steam
-  #   network_mode: ${UDEVD_NETWORK}
-  #   privileged: true
-  #   volumes:
-  #     # Followings are needed in order to get joystick support
-  #     - /dev/input:/dev/input:ro
-  #     - udev:/run/udev:ro
-  #     # Xorg socket in order to get the screen
-  #     - ${XORG_SOCKET}:/tmp/.X11-unix
-  #     # Pulse socket, audio
-  #     - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
-  #     # Home directory: client, games, downloads, etc
-  #     - ${local_state}/:/home/retro/
-  #     # The following is needed by the webview otherwise you'll get Less than 64MB of free space in temporary directory (https://github.com/microsoft/vscode/issues/111729#issuecomment-737399692)
-  #     # TODO: why shm_size doesn't work ??????
-  #     - type: tmpfs
-  #       target: /dev/shm
-  #       tmpfs:
-  #           size: ${SHM_SIZE}
-  #   ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
-  #   environment:
-  #     DISPLAY: ${XORG_DISPLAY}
-  #     NVIDIA_DRIVER_CAPABILITIES: compat32,graphics,utility,display,video
-  #     NVIDIA_VISIBLE_DEVICES: ${GPU_UUID}
-  #     PROTON_LOG: 1
-  #     # LD_LIBRARY_PATH: /home/retro/.steam/ubuntu12_32/
-  #     PULSE_SERVER: ${PULSE_SERVER}
-
-  # ####################
-  # An example of running an unprivileged X11 app in this environment
-  # firefox:
-  #   depends_on: 
-  #     - xorg
-  #     - pulse
-  #     - sunshine
-  #   image: andrewmackrodt/firefox-x11
-  #   volumes:       
-  #     - ${XORG_SOCKET}:/tmp/.X11-unix
-  #     # Pulse socket, audio
-  #     - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
-  #     # If you have permission errors make sure to chomd ${id}:${id} ./local_state
-  #     - ${local_state}/ffox:/run/user/1000
-  #   environment: 
-  #     DISPLAY: ${XORG_DISPLAY}
-  #     LOG_LEVEL: info
-  #     PULSE_SERVER: ${PULSE_SERVER}
-
-####################
-volumes:
-  xorg: # This will hold the xorg socket file and it'll be shared between containers
-  pulse: # This will hold the xorg socket
-  udev: # This will hold shared udev files
