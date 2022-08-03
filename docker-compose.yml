@@ -41,17 +41,14 @@ services:
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
 
     env_file:
-      - env/common.env
-      - env/xorg.env
-      - env/nvidia.env
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
+
     environment:
       LOG_LEVEL: ${SUNSHINE_LOG_LEVEL}
       GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/*
       # Username and password for the web-ui at https://xxx.xxx.xxx.xxx:47990
       SUNSHINE_USER: ${SUNSHINE_USER}
       SUNSHINE_PASS: ${SUNSHINE_PASS}
-      # Intel drivers, see https://wiki.debian.org/HardwareVideoAcceleration#Installation
-      # LIBVA_DRIVERS_PATH: /usr/lib/x86_64-linux-gnu/dri/
-      # LIBVA_DRIVER_NAME: i965 # or i965 for older generations
       XDG_RUNTIME_DIR: /tmp/.X11-unix
-      PULSE_SERVER: ${PULSE_SERVER}

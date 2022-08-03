@@ -21,21 +21,15 @@ services:
       - udev:/run/udev/:ro
       # The xorg socket, it'll be populated when up and running
       - ${XORG_SOCKET}:/tmp/.X11-unix
+      # run-gow: xorg_driver
 
-      # Ubuntu users with NVIDIA GPUs: uncomment this line to make sure the
-      # Xorg drivers are available in the container
-      # - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
-
-      # unRAID users with NVIDIA GPUs: uncomment these lines to make sure the
-      # Xorg drivers are available in the container
-      # - /usr/lib64/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
-      # - /usr/lib64/xorg/modules/extensions/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
     ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
 
     env_file:
-      - env/common.env
-      - env/xorg.env
-      - env/nvidia.env
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
+
     environment:
       RESOLUTION: ${XORG_RESOLUTION}
       CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}

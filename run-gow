@@ -1,0 +1,182 @@
+#!/bin/bash
+
+readonly SCRIPT_NAME=$(basename "$0")
+readonly SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+readonly ARGS="$@"
+readonly ARG_COUNT="$#"
+
+function echo_stderr() {
+    local txt="$1"
+    echo "$txt" >&2
+}
+
+function usage() {
+	echo_stderr "Launch the Games on Whales system"
+	echo_stderr
+	echo_stderr "Usage: $SCRIPT_NAME [options]..."
+	echo_stderr
+	echo_stderr "Options:"
+	echo_stderr
+	echo_stderr "  -h, --help"
+	echo_stderr "      This help text."
+	echo_stderr
+	echo_stderr "  --headless"
+	echo_stderr "      If set, run in headless mode. Use this mode if your host does not have an Xorg server running on it."
+	echo_stderr
+	echo_stderr "  --nvidia"
+	echo_stderr "      Use this option if you want to use an Nvidia GPU with Games on Whales"
+	echo_stderr
+	echo_stderr "  -a, --app"
+	echo_stderr "      Specify an application to launch. Can be used multiple times"
+	echo_stderr
+}
+
+launch_env=("env/base.env")
+compose_files=("docker-compose.yml")
+apps=()
+pos_args=()
+
+gpu_type=none
+
+while [ "$#" -gt 0 ]
+do
+	case "$1" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--headless)
+		headless="true"
+		;;
+	--nvidia)
+		gpu_type=nvidia
+		;;
+	--intel)
+		gpu_type=intel
+		;;
+	-a|--app)
+        apps+=("$2")
+        shift
+		;;
+	--)
+		break
+		;;
+	-*)
+		echo_stderr "Invalid option '$1'." >&2
+        usage
+		exit 1
+		;;
+	# an option argument, continue
+	*)
+	    pos_args+=("$1")
+	    ;;
+	esac
+	shift
+done
+
+# Right now, we're not expecting any positional arguments
+if [ "${#pos_args[@]}" -gt 0 ]; then
+    echo_stderr "Unknown arguments: ${pos_args[*]}"
+    usage
+    exit 2
+fi
+
+if [ "$headless" = "true" ]; then
+	launch_env+=("env/headless.env")
+	compose_files+=("compose/headless.yml")
+else
+	launch_env+=("env/host.env")
+fi
+
+if [ -f "env/$gpu_type.env" ]; then
+	launch_env+=("env/$gpu_type.env")
+fi
+if [ -f "compose/$gpu_type.yml" ]; then
+	launch_env+=("compose/$gpu_type.yml")
+fi
+
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
+function get_gpu_env() {
+	echo "- config/${gpu_type}.env"
+}
+
+function os_type() {
+	if [ -f /etc/unraid-version ]; then
+		echo "unraid"
+		return
+	elif [ -f /etc/lsb-release ]; then
+		if [ "$(source lsb-release-fake; echo $DISTRIB_ID)" = "Ubuntu" ]; then
+			echo "ubuntu"
+			return
+		fi
+	fi
+
+	echo "unknown"
+}
+
+declare -A xorg_driver
+xorg_driver[unraid]=$(cat - <<END
+- /usr/lib64/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
+- /usr/lib64/xorg/modules/extensions/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
+END
+)
+xorg_driver[ubuntu]=$(cat - <<END
+- /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
+END
+)
+xorg_driver[unknown]=""
+
+function pad_lines() {
+	local text=$1
+	local space=$2
+
+	while IFS= read -r line; do
+		echo "${space}${line}"
+	done < <(printf '%s\n' "$text")
+}
+
+function transform_file() {
+	local file=$1
+
+	local gpu_env_re='([[:space:]]+)# run-gow: gpu_env'
+	local xorg_driver_re='([[:space:]]+)# run-gow: xorg_driver'
+
+	while IFS= read -r line; do
+		if [[ $line =~ $gpu_env_re ]]; then
+			pad_lines "$(get_gpu_env)" "${BASH_REMATCH[1]}"
+		elif [[ $line =~ $xorg_driver_re ]]; then
+			pad_lines "${xorg_driver[$(os_type)]}" "${BASH_REMATCH[1]}"
+		else
+			echo "$line"
+		fi
+	done < "$file"
+}
+
+function get_compose_cmd() {
+	local cmd="docker compose "
+
+	local env_files=$(join_by " " "${launch_env[@]}")
+	local yaml_files=$(
+		for file in "${compose_files[@]}"; do
+			echo -ne " -f <(transform_file $file)"
+		done)
+	yaml_files+=$(
+		for app in "${apps[@]}"; do
+			app_file="compose/$app.yml"
+			if [ -f "$app_file" ]; then
+				echo -ne " -f <(transform_file $app_file)"
+			fi
+		done)
+
+	echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow --env-file <(cat $env_files) $yaml_files"
+}
+
+echo "Running docker compose"
+eval "$(get_compose_cmd) up"
+
+
+# > checking nvidia drivers
+# > checking docker-compose version
+# > setting-up .env file for you
+# > running docker compose -f docker-compose.yml -f compose/headless.yml up

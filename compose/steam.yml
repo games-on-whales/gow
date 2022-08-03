@@ -1,5 +1,5 @@
 #########################
-# retroarch.yml
+# steam.yml
 #########################
 #
 # This container runs Steam
@@ -26,6 +26,7 @@ services:
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: client, games, downloads, etc
       - ${local_state}/:/home/retro/
+      # - /mnt/user/appdata/builds/gow/sudo-test:/etc/sudoers.d/retro:ro
       # The following is needed by the webview otherwise you'll get Less than
       # 64MB of free space in temporary directory
       # (https://github.com/microsoft/vscode/issues/111729#issuecomment-737399692)
@@ -37,10 +38,9 @@ services:
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
 
     env_file:
-      - env/common.env
-      - env/xorg.env
-      - env/nvidia.env
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
 
     environment:
       PROTON_LOG: 1
-      PULSE_SERVER: ${PULSE_SERVER}

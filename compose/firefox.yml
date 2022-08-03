@@ -15,11 +15,10 @@ services:
       - ${local_state}/ffox:/run/user/1000
 
     env_file:
-      - env/common.env
-      - env/xorg.env
+      - config/common.env
+      - config/xorg.env
 
     environment:
       LOG_LEVEL: info
-      PULSE_SERVER: ${PULSE_SERVER}
 
 

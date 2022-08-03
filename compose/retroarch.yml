@@ -35,13 +35,13 @@ services:
           size: ${SHM_SIZE}
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
     env_file:
-      - env/common.env
-      - env/xorg.env
-      - env/nvidia.env
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
+
     environment:
       # Which devices does GoW need to be able to use? The docker user will be
       # added to the groups that own these devices, to help with permissions
       # issues
       # These values are the defaults, but you can add others if needed
       GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/* /dev/snd/*
-      PULSE_SERVER: ${PULSE_SERVER}
