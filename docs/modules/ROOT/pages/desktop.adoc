@@ -1,8 +1,5 @@
 == Desktop environments
 
-When you already have a desktop environment running you’ll have to
-disable some of the containers that are part of GOW.
-
 Generally, instead of running `Xorg` and `PulseAudio` from inside
 Docker, you can use your current desktop and audio system and just pass
 the required sockets in order for GUI containers to use your desktop and
