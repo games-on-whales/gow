@@ -68,7 +68,7 @@ services:
     depends_on:
       - xorg
       - pulse
-      - udev
+      - udevd
 
 ####################
 volumes:

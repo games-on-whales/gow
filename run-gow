@@ -66,20 +66,14 @@ do
         usage
 		exit 1
 		;;
-	# an option argument, continue
+	# non-option arguments should also stop processing; everything after will
+	# be passed to docker compose.
 	*)
-	    pos_args+=("$1")
+		break
 	    ;;
 	esac
 	shift
 done
-
-# Right now, we're not expecting any positional arguments
-if [ "${#pos_args[@]}" -gt 0 ]; then
-    echo_stderr "Unknown arguments: ${pos_args[*]}"
-    usage
-    exit 2
-fi
 
 if [ "$headless" = "true" ]; then
 	launch_env+=("env/headless.env")
@@ -172,8 +166,12 @@ function get_compose_cmd() {
 	echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow --env-file <(cat $env_files) $yaml_files"
 }
 
-echo "Running docker compose"
-eval "$(get_compose_cmd) up"
+echo "Running docker compose..."
+if [ "$#" -gt 0 ]; then
+	eval "$(get_compose_cmd) $*"
+else
+	eval "$(get_compose_cmd) up"
+fi
 
 
 # > checking nvidia drivers
