@@ -150,7 +150,6 @@ function transform_file() {
 function get_compose_cmd() {
 	local cmd="docker compose "
 
-	local env_files=$(join_by " " "${launch_env[@]}")
 	local yaml_files=$(
 		for file in "${compose_files[@]}"; do
 			echo -ne " -f <(transform_file $file)"
@@ -163,8 +162,18 @@ function get_compose_cmd() {
 			fi
 		done)
 
-	echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow --env-file <(cat $env_files) $yaml_files"
+	# cat -- <(cat $env_files)
+	echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow $yaml_files"
 }
+
+# docker-compose >= v2.6.0 can't handle process substitution for the `--env-file` option :-(
+# but, it _does_ support loading variables from the process's environment.  So,
+# load the files we need before we execute docker-compose.
+set -o allexport
+for env_file in ${launch_env[@]}; do
+	source "$SCRIPT_DIR/$env_file"
+done
+set +o allexport
 
 echo "Running docker compose..."
 if [ "$#" -gt 0 ]; then
