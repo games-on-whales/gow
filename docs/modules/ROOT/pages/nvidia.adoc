@@ -66,6 +66,12 @@ Bus Location:   00000000:0a:00.0
 Architecture:   7.5
 ....
 
+==== Older Nvidia GPUs
+
+Older Nvidia GPUs data might not appear in `nvidia-smi`. There is a patch that
+exists that will fix the issue. For more information, see https://github.com/CFSworks/nvml_fix
+
+
 ==== Xorg drivers
 
 Although the NVIDIA Container Toolkit automatically provides most of the
@@ -90,13 +96,17 @@ volumes:
 Be sure to replace `[version]` with the correct version number from the
 `nvidia-container-cli` command above.
 
-Some common locations for `nvidia_drv.so` include: *
-`/usr/lib64/xorg/modules/drivers/` (Unraid) *
-`/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
+Some common locations for `nvidia_drv.so` include:
 
-Some common locations for `libglxserver_nvidia.so.[version]` include: *
-`/usr/lib64/xorg/modules/extensions/` (Unraid) *
-`/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
+- `/usr/lib64/xorg/modules/drivers/` (Unraid)
+- `/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
+- `/usr/lib/xorg/modules/drivers/` (Arch)
+
+Some common locations for `libglxserver_nvidia.so.[version]` include:
+
+ - `/usr/lib64/xorg/modules/extensions/` (Unraid)
+ - `/usr/lib/x86_64-linux-gnu/nvidia/xorg/` (Ubuntu 20.04)
+ - `/usr/lib/nvidia/xorg/` (Arch)
 
 If you don’t want to do this, or if you can’t find the driver on your
 host for some reason, the container will attempt to install the correct
