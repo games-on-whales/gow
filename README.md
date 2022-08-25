@@ -4,7 +4,7 @@ Stream games (and GUI) running on Docker with HW acceleration and low latency!
 
 Read more on our [documentation](https://games-on-whales.github.io/gow/)
 
-![Screenshot of GOW running](docs/assets/img/GOW-running.jpg)
+![Screenshot of GOW running](docs/modules/ROOT/images/GOW-running.jpg)
 
 ## Quickstart
 
