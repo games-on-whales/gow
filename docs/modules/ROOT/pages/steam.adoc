@@ -40,3 +40,11 @@ you hit this issue:
 ** `docker exec -it gow_steam_1 df -h`
 * if `/dev/shm` is 64MB double check your docker-compose file
 * Checkout the logs at `local_state/.steam/debian-installation/error.log` for more info on the specific issue.
+
+=== 32-bit Drivers
+
+Steam requires the 32-bit drivers for your GPU. If the multilib drivers are not automatically installed on your host, please make sure you have installed both the 64-bit and the 32-bit drivers installed.
+
+=== Verify Steam is using the correct GPU
+
+You can look at Steam's 'System Information' to verify that your GPU is detected.
