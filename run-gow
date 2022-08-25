@@ -100,10 +100,9 @@ function os_type() {
 		echo "unraid"
 		return
 	elif [ -f /etc/lsb-release ]; then
-		if [ "$(source lsb-release-fake; echo $DISTRIB_ID)" = "Ubuntu" ]; then
-			echo "ubuntu"
-			return
-		fi
+        local distro="$(source /etc/lsb-release; echo $DISTRIB_ID)"
+        echo $distro
+        return
 	fi
 
 	echo "unknown"
@@ -115,11 +114,15 @@ xorg_driver[unraid]=$(cat - <<END
 - /usr/lib64/xorg/modules/extensions/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
 END
 )
-xorg_driver[ubuntu]=$(cat - <<END
+xorg_driver[Ubuntu]=$(cat - <<END
 - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
 END
 )
-xorg_driver[unknown]=""
+xorg_driver[Arch]=$(cat - <<END
+- /usr/lib/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
+- /usr/lib/nvidia/xorg/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
+END
+)
 
 function pad_lines() {
 	local text=$1
@@ -139,7 +142,7 @@ function transform_file() {
 	while IFS= read -r line; do
 		if [[ $line =~ $gpu_env_re ]]; then
 			pad_lines "$(get_gpu_env)" "${BASH_REMATCH[1]}"
-		elif [[ $line =~ $xorg_driver_re ]]; then
+		elif [ "$gpu_type" = "nvidia" ] && [[ $line =~ $xorg_driver_re ]]; then
 			pad_lines "${xorg_driver[$(os_type)]}" "${BASH_REMATCH[1]}"
 		else
 			echo "$line"
@@ -181,7 +184,6 @@ if [ "$#" -gt 0 ]; then
 else
 	eval "$(get_compose_cmd) up"
 fi
-
 
 # > checking nvidia drivers
 # > checking docker-compose version
