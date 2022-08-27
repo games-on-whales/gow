@@ -1,12 +1,10 @@
 == unRAID
 
-unRAID is missing the required `uinput` kernel module out of the box. We
-have created https://github.com/games-on-whales/unraid-plugin[a plugin]
-that adds that and we automated the builds using Github Actions.
+unRAID before version 6.11.0-rc3 is missing the required `uinput` kernel module
+out of the box. If you are using an older version, we recommend installing the
+https://github.com/ich777/unraid-uinput[uinput plugin]
 
-We are working to add more support so that you can run GOW easily via
-the plugin, for now, you’ll have to manually run the
-`docker-compose.yml`.
+We are working to build our own unRAID plugin to enable easily starting, stopping, and installing new containers, but for now you'll need to use the `run-gow` script.
 
 === Pre-requisites
 
@@ -14,6 +12,10 @@ IMPORTANT: In order for Sunshine to stream your desktop you have to *have a moni
 
 While a dedicated GPU isn’t strictly necessary (Sunshine does support SW
 encoding) it’s highly recommended.
+
+==== docker-compose
+
+unRAID doesn't come with `docker-compose`, but you can easily install it by installing the https://forums.unraid.net/topic/114415-plugin-docker-compose-manager/[docker-compose manager] plugin.
 
 ==== Nvidia
 
@@ -28,8 +30,6 @@ without having to install any additional driver.
 
 === Installing GOW
 
-Now that `uinput` is installed via the plugin, it’s time to run GOW via
-Docker. +
 Let’s start by cloning the project locally:
 
 TIP: This will run on your current folder, if you want to keep the repo on the array storage you should first move to the desired folder with: `cd /mnt/user/<some/path/to/gow>`
@@ -41,46 +41,28 @@ cd gow
 mkdir local_state
 ----
 
-Since GOW it’s a composition of multiple docker containers we use
-https://docs.docker.com/compose/[`docker-compose`] in order to manage
-and spin them up. unRAID doesn't come with `docker-compose` by default, but you
-can install the Docker Compose Manager plugin from Community Applications to
-install it.
-
-If for some reason you prefer to install it manually, you can follow these
-steps, but keep in mind that the version may be out of date, and you may have
-to reinstall after rebooting your unRAID server.
-[source,bash]
-----
-curl -L https://github.com/docker/compose/releases/download/2.5.0/docker-compose-Linux-x86_64 --output /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-----
-
-If all went well you should be able to run: `docker-compose --version`.
-
 Now it’s time to download the containers prebuilt images:
 
 [source,bash]
 ----
-docker compose -f docker-compose.yml -f compose/headless.yml -f [application].yml pull
+run-gow --headless --app [appname] pull
 ----
 
 Currently supported applications include `steam`, `retroarch`, and `firefox`,
 but you can add any others that you like. Use the existing ones as examples to
 create your own YAML file.
 
-And start it!
-
-IMPORTANT: Nvidia users: before running it you should modify `DOCKER_RUNTIME=runc` to `DOCKER_RUNTIME=nvidia` option in the `.env` file
+IMPORTANT: Nvidia users: be sure to add `--gpu nvidia` to your `run-gow` command.
 
 [source,bash]
 ----
-docker-compose -f docker-compose.yml -f compose/headless.yml -f [application].yml up -d # start the containers in background
+run-gow --headless --app [application] up -d # start the containers in background
 ----
 
 This will take some time to start; you can check the status using:
-`docker-compose ps`. If one or more containers are stopped, you can
-check the logs using: `docker-compose logs --follow`.
+`run-gow --headless --app [application] ps`. If one or more containers are
+stopped, you can
+check the logs using: `run-gow --headless --app [application] logs -f`.
 
 === Accessing GOW
 

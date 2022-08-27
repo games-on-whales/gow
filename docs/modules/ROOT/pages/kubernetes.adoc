@@ -17,7 +17,7 @@ be a good start.
 This is a required kernel module in order for Sunshine to manage and
 create virtual devices (mouse, joypad, etc.).
 
-Make sure that `/dev/uinput/` is present in the Kubernetes nodes where
+Make sure that `/dev/uinput` is present in the Kubernetes nodes where
 you intend to run.
 
 [source,bash]

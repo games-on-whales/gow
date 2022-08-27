@@ -1,6 +1,46 @@
 == Nvidia HW acceleration
 
+=== Nvidia GPUs with proprietary drivers
+
+You can see if your host is using the proprietary driver using `lshw`:
+
+[source,bash]
+....
+$ lshw -class video | grep -i driver
+       configuration: driver=nvidia latency=0
+....
+
+In order to make use of your GPU inside a docker container, you’ll need
+to set up the https://github.com/NVIDIA/nvidia-docker[NVIDIA Container
+Toolkit].
+
+If you have more than one nvidia GPU, you may want to set the `GPU_UUID`
+variable in `env/nvidia.env` to indicate which card to use.
+
+To get the correct UUID for your GPU, use the `nvidia-container-cli`
+command:
+
+[source,bash]
+....
+$ sudo nvidia-container-cli --load-kmods info
+NVRM version:   [version]
+CUDA version:   11.3
+
+Device Index:   0
+Device Minor:   0
+Model:          NVIDIA GeForce [model]
+Brand:          GeForce
+GPU UUID:       GPU-[uuid]
+Bus Location:   00000000:0a:00.0
+Architecture:   7.5
+....
+
+IMPORTANT: You will also need to pass the `--gpu nvidia` flag any time you run
+a `run-gow` command.
+
 === Nvidia GPUs with `nouveau` drivers
+
+It should be possible to use the `nouveau` driver, but be aware that this path is significantly less well-tested than using the proprietary driver.
 
 Make sure that the host doesn’t use proprietary drivers but that it’s
 using the open source `nouveau` drivers.
@@ -24,100 +64,4 @@ crw-rw----  1 root video  226,   0 Jun 20 09:47 card0
 crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
 ....
 
-=== Nvidia GPUs with proprietary drivers
-
-You can see if your host is using the proprietary driver using `lshw`:
-
-[source,bash]
-....
-$ lshw -class video | grep -i driver
-       configuration: driver=nvidia latency=0
-....
-
-In order to make use of your GPU inside a docker container, you’ll need
-to set up the https://github.com/NVIDIA/nvidia-docker[NVIDIA Container
-Toolkit].
-
-Once that’s done, you can run the container. Make sure to change
-`DOCKER_RUNTIME=runc` to `DOCKER_RUNTIME=nvidia` in the `.env` file.  Also, if
-you have more than one nvidia GPU, you may want to set the `GPU_UUID` variable
-to indicate which card to use.
-
-To get the correct UUID for your GPU, use the `nvidia-container-cli`
-command:
-
-[source,bash]
-....
-$ sudo nvidia-container-cli --load-kmods info
-NVRM version:   [version]
-CUDA version:   11.3
-
-Device Index:   0
-Device Minor:   0
-Model:          NVIDIA GeForce [model]
-Brand:          GeForce
-GPU UUID:       GPU-[uuid]
-Bus Location:   00000000:0a:00.0
-Architecture:   7.5
-....
-
-==== Xorg drivers for Headless users
-
-NOTE: Since users of "host" mode are not running Xorg inside a container, this
-section does not apply.
-
-Although the NVIDIA Container Toolkit automatically provides most of the
-drivers needed to use the GPU inside a container, Xorg is _not_ officially
-supported. This means that the runtime will not automatically map in the
-specific drivers needed by Xorg.
-
-There are two libraries needed by Xorg: `nvidia_drv.so` and
-`libglxserver_nvidia.so`. It is preferred to map these into the container as a
-bind volume from the host; not only does this guarantee that the versions
-inside and outside the container match, it also removes the requirement to
-download a fresh copy of the driver each time the container starts.
-
-unRAID and Ubuntu users can simply uncomment the correct section in the
-`compose/headless.yml` file.  Users of other platforms will need to locate the
-two modules and add a section like this to the `xorg` service in your
-`compose/headless.yml`:
-
-[source,yaml]
-----
-volumes:
-  - /path/to/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
-  - /path/to/libglxserver_nvidia.so.[version]:/nvidia/xorg/libglxserver_nvidia.so:ro
-----
-
-Be sure to replace `[version]` with the correct version number from the
-`nvidia-container-cli` command above.
-
-Some common locations for `nvidia_drv.so` include:
-|===
-|Location|OS
-
-|`/usr/lib64/xorg/modules/drivers/`|unRAID
-|`/usr/lib/x86_64-linux-gnu/nvidia/xorg/`|Ubuntu 20.04
-|===
-
-Some common locations for `libglxserver_nvidia.so.[version]` include:
-|===
-|Location|OS
-
-|`/usr/lib64/xorg/modules/extensions/`|unRAID
-|`/usr/lib/x86_64-linux-gnu/nvidia/xorg/`|Ubuntu 20.04
-|===
-
-If you don’t want to do this, or if you can’t find the driver on your
-host for some reason, the container will attempt to install the correct
-version for you automatically. However, it will need to re-do this step each
-time you launch the container.
-
-If for some reason you want to skip the entire process and just assume
-the driver is already installed, you can do that too:
-
-[source,yaml]
-----
-environment:
-    SKIP_NVIDIA_DRIVER_CHECK: 1
-----
+IMPORTANT: Because the `nouveau` driver implements standard APIs, you will _not_ need to pass `--gpu nvidia` when using `run-gow`.
