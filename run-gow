@@ -16,6 +16,7 @@ apps=()
 gpu_type=none
 quiet=false
 headless=false
+debug=false
 
 function main {
     parse_cli SCRIPT_ARGV
@@ -55,6 +56,10 @@ function main {
     done
     set +o allexport
 
+    if [ "$debug" = "true" ]; then
+        print_debug_info
+    fi
+
     echo_stderr "Running docker compose..."
     if [ "${#SCRIPT_ARGV}" -gt 0 ]; then
         eval "$(get_compose_cmd) ${SCRIPT_ARGV[*]}"
@@ -80,6 +85,9 @@ function usage() {
     echo_stderr "  -a, --app <app name>"
     echo_stderr "      Specify an application to launch. Can be used multiple times."
     echo_stderr
+    echo_stderr "  -d, --debug"
+    echo_stderr "      Print some extra debugging information before running Docker commands."
+    echo_stderr
     echo_stderr "  -e, --env-file <file>"
     echo_stderr "      Specify an additional file of environment varibles to load before launching 'docker compose'."
     echo_stderr
@@ -102,6 +110,12 @@ function usage() {
 # Parse the command line args we were given
 function parse_cli {
     local -n argv=$1
+
+    if [ "${#argv}" -eq 0 ]; then
+        usage
+        exit 1
+    fi
+
     local idx=0
     while [ "$idx" -le "${#argv[@]}" ]; do
         case "${argv[$idx]}" in
@@ -112,6 +126,9 @@ function parse_cli {
         -a|--app)
             apps+=("${argv[$idx+1]}")
             idx=$((idx + 1))
+            ;;
+        -d|--debug)
+            debug=true
             ;;
         -e|--env-file)
             launch_env+=("${argv[$idx+1]}")
@@ -154,6 +171,47 @@ function parse_cli {
 function echo_stderr() {
     local txt="$1"
     [ "$quiet" != "true" ] && echo "$txt" >&2
+}
+
+
+
+# Print out some extra debugging info. Currently, this is the list of
+# environment variables we're loading, plus the transformed contents of each
+# compose file.
+function print_debug_info() {
+    local variable_re='^[[:space:]]*([[:alpha:]][[:alnum:]_]*)='
+
+    # Print out the environment variables
+    echo_stderr "Loading environment variables:"
+    for env_file in "${launch_env[@]}"; do
+        local full_file="$SCRIPT_DIR/$env_file"
+        if [ -f "$full_file" ]; then
+            while IFS= read -r line; do
+                if [[ $line =~ $variable_re ]]; then
+                    echo_stderr "    - ${line} (from $env_file)"
+                fi
+            done < "$full_file"
+        fi
+    done
+    echo_stderr
+
+    # Print out each transformed file
+    for file in "${compose_files[@]}"; do
+        if [ -f "$file" ]; then
+            echo_stderr "Transformed file: $file"
+            echo_stderr "$(transform_file "$file")"
+            echo_stderr
+        fi
+    done
+
+    for app in "${apps[@]}"; do
+        app_file="compose/$app.yml"
+        if [ -f "$app_file" ]; then
+            echo_stderr "Transformed file: $app_file"
+            echo_stderr "$(transform_file "$app_file")"
+            echo_stderr
+        fi
+    done
 }
 
 # read the given text line by line and add the given padding string to the
@@ -267,13 +325,18 @@ function get_compose_cmd() {
 function check_compose_version {
     local min_version installed_version
     local compose_re='version v?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)'
-    if [[ "$(docker-compose --version)" =~ $compose_re ]]; then
+    if [[ "$(docker compose version)" =~ $compose_re ]]; then
+        if [ "$debug" = "true" ]; then
+            echo_stderr "Found Docker Compose version ${BASH_REMATCH[1]}"
+        fi
+
         local IFS=.
         # shellcheck disable=2086
         printf -v installed_version %08d ${BASH_REMATCH[1]}
         printf -v min_version %08d $MIN_COMPOSE_VERSION
         test "$installed_version" \> $min_version
     else
+        echo_stderr "Docker Compose was not found. Please install Docker Compose version $MIN_COMPOSE_VERSION or newer."
         false
     fi
 }

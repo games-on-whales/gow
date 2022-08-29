@@ -41,6 +41,12 @@ cd gow
 mkdir local_state
 ----
 
+TIP: On unRAID, the `local_state` folder you just created will be owned by
+`root`, and it may not be writable from the containers launched by GoW, which
+mostly do _not_ run as `root`. Until GoW has support for changing the UID
+inside the containers, you may need to `chmod 777 local_state` to make sure
+anyone can write to it.
+
 Now it’s time to download the containers prebuilt images:
 
 [source,bash]
