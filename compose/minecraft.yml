@@ -36,7 +36,7 @@ services:
     env_file:
       - config/common.env
       - config/xorg.env
-      - config/user.env
+      # run-gow: gpu_env
 
     environment:
       # Which devices does GoW need to be able to use? The docker user will be
