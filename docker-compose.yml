@@ -52,3 +52,6 @@ services:
       SUNSHINE_USER: ${SUNSHINE_USER}
       SUNSHINE_PASS: ${SUNSHINE_PASS}
       XDG_RUNTIME_DIR: /tmp/.X11-unix
+
+volumes:
+  udev:

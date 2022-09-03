@@ -31,7 +31,8 @@ function main {
         launch_env+=("env/headless.env")
         compose_files+=("compose/headless.yml")
     else
-        launch_env+=("env/host.env")
+        launch_env+=("env/host-desktop.env")
+        compose_files+=("compose/host-destkop.yml")
     fi
 
     launch_env+=("env/$gpu_type.env")
@@ -172,8 +173,6 @@ function echo_stderr() {
     local txt="$1"
     [ "$quiet" != "true" ] && echo "$txt" >&2
 }
-
-
 
 # Print out some extra debugging info. Currently, this is the list of
 # environment variables we're loading, plus the transformed contents of each

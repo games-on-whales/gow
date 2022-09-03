@@ -22,7 +22,7 @@ https://help.ubuntu.com/community/AutoLogin[autologin])
 Before launching GoW for the first time, you'll want to set up your environment
 to your tastes.  Be sure to edit the `user.env` file to set `local_state` and
 `TIME_ZONE`.  You might need to tweak the socket locations or `XORG_DISPLAY`
-in `env/headless.env` based on your system.
+in `env/host-desktop.env` based on your system.
 
 === Launching
 
