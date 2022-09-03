@@ -1,0 +1,77 @@
+#########################
+# headless.yml
+#########################
+# This file contains services that are required if you want to run GoW in a
+# headless environment (ie, on a host that does not have its own Xorg server)
+
+services:
+  xorg:
+# Most people will probably prefer to pull the pre-built images, but if you
+# prefer to build yourself you can uncomment these lines
+#   build:
+#     context: ./images/
+#     dockerfile: xorg/Dockerfile
+    image: ghcr.io/games-on-whales/xorg:edge
+    runtime: ${DOCKER_RUNTIME}
+    network_mode: ${UDEVD_NETWORK}
+    privileged: true
+    volumes:
+      # Shared with Sunshine in order to get mouse and joypad working
+      - /dev/input:/dev/input:ro
+      - udev:/run/udev/:ro
+      # The xorg socket, it'll be populated when up and running
+      - ${XORG_SOCKET}:/tmp/.X11-unix
+      # run-gow: xorg_driver
+
+    ipc: ${XORG_IPC} # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+
+    env_file:
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
+
+    environment:
+      RESOLUTION: ${XORG_RESOLUTION}
+      CURRENT_OUTPUT: ${XORG_DISPLAY_PORT}
+      REFRESH_RATE: ${XORG_REFRESH_RATE}
+      FORCE_RESOLUTION: ${XORG_FORCE_RESOLUTION}
+
+  # PulseAudio is used for streaming sound
+  pulse:
+  # build:
+  #   context: ./images/
+  #   dockerfile: pulseaudio/Dockerfile
+    image: ghcr.io/games-on-whales/pulseaudio:edge
+    ipc: ${XORG_IPC}
+    volumes:
+      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
+
+#####################
+# We may not need udev, but some people have reported input issues without it;
+# let's keep it around for now
+  udevd:
+#    build:
+#      context: ./images/
+#      dockerfile: udevd/Dockerfile
+
+    image: ghcr.io/games-on-whales/udevd:edge
+#    # Setting network to host
+#    # There must be a way to avoid this but I can't figure it out
+#    # We need to be on the host network in order to get the PF_NETLINK socket
+#    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
+    network_mode: host
+    privileged: true
+    volumes:
+      - udev:/run/udev/
+
+  sunshine:
+    depends_on:
+      - xorg
+      - pulse
+      - udevd
+
+####################
+volumes:
+  xorg: # This will hold the xorg socket file and it'll be shared between containers
+  pulse: # This will hold the xorg socket
+  udev: # This will hold shared udev files
