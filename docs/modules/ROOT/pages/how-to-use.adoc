@@ -10,42 +10,22 @@ following:
 git clone https://github.com/games-on-whales/gow.git
 cd gow
 mkdir local_state
-sudo docker-compose pull
-sudo docker-compose up
+run-gow [--headless] --app retroarch up -d
 ....
 
 === Can I use it for something else?
 
 You should be able to run any Graphical Application on top of the basic
-combination of `Xorg` + `PulseAudio` + `Sunshine`. For example: if you
-replace `RetroArch` with the following in the `docker-compose.yml` file
-you should be able to navigate the web using Firefox!
+combination of `Xorg` + `PulseAudio` + `Sunshine`.  We supply compose files for
+`steam`, `retroarch`, and `firefox` by default, but you can use them as
+templates to create your own.  Then, you can use `--app [your app]` as an
+argument to `run-gow` to launch your app.
 
-[source,yaml]
-----
-firefox:
-depends_on: 
-    - xorg
-    - pulse
-    - sunshine
-image: andrewmackrodt/firefox-x11
-volumes:       
-    - xorg:/tmp/.X11-unix
-    # This image needs these folders, 
-    # we can easily pass a local folder instead.
-    # just make sure to chomd -R ${id}:${id} ./local_state
-    - ${local_state}/ffox:/run/user/1000
-    - ${local_state}/.config/pulse:/home/ubuntu/.config/pulse:ro
-environment: 
-    DISPLAY: ":0"
-    LOG_LEVEL: info
-    PULSE_SERVER: pulse # The name of the pulse container is the hostname in the virtual network
-----
-
-A few things to note: - This is an image that we didn’t built:
-https://github.com/andrewmackrodt/dockerfiles/tree/master/firefox-x11[`andrewmackrodt/firefox-x11`]
-it’s an open source Dockerfile and image. It’s a great example of
-running a container which wasn’t built with GOW in mind.
+A few things to note:
+- This is an image that we didn’t built:
+  https://github.com/andrewmackrodt/dockerfiles/tree/master/firefox-x11[`andrewmackrodt/firefox-x11`]
+  it’s an open source Dockerfile and image. It’s a great example of running a
+  container which wasn’t built with GOW in mind.
 
 * This container doesn’t need to be run with `privileged: true` nor
 `network_mode: host`. This is because mouse and keyboard events are

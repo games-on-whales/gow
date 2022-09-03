@@ -9,7 +9,7 @@ first.
 This is a required kernel module in order for Sunshine to manage and
 create virtual devices (mouse, joypad, etc.).
 
-Make sure that `/dev/uinput/` is present in the host.
+Make sure that `/dev/uinput` is present in the host.
 
 [source,bash]
 ----
@@ -19,16 +19,30 @@ crw------- 1 root root 10, 223 Jul 15 11:46 /dev/uinput
 
 === Quickstart
 
-IMPORTANT: In order for Sunshine to stream your desktop you have to *have a monitor plugged* (or use a dummy plug).
+IMPORTANT: In order for Sunshine to stream your desktop, you have to *have a monitor plugged* (or use a dummy plug).
+
+==== Configuration
+
+Before launching GoW for the first time, you'll want to set up your environment
+to your tastes.  Be sure to edit the `user.env` file to set `local_state` and
+`TIME_ZONE`.  You might need to tweak the socket locations or `XORG_DISPLAY`
+in `env/headless.env` based on your system.
+
+=== Launching
+
+To launch Games on Whales, you can use the `run-gow` script.  See the usage
+message (`run-gow --help`) for full details. Some examples follow:
 
 [source,bash]
 ----
-git clone https://github.com/games-on-whales/gow.git
-cd gow
-mkdir local_state
-sudo docker-compose pull
-sudo docker-compose up
+sudo run-gow --headless --gpu nvidia --app retroarch pull
+sudo run-gow --headless --gpu nvidia --app retroarch up
 ----
+
+Currently supported apps are `steam`, `retroarch`, and `firefox`, but you can
+add any others you'd like.  Use the existing files as a guide.
+
+=== Connecting
 
 Connect over Moonlight by manually adding the IP address of the PC
 running the Docker container. To validate the PIN you can use the

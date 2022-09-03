@@ -25,10 +25,9 @@ Uinput makes it possible to emulate virtual devices. It's required by Sunshine a
 
 Most Linux distributions already ship with it (For example, it is already available in Ubuntu and Debian).
 
-If it's not there already, since it's part of the Linux kernel, it might be difficult to compile it from scratch. We try to add support for platforms that don't have it, for example, https://github.com/games-on-whales/unraid-plugin[we are working on a plugin for Unraid].
+If it's not there already, since it's part of the Linux kernel, it might be difficult to compile it from scratch. We generally try to add support for platforms that don't have it, like, https://github.com/games-on-whales/unraid-plugin[older versions of unRAID].
 
 If you have issues with inputs (mouse, joypad) while streaming using GOW, it's very likely that something is wrong with `uinput`
-
 
 == Xorg + PulseAudio
 

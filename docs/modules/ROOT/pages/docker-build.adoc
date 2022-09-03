@@ -41,5 +41,7 @@ environment. In order to build it locally run:
 
 [source,bash]
 ....
-sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 run-gow [options] build
 ....
+
+You should call `run-gow` with the same options you plan to run apps with; specifically, be sure to use the right combination of `--gpu`, `--headless`, and `--app`.
