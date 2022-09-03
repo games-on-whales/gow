@@ -74,4 +74,3 @@ services:
 volumes:
   xorg: # This will hold the xorg socket file and it'll be shared between containers
   pulse: # This will hold the xorg socket
-  udev: # This will hold shared udev files
