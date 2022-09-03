@@ -16,6 +16,10 @@ services:
 #       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
     runtime: ${DOCKER_RUNTIME}
     network_mode: ${UDEVD_NETWORK}
+    # The xorg container needs to be privileged to have access to all of the devices it requires.
+    # NOTE: actually, all it _really_ needs is CAP_SYS_TTY_CONFIG plus a
+    # devices: entry for each required device. Unfortunately, the list of
+    # required devices will vary based on host and is hard to predict.
     privileged: true
     volumes:
       # Shared with Sunshine in order to get mouse and joypad working
@@ -60,12 +64,9 @@ services:
 #     args:
 #       BASE_IMAGE: ${BUILD_BASE_IMAGE}
 #       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
-#    # Setting network to host
-#    # There must be a way to avoid this but I can't figure it out
-#    # We need to be on the host network in order to get the PF_NETLINK socket
-#    # You can listen to events even without that socket but Xorg and RetroArch will not pickup the devices
-    network_mode: host
-    privileged: true
+
+    cap_add:
+      - NET_ADMIN
     volumes:
       - udev:/run/udev/
 
