@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-function LOG {
-    echo $(date -R): $0: $*
-}
+source /opt/gow/bash-lib/utils.sh
 
-mkdir -p /home/retro/.config/pulse
-rm -f /home/retro/.config/pulse/*
+gow_log "Removing all files from $HOME/.config/pulse"
 
-LOG "Starting pulseaudio"
-pulseaudio --log-level=1 #--log-target=stderr -v
+mkdir -p "$HOME/.config/pulse"
+rm -rf "$HOME/.config/pulse/*"
+
+gow_log "Starting pulseaudio"
+exec pulseaudio --log-level=1 #--log-target=stderr -v
