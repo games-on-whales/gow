@@ -248,6 +248,7 @@ function os_type() {
     elif [ -f /etc/os-release ]; then
         # shellcheck disable=1091
         echo "$(source /etc/os-release; echo "$ID")"
+        return
     fi
 
     echo "unknown"
@@ -266,7 +267,7 @@ xorg_driver[Ubuntu]=$(cat - <<END
 - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
 END
 )
-xorg_driver[Arch]=$(cat - <<END
+xorg_driver[arch]=$(cat - <<END
 - /usr/lib/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
 - /usr/lib/nvidia/xorg/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
 END
