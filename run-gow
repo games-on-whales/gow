@@ -20,10 +20,6 @@ debug=false
 
 function main {
     parse_cli SCRIPT_ARGV
-    if ! check_compose_version; then
-        echo_stderr "Your docker-compose is too old; please install v$MIN_COMPOSE_VERSION or later."
-        exit 1
-    fi
 
     # which compose and environment files should we be using? this will depend
     # on command-line options as well as what app(s) we're launching
@@ -45,27 +41,32 @@ function main {
 
     launch_env+=("user.env")
 
-    # docker-compose >= v2.6.0 can't handle process substitution for the `--env-file` option :-(
-    # but, it _does_ support loading variables from the process's environment.  So,
-    # load the files we need before we execute docker-compose.
-    set -o allexport
-    for env_file in "${launch_env[@]}"; do
-        if [ -f "$SCRIPT_DIR/$env_file" ]; then
-            # shellcheck disable=1090
-            source "$SCRIPT_DIR/$env_file"
-        fi
-    done
-    set +o allexport
-
     if [ "$debug" = "true" ]; then
         print_debug_info
-    fi
-
-    echo_stderr "Running docker compose..."
-    if [ "${#SCRIPT_ARGV}" -gt 0 ]; then
-        eval "$(get_compose_cmd) ${SCRIPT_ARGV[*]}"
     else
-        eval "$(get_compose_cmd) up"
+        if ! check_compose_version; then
+            echo_stderr "Your docker-compose is too old; please install v$MIN_COMPOSE_VERSION or later."
+            exit 1
+        fi
+
+        # docker-compose >= v2.6.0 can't handle process substitution for the `--env-file` option :-(
+        # but, it _does_ support loading variables from the process's environment.  So,
+        # load the files we need before we execute docker-compose.
+        set -o allexport
+        for env_file in "${launch_env[@]}"; do
+            if [ -f "$SCRIPT_DIR/$env_file" ]; then
+                # shellcheck disable=1090
+                source "$SCRIPT_DIR/$env_file"
+            fi
+        done
+        set +o allexport
+
+        echo_stderr "Running docker compose..."
+        if [ "${#SCRIPT_ARGV}" -gt 0 ]; then
+            eval "$(get_compose_cmd) ${SCRIPT_ARGV[*]}"
+        else
+            eval "$(get_compose_cmd) up"
+        fi
     fi
 }
 
@@ -178,6 +179,16 @@ function echo_stderr() {
 # environment variables we're loading, plus the transformed contents of each
 # compose file.
 function print_debug_info() {
+    echo_stderr "Detected OS: $(os_type)"
+
+    local version_status="✓"
+    if ! check_compose_version; then
+        version_status="✗"
+    fi
+
+    echo_stderr "Detected Compose version: $(get_compose_version) (min: $MIN_COMPOSE_VERSION) $version_status"
+    echo_stderr ""
+
     local variable_re='^[[:space:]]*([[:alpha:]][[:alnum:]_]*)='
 
     # Print out the environment variables
@@ -238,20 +249,19 @@ function get_gpu_env() {
 # "slackware" (which is true but not specific enough), so we use a different
 # mechanism.
 function os_type() {
+    local os="unknown"
     if [ -f /etc/unraid-version ]; then
-        echo "unraid"
-        return
+        os="unraid"
     elif [ -f /etc/lsb-release ]; then
         # shellcheck disable=1091
-        echo "$(source /etc/lsb-release; echo "$DISTRIB_ID")"
-        return
+        os= "$(source /etc/lsb-release; echo "$DISTRIB_ID")"
     elif [ -f /etc/os-release ]; then
         # shellcheck disable=1091
-        echo "$(source /etc/os-release; echo "$ID")"
-        return
+        os="$(source /etc/os-release; echo "$ID")"
     fi
 
-    echo "unknown"
+    # normalize os to be lower case
+    echo "${os,,}"
 }
 
 # These are the mappings necessary to get nvidia Xorg drivers into the xorg
@@ -263,7 +273,7 @@ xorg_driver[unraid]=$(cat - <<END
 - /usr/lib64/xorg/modules/extensions/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
 END
 )
-xorg_driver[Ubuntu]=$(cat - <<END
+xorg_driver[ubuntu]=$(cat - <<END
 - /usr/lib/x86_64-linux-gnu/nvidia/xorg/:/nvidia/xorg/:ro
 END
 )
@@ -321,20 +331,27 @@ function get_compose_cmd() {
     echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow $yaml_files"
 }
 
-# check that the installed version of docker-compose is new enough.
-function check_compose_version {
-    local min_version installed_version
+function get_compose_version() {
+    local installed_version
     local compose_re='version v?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)'
     if [[ "$(docker compose version)" =~ $compose_re ]]; then
-        if [ "$debug" = "true" ]; then
-            echo_stderr "Found Docker Compose version ${BASH_REMATCH[1]}"
-        fi
+        echo "${BASH_REMATCH[1]}"
+    else
+        echo ""
+    fi
+}
 
+# check that the installed version of docker-compose is new enough.
+function check_compose_version() {
+    local min_version installed_version version_string
+    version_string=$(get_compose_version)
+
+    if [[ "${version_string}" != "" ]]; then
         local IFS=.
         # shellcheck disable=2086
-        printf -v installed_version %08d ${BASH_REMATCH[1]}
+        printf -v installed_version %08d ${version_string}
         printf -v min_version %08d $MIN_COMPOSE_VERSION
-        test "$installed_version" \> $min_version
+        test "$installed_version" -ge $min_version
     else
         echo_stderr "Docker Compose was not found. Please install Docker Compose version $MIN_COMPOSE_VERSION or newer."
         false
