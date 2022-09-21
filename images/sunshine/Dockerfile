@@ -42,7 +42,7 @@ RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshin
     cpack -G DEB
 
 ######################################
-FROM ghcr.io/zb140/gow-base-x11:refactor AS sunshine
+FROM ghcr.io/zb140/gow-base-app:refactor AS sunshine
 
 ARG REQUIRED_PACKAGES="\
     libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
@@ -74,7 +74,7 @@ USER ${UNAME}
 COPY configs/sunshine.conf /cfg/sunshine.conf
 COPY configs/apps.json /cfg/apps.json
 
-COPY --chmod=777 scripts/startup.sh /opt/gow/startup-x11.sh
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 # Port configuration taken from https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide#manual-port-forwarding-advanced
 EXPOSE 47984-47990/tcp 48010 48010/udp 47998-48000/udp

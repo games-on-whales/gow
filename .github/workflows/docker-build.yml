@@ -17,15 +17,15 @@ jobs:
       image_name: "base"
     secrets: inherit
 
-  base-x11:
+  base-app:
     needs: [ base ]
     uses: zb140/gow/.github/workflows/docker-build-and-publish.yml@refactor
     with:
-      image_name: "base-x11"
+      image_name: "base-app"
     secrets: inherit
 
   apps:
-    needs: [ base, base-x11 ]
+    needs: [ base, base-app ]
     strategy:
       matrix:
         image:

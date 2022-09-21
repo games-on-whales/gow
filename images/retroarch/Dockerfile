@@ -1,4 +1,4 @@
-FROM ghcr.io/zb140/gow-base-x11:refactor
+FROM ghcr.io/zb140/gow-base-app:refactor
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
@@ -23,7 +23,7 @@ WORKDIR $HOME
 USER ${UNAME}
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
-COPY --chmod=777 scripts/startup.sh /opt/gow/startup-x11.sh
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

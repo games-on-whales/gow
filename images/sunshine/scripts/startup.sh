@@ -14,7 +14,7 @@ cp -u /cfg/sunshine.conf "$HOME/sunshine/sunshine.conf"
 cp -u /cfg/apps.json "$HOME/sunshine/apps.json"
 
 ## Pass sunshine credentials via ENV
-sudo -u "$(whoami)" -E sunshine "${HOME}/sunshine/sunshine.conf" --creds "${SUNSHINE_USER:-admin}" "${SUNSHINE_PASS:-admin}"
+sunshine "${HOME}/sunshine/sunshine.conf" --creds "${SUNSHINE_USER:-admin}" "${SUNSHINE_PASS:-admin}"
 
 # Start Sunshine
-exec sudo -u "$(whoami)" -E sunshine min_log_level="$LOG_LEVEL" "${HOME}/sunshine/sunshine.conf"
+exec sunshine min_log_level="$LOG_LEVEL" "${HOME}/sunshine/sunshine.conf"

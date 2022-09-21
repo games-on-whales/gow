@@ -1,4 +1,4 @@
-FROM ghcr.io/zb140/gow-base-x11:refactor
+FROM ghcr.io/zb140/gow-base-app:refactor
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -30,7 +30,7 @@ RUN apt-get update -y && \
 # But it's missing the following json file
 COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
 
-COPY --chmod=777 scripts/startup.sh /opt/gow/startup-x11.sh
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 USER ${UNAME}
 

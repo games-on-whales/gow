@@ -1,4 +1,4 @@
-FROM ghcr.io/zb140/gow-base-x11:refactor
+FROM ghcr.io/zb140/gow-base:refactor
 
 ENV \
     DISPLAY=:0 \
@@ -35,8 +35,6 @@ COPY configs/desktop.jwmrc.xml $HOME/.jwmrc
 # the host most of the time. I suppose it's helpful for less-well-supported distros
 COPY --chmod=777 scripts/ensure-nvidia-xorg-driver.sh /opt/gow/ensure-nvidia-xorg-driver.sh
 
-# override the startup script provided by base-x11; we're running the _server_
-# rather than an app.
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
