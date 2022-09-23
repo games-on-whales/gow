@@ -40,7 +40,15 @@ jwm=$!
 # Setting up resolution
 RESOLUTION=${RESOLUTION:-1920x1080}
 REFRESH_RATE=${REFRESH_RATE:-60}
-/opt/gow/wait-x11
+
+# wait for the X server to finish starting
+for i in {0..120}; do
+    if  xdpyinfo >/dev/null 2>&1; then
+        break
+    fi
+
+    sleep 1s
+done
 
 output_log=$'Detected outputs:\n'
 for out in $(xrandr --current | awk '/ (dis)?connected/ { print $1 }'); do
