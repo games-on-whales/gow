@@ -29,10 +29,11 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          dotenv_linter_flags: --skip UnorderedKey
+          dotenv_linter_flags: --skip UnorderedKey user.env env/*.env config/*.env
 
       - name: YAML files
         uses: reviewdog/action-yamllint@v1
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
+          yamllint_flags: 'docker-compose.yml compose/*.yml'
