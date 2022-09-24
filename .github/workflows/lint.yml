@@ -24,3 +24,15 @@ jobs:
           hadolint_ignore: DL3008
           filter_mode: nofilter
 
+      - name: Environment files
+        uses: dotenv-linter/action-dotenv-linter@v2
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          dotenv_linter_flags: --skip UnorderedKey
+
+      - name: YAML files
+        uses: reviewdog/action-yamllint@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
