@@ -1,4 +1,6 @@
-FROM ghcr.io/zb140/gow-base:refactor
+ARG BUILD_OWNER
+ARG BUILD_TAG
+FROM ghcr.io/${BUILD_OWNER}/base:${BUILD_TAG} AS sunshine
 
 ENV \
     DISPLAY=:0 \
@@ -11,13 +13,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 # wget is needed by ensure-nvidia-xorg-driver
 ARG REQUIRED_PACKAGES=" \
     wget \
-	xserver-xorg-core xfonts-base x11-apps \
-	x11-session-utils x11-utils x11-xfs-utils \
-	x11-xserver-utils xauth x11-common \
+    xserver-xorg-core xfonts-base x11-apps \
+    x11-session-utils x11-utils x11-xfs-utils \
+    x11-xserver-utils xauth x11-common \
     xz-utils unzip avahi-utils dbus \
     mesa-utils mesa-utils-extra \
     vulkan-tools \
-	libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa \
+    libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa \
     xserver-xorg-video-all \
     xserver-xorg-input-libinput \
     jwm libxft2 libxext6 breeze-cursor-theme \

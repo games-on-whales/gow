@@ -1,4 +1,6 @@
-FROM ghcr.io/zb140/gow-base:refactor
+ARG BUILD_OWNER
+ARG BUILD_TAG
+FROM ghcr.io/${BUILD_OWNER}/base:${BUILD_TAG} AS sunshine
 
 ARG DEBIAN_FRONTEND=noninteractive
 

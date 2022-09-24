@@ -1,4 +1,6 @@
-FROM ghcr.io/zb140/gow-base-app:refactor
+ARG BUILD_OWNER
+ARG BUILD_TAG
+FROM ghcr.io/${BUILD_OWNER}/base-app:${BUILD_TAG}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \

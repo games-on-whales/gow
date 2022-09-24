@@ -42,7 +42,7 @@ jobs:
           fi
 
           if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
-            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/gow-${{ inputs.image_name }}"
+            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}"
             if [ "$IMAGES" = "" ]; then
               IMAGES="ghcr.io/${REGISTRY_IMAGE}"
             else
@@ -105,6 +105,12 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Get build tag
+        id: get-tag
+        run: |
+          tag=$(echo ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | cut -d: -f2)
+          echo "::set-output name=tag::$tag"
+
       - name: Build and Push
         id: docker_build
         uses: docker/build-push-action@v2
@@ -117,6 +123,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
+            BUILD_TAG=${{ steps.get-tag.outputs.tag }}
+            BUILD_OWNER=${{ github.repository_owner }}
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 

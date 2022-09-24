@@ -4,22 +4,22 @@ on:
   push:
   pull_request: #They will only build the containers, not push them
     types:
-    - opened
-    - reopened
+      - opened
+      - reopened
   schedule:
-  - cron: "0 0 * * *" #nightly
+    - cron: "0 0 * * *" #nightly
   workflow_dispatch:
 
 jobs:
   base:
-    uses: zb140/gow/.github/workflows/docker-build-and-publish.yml@refactor
+    uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base"
     secrets: inherit
 
   base-app:
     needs: [ base ]
-    uses: zb140/gow/.github/workflows/docker-build-and-publish.yml@refactor
+    uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-app"
     secrets: inherit
@@ -36,7 +36,7 @@ jobs:
         - { name: retroarch,  platforms: "linux/amd64,linux/arm64" }
         - { name: steam,      platforms: "linux/amd64"             }
       fail-fast: false
-    uses: zb140/gow/.github/workflows/docker-build-and-publish.yml@refactor
+    uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "${{ matrix.image.name }}"
       platforms: "${{ matrix.image.platforms }}"
