@@ -1,14 +1,13 @@
-name: docker_build
+name: Automated builds
 
 on:
   push:
-  pull_request: #They will only build the containers, not push them
+  pull_request: # They will only build the containers, not push them
     types:
       - opened
       - reopened
   schedule:
-    - cron: "0 0 * * *" #nightly
-  workflow_dispatch:
+    - cron: "0 0 * * *" # nightly
 
 jobs:
   base:
@@ -22,6 +21,7 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-app"
+      base_image: "${{ jobs.base.outputs.image_tag }}"
     secrets: inherit
 
   apps:
@@ -39,6 +39,8 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "${{ matrix.image.name }}"
+      base_image: "${{ jobs.base.outputs.image_tag }}"
+      base_app_image: "${{ jobs.base-app.outputs.image_tag }}"
       platforms: "${{ matrix.image.platforms }}"
     secrets: inherit
 

@@ -1,12 +1,10 @@
-ARG BUILD_OWNER
-ARG BUILD_TAG
+ARG BASE_APP_IMAGE
 
 ######################################
 FROM ubuntu:22.04 AS sunshine-builder
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG BUILD_OWNER
-ARG BUILD_TAG
+ARG BASE_APP_IMAGE
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
@@ -47,7 +45,7 @@ RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshin
     cpack -G DEB
 
 ######################################
-FROM ghcr.io/${BUILD_OWNER}/base-app:${BUILD_TAG} AS sunshine
+FROM ${BASE_APP_IMAGE} AS sunshine
 
 ARG REQUIRED_PACKAGES="\
     libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \

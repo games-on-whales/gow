@@ -49,6 +49,10 @@ function main {
             exit 1
         fi
 
+        if [ "${SCRIPT_ARGV[0]}" = "build" ]; then
+            launch_env+=("env/build.env")
+        fi
+
         # docker-compose >= v2.6.0 can't handle process substitution for the `--env-file` option :-(
         # but, it _does_ support loading variables from the process's environment.  So,
         # load the files we need before we execute docker-compose.

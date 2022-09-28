@@ -3,21 +3,58 @@ name: Build and publish image
 on:
   workflow_call:
     inputs:
+      base_image:
+        description: "The image to be used as a base for system containers"
+        type: string
+      base_app_image:
+        description: "The image to be used as a base for app containers"
+        type: string
       image_name:
         description: "The name of the image to build and publish"
-        required: true
         type: string
       platforms:
         description: "Which platforms should this image be built for?"
-        required: false
         default: "linux/amd64,linux/arm64"
         type: string
+    outputs:
+      image_tag:
+        description: "The highest-priority tag assigned to the built image"
+        value: ${{ jobs.docker.outputs.image_tag }}
 
 jobs:
   docker:
     runs-on: ubuntu-latest
 
+    outputs:
+      image_tag: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+
     steps:
+      - name: Validate inputs
+        shell: bash
+        # Currently GitHub does _not_ validate that required inputs are actually given :-(
+        # see: https://github.com/actions/runner/issues/1070
+        run: |
+          # image name is always required
+          [[ "${{ inputs.image_name }}" ]] || {
+            echo "image_name input is empty but required"
+            exit 1
+          }
+
+          # base image name is required unless building the base image itself
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_image input is empty but required"
+            exit 1
+           }
+
+          # base_app_image is required unless building base or base-app
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.image_name }}" = "base-app" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_app_image input is empty but required"
+            exit 1
+           }
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -105,12 +142,6 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Get build tag
-        id: get-tag
-        run: |
-          tag=$(echo ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | cut -d: -f2)
-          echo "::set-output name=tag::$tag"
-
       - name: Build and Push
         id: docker_build
         uses: docker/build-push-action@v2
@@ -123,8 +154,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
-            BUILD_TAG=${{ steps.get-tag.outputs.tag }}
-            BUILD_OWNER=${{ github.repository_owner }}
+            BASE_IMAGE=${{ inputs.base_image }}
+            BASE_APP_IMAGE=${{ inputs.base_app_image }}
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 

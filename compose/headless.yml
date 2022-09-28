@@ -6,12 +6,14 @@
 
 services:
   xorg:
-# Most people will probably prefer to pull the pre-built images, but if you
-# prefer to build yourself you can uncomment these lines
-#   build:
-#     context: ./images/
-#     dockerfile: xorg/Dockerfile
     image: ghcr.io/games-on-whales/xorg:edge
+    # Most people will probably prefer to pull the pre-built images, but if you
+    # prefer to build yourself you can uncomment these lines
+#   build:
+#     context: ./images/xorg
+#     args:
+#       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+#       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
     runtime: ${DOCKER_RUNTIME}
     network_mode: ${UDEVD_NETWORK}
     privileged: true
@@ -38,11 +40,13 @@ services:
 
   # PulseAudio is used for streaming sound
   pulse:
-  # build:
-  #   context: ./images/
-  #   dockerfile: pulseaudio/Dockerfile
     image: ghcr.io/games-on-whales/pulseaudio:edge
-    ipc: ${XORG_IPC}
+#   build:
+#     context: ./images/pulseaudio
+#     args:
+#       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+#       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
+    ipc: ${SHARED_IPC}
     volumes:
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
 
@@ -50,11 +54,12 @@ services:
 # We may not need udev, but some people have reported input issues without it;
 # let's keep it around for now
   udevd:
-#    build:
-#      context: ./images/
-#      dockerfile: udevd/Dockerfile
-
     image: ghcr.io/games-on-whales/udevd:edge
+#   build:
+#     context: ./images/udevd
+#     args:
+#       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+#       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
 #    # Setting network to host
 #    # There must be a way to avoid this but I can't figure it out
 #    # We need to be on the host network in order to get the PF_NETLINK socket

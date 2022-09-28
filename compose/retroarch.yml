@@ -9,12 +9,13 @@ services:
   retroarch:
     depends_on:
       - sunshine
-#   build:
-#     context: ./images/
-#     dockerfile: retroarch/Dockerfile
     image: ghcr.io/games-on-whales/retroarch:edge
+#   build:
+#     context: ./images/retroarch
+#     args:
+#       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+#       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
     runtime: ${DOCKER_RUNTIME}
-    # network_mode: host
     privileged: true
     network_mode: ${UDEVD_NETWORK}
     volumes:
