@@ -24,13 +24,6 @@ RUN apt-get update -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-# TODO: is this still needed?
-# Seems that nvidia-docker is taking care of passing:
-# /usr/lib/x86_64-linux-gnu/libnvidia-glvkspirv.so.460.80
-# /usr/lib/i386-linux-gnu/libnvidia-glvkspirv.so.460.80
-# But it's missing the following json file
-COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
-
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 USER ${UNAME}

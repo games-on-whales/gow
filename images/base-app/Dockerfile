@@ -16,3 +16,11 @@ RUN apt-get update -y && \
 
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
+
+# In order to use Vulkan with NVIDIA GPUs, the ICD file must be present (so
+# Vulkan knows how to find the driver libraries).  Although the nvidia runtime
+# _does_ handle making the actual drivers available, it doesn't install the ICD
+# JSON.  So we provide one ourselves.  This is harmless on non-NVIDIA systems,
+# so we just do it unconditionally.
+COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
+
