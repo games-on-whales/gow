@@ -9,7 +9,7 @@ MIN_COMPOSE_VERSION=2.6.0
 readonly SCRIPT_NAME SCRIPT_DIR MIN_COMPOSE_VERSION
 
 # Configuration values. These will be set based on the command-line arguments we get
-launch_env=("env/base.env")
+launch_env=("env/base.env" "env/build.env")
 compose_files=("docker-compose.yml")
 apps=()
 
@@ -47,10 +47,6 @@ function main {
         if ! check_compose_version; then
             echo_stderr "Your docker-compose is too old; please install v$MIN_COMPOSE_VERSION or later."
             exit 1
-        fi
-
-        if [ "${SCRIPT_ARGV[0]}" = "build" ]; then
-            launch_env+=("env/build.env")
         fi
 
         # docker-compose >= v2.6.0 can't handle process substitution for the `--env-file` option :-(
