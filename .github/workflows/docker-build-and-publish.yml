@@ -19,7 +19,7 @@ on:
         description: "Which platforms should this image be built for?"
         default: "linux/amd64,linux/arm64"
         type: string
-        required: true
+        required: false
     outputs:
       image_tag:
         description: "The highest-priority tag assigned to the built image"
