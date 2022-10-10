@@ -1,0 +1,103 @@
+name: Manual builds
+on:
+  workflow_dispatch:
+    inputs:
+      base_image:
+        description: "The image to be used as a base for system containers"
+        type: string
+        default: "ghcr.io/games-on-whales/base:latest"
+      base_app_image:
+        description: "The image to be used as a base for app containers"
+        type: string
+        default: "ghcr.io/games-on-whales/base-app:latest"
+      image_name:
+        description: "The name of the image to build"
+        type: string
+      image_tags:
+        description: "One or more tags for the newly built image"
+        type: string
+      platforms:
+        description: "Which platforms should this image be built for?"
+        default: "linux/amd64,linux/arm64"
+        type: string
+
+# Unfortunately, act doesn't support reusable workflows right now :-(
+# see: https://github.com/nektos/act/issues/826
+# jobs:
+#   build:
+#     uses: ./.github/workflows/docker-build-and-publish.yml
+#     with:
+#       base_image: ${{ inputs.base_image }}
+#       base_app_image: ${{ inputs.base_app_image }}
+#       image_name: ${{ inputs.image_name }}
+#       image_tags: ${{ inputs.image_tags }}
+#       platforms: ${{ inputs.platforms }}
+
+jobs:
+  manual:
+    runs-on: ubuntu-latest
+
+    steps:
+
+        # Currently GitHub does _not_ validate that required inputs are actually given :-(
+        # see: https://github.com/actions/runner/issues/1070
+      - name: Validate inputs
+        shell: bash
+        run: |
+          ls -la
+          # image name is always required
+          [[ "${{ inputs.image_name }}" ]] || {
+            echo "image_name input is empty but required"
+            exit 1
+          }
+
+          # base image name is required unless building the base image itself
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_image input is empty but required"
+            exit 1
+           }
+
+          # base_app_image is required unless building base or base-app
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.image_name }}" = "base-app" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_app_image input is empty but required"
+            exit 1
+           }
+
+      - name: Checkout
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v2
+
+      # Prepare for multi-arch
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+          version: latest
+          driver-opts: image=moby/buildkit:master
+
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: false # local builds shouldn't push to a registry
+          tags: ${{ inputs.image_tags || format('gow_{0}',inputs.image_name) }}
+          context: ./images/${{ inputs.image_name }}
+          file: ./images/${{ inputs.image_name }}/Dockerfile
+          platforms: ${{ inputs.platforms }}
+          build-args: |
+            BASE_IMAGE=${{ inputs.base_image }}
+            BASE_APP_IMAGE=${{ inputs.base_app_image }}
+
+      - name: Print summary
+        run: |
+          echo "Built image ${{ inputs.image_name }}: ${{ steps.docker_build.outputs.digest }}"
+
