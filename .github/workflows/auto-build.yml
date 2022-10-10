@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-app"
-      base_image: "${{ jobs.base.outputs.image_tag }}"
+      base_image: "${{ needs.base.outputs.image_tag }}"
     secrets: inherit
 
   apps:
@@ -39,8 +39,8 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "${{ matrix.image.name }}"
-      base_image: "${{ jobs.base.outputs.image_tag }}"
-      base_app_image: "${{ jobs.base-app.outputs.image_tag }}"
+      base_image: "${{ needs.base.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-app.outputs.image_tag }}"
       platforms: "${{ matrix.image.platforms }}"
     secrets: inherit
 

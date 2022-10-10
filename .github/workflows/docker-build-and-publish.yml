@@ -6,16 +6,20 @@ on:
       base_image:
         description: "The image to be used as a base for system containers"
         type: string
+        required: false
       base_app_image:
         description: "The image to be used as a base for app containers"
         type: string
+        required: false
       image_name:
         description: "The name of the image to build and publish"
         type: string
+        required: true
       platforms:
         description: "Which platforms should this image be built for?"
         default: "linux/amd64,linux/arm64"
         type: string
+        required: false
     outputs:
       image_tag:
         description: "The highest-priority tag assigned to the built image"
@@ -139,7 +143,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and Push
