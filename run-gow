@@ -9,7 +9,7 @@ MIN_COMPOSE_VERSION=2.6.0
 readonly SCRIPT_NAME SCRIPT_DIR MIN_COMPOSE_VERSION
 
 # Configuration values. These will be set based on the command-line arguments we get
-launch_env=("env/base.env")
+launch_env=("env/base.env" "env/build.env")
 compose_files=("docker-compose.yml")
 apps=()
 

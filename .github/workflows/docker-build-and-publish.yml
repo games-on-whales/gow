@@ -1,29 +1,59 @@
-name: docker_build
+name: Build and publish image
 
 on:
-  push:
-  pull_request: #They will only build the containers, not push them
-    types:
-    - opened
-    - reopened
-  schedule:
-  - cron: "0 0 * * *" #nightly
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      base_image:
+        description: "The image to be used as a base for system containers"
+        type: string
+      base_app_image:
+        description: "The image to be used as a base for app containers"
+        type: string
+      image_name:
+        description: "The name of the image to build and publish"
+        type: string
+      platforms:
+        description: "Which platforms should this image be built for?"
+        default: "linux/amd64,linux/arm64"
+        type: string
+    outputs:
+      image_tag:
+        description: "The highest-priority tag assigned to the built image"
+        value: ${{ jobs.docker.outputs.image_tag }}
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image:
-        - { name: xorg,       platforms: "linux/amd64,linux/arm64" }
-        - { name: pulseaudio, platforms: "linux/amd64,linux/arm64" }
-        - { name: udevd,      platforms: "linux/amd64,linux/arm64" }
-        - { name: sunshine,   platforms: "linux/amd64" }
-        - { name: retroarch,  platforms: "linux/amd64,linux/arm64" }
-        - { name: steam,      platforms: "linux/amd64"             }
-      fail-fast: false
+
+    outputs:
+      image_tag: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+
     steps:
+      - name: Validate inputs
+        shell: bash
+        # Currently GitHub does _not_ validate that required inputs are actually given :-(
+        # see: https://github.com/actions/runner/issues/1070
+        run: |
+          # image name is always required
+          [[ "${{ inputs.image_name }}" ]] || {
+            echo "image_name input is empty but required"
+            exit 1
+          }
+
+          # base image name is required unless building the base image itself
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_image input is empty but required"
+            exit 1
+           }
+
+          # base_app_image is required unless building base or base-app
+          [[ "${{ inputs.image_name }}" = "base" ]] ||
+           [[ "${{ inputs.image_name }}" = "base-app" ]] ||
+           [[ "${{ inputs.base_image }}" ]] || {
+            echo "base_app_image input is empty but required"
+            exit 1
+           }
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,22 +66,25 @@ jobs:
       # - cache_from: image tag to use for imported cache
       # - cache_to: image tag to use for exported cache
       # - github_server_url: reference to source code repository
-
       - name: Prepare
         id: prep
         run: |
-          IMAGES="${{ matrix.image.name }}"
+          IMAGES=""
           PUSH=false
 
           if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            IMAGES="${{ secrets.DOCKERHUB_ORG }}/${{ matrix.image.name }}"
+            IMAGES="${{ secrets.DOCKERHUB_ORG }}/${{ inputs.image_name }}"
             PUSH=true
             echo ::set-output name=has_docker_token::true
           fi
 
           if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
-            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ matrix.image.name }}"
-            IMAGES="$IMAGES,ghcr.io/${REGISTRY_IMAGE}"
+            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}"
+            if [ "$IMAGES" = "" ]; then
+              IMAGES="ghcr.io/${REGISTRY_IMAGE}"
+            else
+              IMAGES="$IMAGES,ghcr.io/${REGISTRY_IMAGE}"
+            fi
             PUSH=true
             echo ::set-output name=has_github_token::true
             echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
@@ -76,6 +109,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=edge,branch=master
+            type=ref,event=branch
             type=sha
           flavor: latest=auto #latest will point to last semver version (stable)
 
@@ -95,7 +129,7 @@ jobs:
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != '' # secrets not available in PRs
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -113,15 +147,17 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./images/
-          file: ./images/${{ matrix.image.name }}/Dockerfile
-          platforms: ${{ matrix.image.platforms }}
+          context: ./images/${{ inputs.image_name }}
+          file: ./images/${{ inputs.image_name }}/Dockerfile
+          platforms: ${{ inputs.platforms }}
           push: ${{ steps.prep.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
+            BASE_IMAGE=${{ inputs.base_image }}
+            BASE_APP_IMAGE=${{ inputs.base_app_image }}
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
       - name: Image digest
-        run: echo "${{ matrix.image.name }} > ${{ steps.docker_build.outputs.digest }}"
+        run: echo "${{ inputs.image_name }} > ${{ steps.docker_build.outputs.digest }}"

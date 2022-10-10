@@ -9,13 +9,15 @@ services:
   steam:
     depends_on:
       - sunshine
-#   build:
-#     context: ./images/
-#     dockerfile: steam/Dockerfile
     image: ghcr.io/games-on-whales/steam:edge
+#   build:
+#     context: ./images/steam
+#     args:
+#       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+#       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
     runtime: ${DOCKER_RUNTIME}
-    network_mode: ${UDEVD_NETWORK}
     privileged: true
+    network_mode: ${UDEVD_NETWORK}
     volumes:
       # Followings are needed in order to get joystick support
       - /dev/input:/dev/input:ro

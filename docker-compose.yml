@@ -15,14 +15,16 @@ services:
   # Sunshine is the heart of the streaming setup; it takes your desktop and
   # encodes it for delivery over the network
   sunshine:
+    image: ghcr.io/games-on-whales/sunshine:edge
   # build:
-  #   context: ./images/
-  #   dockerfile: sunshine/Dockerfile
-  # Uncomment the following to override the default sunshine version
+  #   context: ./images/sunshine
   #   args:
+  #     BASE_IMAGE: ${BUILD_BASE_IMAGE}
+  #     BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
+  # Uncomment the following to override the default sunshine version
   #     BUILD_TYPE: RELEASE
   #     SUNSHINE_SHA: d9f79527104694a223eb9d64309e9337f46909d6
-    image: ghcr.io/games-on-whales/sunshine:edge
+
     runtime: ${DOCKER_RUNTIME}
     ports:
       - 47984-47990:47984-47990/tcp

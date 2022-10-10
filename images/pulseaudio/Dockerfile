@@ -1,31 +1,34 @@
-FROM ubuntu:20.04 AS base
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive 
-ENV TZ="Europe/London"
+ARG DEBIAN_FRONTEND=noninteractive
 
-ENV UNAME retro
-
-# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG REQUIRED_PACKAGES=" \
     alsa-utils \
     libasound2 \
     libasound2-plugins \
     pulseaudio \
-    && rm -rf /var/lib/apt/lists/*
+    "
 
-ENV HOME /home/$UNAME
-WORKDIR $HOME
+# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY pulseaudio/configs/default.pa /etc/pulse/default.pa
-COPY pulseaudio/configs/client.conf /etc/pulse/client.conf
-COPY pulseaudio/configs/daemon.conf /etc/pulse/daemon.conf
-COPY pulseaudio/scripts/startup.sh /startup.sh
-# Common scripts
-COPY --chmod=777 common/* /bin/
+COPY configs/default.pa /etc/pulse/default.pa
+COPY configs/client.conf /etc/pulse/client.conf
+COPY configs/daemon.conf /etc/pulse/daemon.conf
+
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
+
+# the PulseAudio daemon will refuse to start if the $HOME directory is not
+# owned by the user who launched it, _EVEN IF THAT USER IS root_.  So we need
+# to override $HOME to _not_ be /home/retro.  This isn't a big deal because
+# this dir is entirely inside the container anyway (it's not mounted into
+# $local_state) so its name is essentially irrelevant.
+ENV HOME=/root
 
 EXPOSE 4713
-
-CMD /bin/bash /startup.sh
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE

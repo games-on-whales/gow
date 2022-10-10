@@ -1,17 +1,13 @@
-FROM ubuntu:21.04 AS base
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive 
-ENV TZ="Europe/London"
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    udev \
+    apt-get install -y --no-install-recommends udev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --chmod=777 common/* /bin/
-COPY udevd/scripts/startup.sh /startup.sh
-
-CMD /bin/bash /startup.sh
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE

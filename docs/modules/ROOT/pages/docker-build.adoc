@@ -4,7 +4,7 @@ So you don’t trust downloading Docker images from the web, eh? You are
 right! No one should trust _the internet_!
 
 Our images are built and pushed using Github Actions. You can manually
-check if the images are being tampered by doing the followings:
+check if the images are being tampered with by doing the following:
 
 * Head over to the https://github.com/games-on-whales/gow/runs/[`Actions`] section on Github and open up the build that you want to check
 * For each generated Docker image there’s a step called `Image digest` –
@@ -34,14 +34,55 @@ gameonwhales/xorg:sha-98e5080
 Digest:sha256:6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61
 ....
 
-=== I don’t trust you, let me build the images myself
+=== I don’t trust you, can't I just build the images myself?
 
-You sure can! We use docker buildkit – make sure it’s installed in your
-environment. In order to build it locally run:
+You sure can! Here's what you'll need to know.
 
+==== Base Images
+
+We have two images that are only used as the base for our other images; they
+aren't ever launched by themselves and therefore they don't appear in the
+compose files. Since they don't appear in the compose files, `docker compose`
+can't automatically build them. Instead, you must specify which images to use
+as environment variables, found in `env/build.env`.
+
+If you want to build the base images yourself too, that's no problem.  First
+build the `base` image:
 [source,bash]
 ....
-sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 run-gow [options] build
+sudo DOCKER_BUILDKIT=1 docker build -t my-gow-base images/base
 ....
 
-You should call `run-gow` with the same options you plan to run apps with; specifically, be sure to use the right combination of `--gpu`, `--headless`, and `--app`.
+Then the `base-app` image, passing the `base` image you just built as a build arg:
+[source,bash]
+....
+sudo DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=my-gow-base -t my-gow-base-app images/base-app
+....
+
+Lastly, edit `env/build.env` to specify your newly built images to be used for
+future compose builds:
+[source,bash]
+....
+BUILD_BASE_IMAGE=my-gow-base
+BUILD_BASE_APP_IMAGE=my-gow-base-app
+....
+
+You can, of course, choose any tags you like instead of `my-gow-base` and `my-gow-base-app`.
+
+==== App and System Images
+
+Any of the app or system images described in the compose files can be easily
+built using the `run-gow` script.  First, edit the appropriate compose YAML files
+and uncomment the `build:` section, to let `docker compose` know you want to
+build those images rather than pulling it from a registry.  You may also want to
+comment out the `image:` lines to make sure there's no confusion.
+
+Then, build the images you've chosen by running `run-gow`:
+[source,bash]
+....
+sudo run-gow [options] build
+....
+
+You should call `run-gow` with the same options you plan to run apps with;
+specifically, be sure to use the right combination of `--gpu`, `--headless`,
+and `--app`.

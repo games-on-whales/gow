@@ -1,38 +1,44 @@
-FROM ubuntu:21.04 AS base
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive 
-ENV TZ="Europe/London"
-ENV DISPLAY :0
-ENV XORG_VERBOSE 3
+ENV \
+    DISPLAY=:0 \
+    XORG_VERBOSE=3
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo software-properties-common wget kmod \
-    # Video driver taken from https://github.com/mviereck/x11docker/wiki/Hardware-acceleration#hardware-acceleration-with-open-source-drivers-mesa \
-    mesa-utils mesa-utils-extra \
-    # X11 taken from https://github.com/Kry07/docker-xorg/blob/xonly/Dockerfile\
+ARG DEBIAN_FRONTEND=noninteractive
+
+# X11 taken from https://github.com/Kry07/docker-xorg/blob/xonly/Dockerfile\
+# Video driver taken from https://github.com/mviereck/x11docker/wiki/Hardware-acceleration#hardware-acceleration-with-open-source-drivers-mesa \
+# wget is needed by ensure-nvidia-xorg-driver
+ARG REQUIRED_PACKAGES=" \
+    wget \
+    xserver-xorg-core xfonts-base x11-apps \
+    x11-session-utils x11-utils x11-xfs-utils \
+    x11-xserver-utils xauth x11-common \
     xz-utils unzip avahi-utils dbus \
-	xserver-xorg-core libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa xfonts-base \
-	x11-session-utils x11-utils x11-xfs-utils x11-xserver-utils xauth x11-common \
-    # Video drivers
+    mesa-utils mesa-utils-extra \
+    vulkan-tools \
+    libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa \
     xserver-xorg-video-all \
-    # Input drivers \
     xserver-xorg-input-libinput \
-    # Window manager \
     jwm libxft2 libxext6 breeze-cursor-theme \
-    && rm -rf /var/lib/apt/lists/*
+    "
 
-COPY xorg/configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
-COPY xorg/configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
-COPY xorg/configs/desktop.jwmrc.xml /root/.jwmrc
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY xorg/scripts/ensure-nvidia-xorg-driver.sh /ensure-nvidia-xorg-driver.sh
-COPY xorg/scripts/startup.sh /startup.sh
-# Common scripts
-COPY --chmod=777 common/* /bin/
+COPY configs/xorg.conf /usr/share/X11/xorg.conf.d/20-sunshine.conf
+COPY configs/xorg-nvidia.conf /usr/share/X11/xorg.conf.d/09-nvidia-custom-location.conf
+COPY configs/desktop.jwmrc.xml $HOME/.jwmrc
+
+# TODO: is this really needed anymore? run-gow automatically mounts these from
+# the host most of the time. I suppose it's helpful for less-well-supported distros
+COPY --chmod=777 scripts/ensure-nvidia-xorg-driver.sh /opt/gow/ensure-nvidia-xorg-driver.sh
+
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
-
-CMD /bin/bash /startup.sh
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE
