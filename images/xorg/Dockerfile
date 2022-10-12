@@ -1,4 +1,6 @@
 ARG BASE_IMAGE
+
+# hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 
 ENV \

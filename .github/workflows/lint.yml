@@ -14,6 +14,7 @@ jobs:
           reporter: github-pr-review
           check_all_files_with_shebangs: "true"
           filter_mode: nofilter
+          shellcheck_flags: -e SC1091
 
       - name: Dockerfiles
         uses: reviewdog/action-hadolint@v1

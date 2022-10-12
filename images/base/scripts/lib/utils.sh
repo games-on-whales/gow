@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function gow_log {
     echo "$(date +"[%Y-%m-%d %H:%M:%S]") $*"
 }
