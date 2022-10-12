@@ -9,5 +9,7 @@ RUN apt-get update -y && \
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
+ENV UDEVD_QUIET=false
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE
