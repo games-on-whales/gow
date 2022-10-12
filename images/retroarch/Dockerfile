@@ -15,7 +15,7 @@ RUN apt-get update && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y $REQUIRED_PACKAGES && \
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \

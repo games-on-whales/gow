@@ -26,8 +26,8 @@ ENV \
     SUNSHINE_SHA=${SUNSHINE_SHA} \
     BUILD_TYPE=${BUILD_TYPE}
 
+# hadolint ignore=DL3003
 RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshine && \
-    # hadolint ignore=DL3003
     cd sunshine && \
     # Fix the SHA commit
     git checkout -qf "$SUNSHINE_SHA" && \
@@ -38,7 +38,7 @@ RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshin
     cmake \
         -DCMAKE_C_COMPILER=gcc-10 \
         -DCMAKE_CXX_COMPILER=g++-10 \
-        -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+        -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
         -DSUNSHINE_EXECUTABLE_PATH=sunshine \
         -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
     make -j${nproc} && \
