@@ -19,7 +19,7 @@ platform=host
 quiet=false
 debug=false
 
-function main {
+main() {
     parse_cli SCRIPT_ARGV
 
     # which moonlight host should we be using? Wolf (beta) or Sunshine (default)?
@@ -87,7 +87,7 @@ function main {
 }
 
 # Print a usage message to the console
-function usage() {
+usage() {
     quiet=false # always print usage, even if quiet is set
     echo_stderr "Launch the Games on Whales system"
     echo_stderr
@@ -138,7 +138,7 @@ function usage() {
 }
 
 # Parse the command line args we were given
-function parse_cli {
+parse_cli() {
     local -n argv=$1
 
     if [ "${#argv}" -eq 0 ]; then
@@ -217,7 +217,7 @@ function parse_cli {
 }
 
 # echo the given text to stderr, unless the "quiet" option is set
-function echo_stderr() {
+echo_stderr() {
     local txt="$1"
     [ "$quiet" != "true" ] && echo "$txt" >&2
 }
@@ -225,7 +225,7 @@ function echo_stderr() {
 # Print out some extra debugging info. Currently, this is the list of
 # environment variables we're loading, plus the transformed contents of each
 # compose file.
-function print_debug_info() {
+print_debug_info() {
     echo_stderr "Detected OS: $(os_type)"
 
     local version_status="✓"
@@ -273,7 +273,7 @@ function print_debug_info() {
 
 # read the given text line by line and add the given padding string to the
 # front of each line.
-function pad_lines() {
+pad_lines() {
     local text=$1
     local space=$2
 
@@ -285,7 +285,7 @@ function pad_lines() {
 # Get a line suitable for inserting into an `env_file:` list in a docker
 # compose file that will load whatever extra environment is necessary for the
 # current gpu type, if such a file exists.
-function get_gpu_env() {
+get_gpu_env() {
     if [ -f "config/$gpu_type.env" ]; then
         echo "- config/${gpu_type}.env"
     fi
@@ -295,7 +295,7 @@ function get_gpu_env() {
 # /etc/lsb-release or /etc/os-release says it is.  Unraid's just says
 # "slackware" (which is true but not specific enough), so we use a different
 # mechanism.
-function os_type() {
+os_type() {
     local os="unknown"
     if [ -f /etc/unraid-version ]; then
         os="unraid"
@@ -337,7 +337,7 @@ END
 
 # Iterate through the given file and insert environment files and volume mounts
 # as needed for the desired setup (headless, gpu type, etc)
-function transform_file() {
+transform_file() {
     local file=$1
 
     local gpu_env_re='([[:space:]]+)# run-gow: gpu_env'
@@ -355,7 +355,7 @@ function transform_file() {
 }
 
 # return the docker compose cli executable path
-function get_compose_exec_path() {
+get_compose_exec_path() {
     local docker_compose_command="$(command -v docker 2> /dev/null) compose"
     if command -v docker-compose &> /dev/null; then
         docker_compose_command="$(command -v docker-compose 2> /dev/null)"
@@ -365,7 +365,7 @@ function get_compose_exec_path() {
 
 # return a command suitable for passing to 'eval' that will launch
 # docker-compose with the correct configuration
-function get_compose_cmd() {
+get_compose_cmd() {
     local cmd
     cmd="$(get_compose_exec_path)"
 
@@ -388,7 +388,7 @@ function get_compose_cmd() {
     echo "$cmd --project-directory \"${SCRIPT_DIR}\" --project-name gow $yaml_files"
 }
 
-function get_compose_version() {
+get_compose_version() {
     local cmd="$(get_compose_exec_path)"
     local compose_re='version v?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)'
     if [[ "$($cmd version)" =~ $compose_re ]]; then
@@ -399,7 +399,7 @@ function get_compose_version() {
 }
 
 # check that the installed version of docker-compose is new enough.
-function check_compose_version() {
+check_compose_version() {
     local min_version installed_version version_string
     version_string=$(get_compose_version)
 
