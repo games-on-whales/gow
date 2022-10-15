@@ -1,4 +1,6 @@
 ARG BASE_APP_IMAGE
+
+# hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive

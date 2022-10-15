@@ -10,7 +10,7 @@ fi
 
 function fail() {
     (
-        if [ ! -z "${1:-}" ]; then
+        if [ -n "${1:-}" ]; then
             echo "$1"
         fi
         echo "Xorg may fail to start; try mounting drivers from your host as a volume."
@@ -28,8 +28,7 @@ for d in $NVIDIA_DRIVER_MOUNT_LOCATION $NVIDIA_PACKAGE_LOCATION; do
 done
 
 # Otherwise, try to download the correct package.
-HOST_DRIVER_VERSION=$(cat /proc/driver/nvidia/version | sed -nE 's/.*Module[ \t]+([0-9]+(\.[0-9]+)*).*/\1/p')
-HOST_DRIVER_MAJOR_VERSION=$(echo "$HOST_DRIVER_VERSION" | sed -E 's/\..+//')
+HOST_DRIVER_VERSION=$(sed -nE 's/.*Module[ \t]+([0-9]+(\.[0-9]+)*).*/\1/p' /proc/driver/nvidia/version)
 
 if [ -z "$HOST_DRIVER_VERSION" ]; then
     echo "Could not find NVIDIA driver; skipping"
@@ -60,13 +59,16 @@ if [ ! -d $EXTRACT_LOC ]; then
         exit 1
     fi
 
-    chmod +x $DL_FILE
+    chmod +x "$DL_FILE"
     $DL_FILE -x --target $EXTRACT_LOC
-    rm $DL_FILE
+    rm "$DL_FILE"
 fi
 
 if [ ! -d $NVIDIA_DRIVER_MOUNT_LOCATION ]; then
     mkdir -p $NVIDIA_DRIVER_MOUNT_LOCATION
 fi
 
-cp $EXTRACT_LOC/nvidia_drv.so $EXTRACT_LOC/libglxserver_nvidia.so.$HOST_DRIVER_VERSION $NVIDIA_DRIVER_MOUNT_LOCATION
+cp "$EXTRACT_LOC/nvidia_drv.so" "$EXTRACT_LOC/libglxserver_nvidia.so.$HOST_DRIVER_VERSION" "$NVIDIA_DRIVER_MOUNT_LOCATION"
+
+
+

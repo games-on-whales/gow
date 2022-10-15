@@ -26,10 +26,11 @@ ENV \
     SUNSHINE_SHA=${SUNSHINE_SHA} \
     BUILD_TYPE=${BUILD_TYPE}
 
+# hadolint ignore=DL3003
 RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshine && \
     cd sunshine && \
     # Fix the SHA commit
-    git checkout -qf $SUNSHINE_SHA && \
+    git checkout -qf "$SUNSHINE_SHA" && \
     # Just printing out git info so that I can double check on CI if the right version as been picked up
     git show && \
     # Normal compile
@@ -37,7 +38,7 @@ RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshin
     cmake \
         -DCMAKE_C_COMPILER=gcc-10 \
         -DCMAKE_CXX_COMPILER=g++-10 \
-        -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+        -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
         -DSUNSHINE_EXECUTABLE_PATH=sunshine \
         -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
     make -j${nproc} && \
@@ -45,6 +46,8 @@ RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshin
     cpack -G DEB
 
 ######################################
+
+# hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine
 
 ARG REQUIRED_PACKAGES="\
@@ -61,7 +64,7 @@ ARG REQUIRED_PACKAGES="\
 RUN \
   --mount=type=bind,from=sunshine-builder,source=/sunshine/build/cpack_artifacts/Sunshine.deb,target=/sunshine.deb \
     apt-get update -y && \
-    apt-get install -y -f /sunshine.deb && \
+    apt-get install -y --no-install-recommends -f /sunshine.deb && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
