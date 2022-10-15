@@ -13,8 +13,11 @@ if [[ "${UNAME}" != "root" ]]; then
     usermod -o -u "${PUID}" "${UNAME}"
     groupmod -o -g "${PGID}" "${UNAME}"
 
-    gow_log "Setting umask to ${UMASK}";
+    gow_log "Setting umask to ${UMASK}"
     umask "${UMASK}"
+
+    gow_log "Ensure retro home directory is writable"
+    chown "${PUID}:${PGID}" "${HOME}" 
 else
     gow_log "Container running as root. Nothing to do."
 fi
