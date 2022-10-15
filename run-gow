@@ -354,10 +354,20 @@ function transform_file() {
     done < "$file"
 }
 
+# return the docker compose cli executable path
+function get_compose_exec_path() {
+    local docker_compose_command="$(command -v docker 2> /dev/null) compose"
+    if command -v docker-compose &> /dev/null; then
+        docker_compose_command="$(command -v docker-compose 2> /dev/null)"
+    fi
+    echo "${docker_compose_command}"
+}
+
 # return a command suitable for passing to 'eval' that will launch
 # docker-compose with the correct configuration
 function get_compose_cmd() {
-    local cmd="docker compose "
+    local cmd
+    cmd="$(get_compose_exec_path)"
 
     local yaml_files
     yaml_files=$(
@@ -379,9 +389,9 @@ function get_compose_cmd() {
 }
 
 function get_compose_version() {
-    local installed_version
+    local cmd="$(get_compose_exec_path)"
     local compose_re='version v?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)'
-    if [[ "$(docker compose version)" =~ $compose_re ]]; then
+    if [[ "$($cmd version)" =~ $compose_re ]]; then
         echo "${BASH_REMATCH[1]}"
     else
         echo ""
