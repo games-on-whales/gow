@@ -28,8 +28,6 @@ RUN apt-get update -y && \
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
-USER ${UNAME}
-
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
 ARG IMAGE_SOURCE
