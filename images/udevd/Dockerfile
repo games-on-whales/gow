@@ -11,5 +11,10 @@ RUN apt-get update -y && \
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
+# Configure container to run process as root user
+ENV \
+    UNAME="root" \
+    HOME="/root"
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE

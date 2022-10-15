@@ -42,5 +42,10 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
+# Configure container to run process as root user
+ENV \
+    UNAME="root" \
+    HOME="/root"
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE

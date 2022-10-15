@@ -8,11 +8,10 @@ ENV \
     UMASK=000 \
     UNAME="retro" \
     HOME="/home/retro" \
-    TZ="Europe/London" \
-    USER_HOME="/home/default"
+    TZ="Europe/London"
 RUN \
     echo "**** Configure default user '${UNAME}' ****" \
-        && useradd -m -d ${USER_HOME} -s /bin/bash ${UNAME} \
+        && useradd -m -d ${HOME} -s /bin/bash ${UNAME} \
     && \
     echo
 
@@ -46,9 +45,6 @@ RUN \
             /var/lib/apt/lists/* \
     && \
     echo
-
-# TODO: Check if we should set this here or in the entry point. Remove 'USER_HOME' ENV var above if we set it here 
-WORKDIR $HOME
 
 # Import overlay
 COPY overlay /
