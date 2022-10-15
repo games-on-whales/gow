@@ -2,7 +2,7 @@
 
 set -e
 
-# Source fundtions from GOW utils
+# Source functions from GOW utils
 source /opt/gow/bash-lib/utils.sh
 
 # Execute all container init scripts. Only run this if the container is started as the root user
@@ -24,4 +24,4 @@ fi
 # Launch startup script as 'UNAME' user (some services will run as root)
 gow_log "Launching the container's startup script as user '${UNAME}'"
 chmod +x /opt/gow/startup.sh
-exec gosu ${UNAME} /opt/gow/startup.sh
+exec gosu "${UNAME}" /opt/gow/startup.sh
