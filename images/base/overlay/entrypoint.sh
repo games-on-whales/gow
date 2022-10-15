@@ -22,6 +22,6 @@ if [ ! -z "$@" ]; then
 fi
 
 # Launch startup script as 'UNAME' user (some services will run as root)
-gow_log "Launching the container's startup script"
+gow_log "Launching the container's startup script as user '${UNAME}'"
 chmod +x /opt/gow/startup.sh
 exec gosu ${UNAME} /opt/gow/startup.sh
