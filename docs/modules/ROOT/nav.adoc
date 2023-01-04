@@ -17,6 +17,7 @@
 **** xref:windows.adoc[Windows]
 
 ** Configuration
+*** xref:monitor.adoc[Monitor requirements]
 *** xref:troubleshooting.adoc[Troubleshooting]
 *** xref:steam.adoc[Steam]
 *** xref:nvidia.adoc[Nvidia GPU]

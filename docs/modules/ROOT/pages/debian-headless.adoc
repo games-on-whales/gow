@@ -19,7 +19,7 @@ crw------- 1 root root 10, 223 Jul 15 11:46 /dev/uinput
 
 === Quickstart
 
-IMPORTANT: In order for Sunshine to stream your desktop, you have to *have a monitor plugged* (or use a dummy plug).
+IMPORTANT: In order for Sunshine to be able to stream your desktop, you must meet the xref:monitor.adoc[Monitor requirements].
 
 ==== Configuration
 
