@@ -37,9 +37,9 @@ pass it a graphic card. You can use PCI passthrough for this.
 
 [source,bash]
 ....
-helm repo add k8s-at-home https://k8s-at-home.com/charts/
+helm repo add angelnu https://angelnu.github.io/helm-charts
 helm repo update
-helm install games-on-whales k8s-at-home/games-on-whales
+helm install games-on-whales angelnu/games-on-whales
 ....
 
 Connect over Moonlight by manually adding the IP address of the worker
@@ -54,7 +54,7 @@ see your X11 apps running!
 === Next steps
 
 * Adjust your Helm chart settings - see the
-https://github.com/k8s-at-home/charts/tree/master/charts/stable/games-on-whales[instructions]
+https://artifacthub.io/packages/helm/angelnu/games-on-whales[instructions]
 * Checkout the xref:troubleshooting.adoc[troubleshooting]
 page if anything is not working on your side
 * Check out how to configure and use your GPU in order to get HW
