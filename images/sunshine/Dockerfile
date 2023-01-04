@@ -1,57 +1,15 @@
 ARG BASE_APP_IMAGE
+ARG SUNSHINE_TAG=latest
 
 ######################################
-FROM ubuntu:22.04 AS sunshine-builder
-
-ARG DEBIAN_FRONTEND=noninteractive
-ARG BASE_APP_IMAGE
-
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    # Packages needed to build sunshine
-    build-essential fakeroot gcc-10 g++-10 cmake \
-    libssl-dev libavdevice-dev libboost-thread-dev \
-    libboost-filesystem-dev libboost-log-dev libpulse-dev \
-    libopus-dev libxtst-dev libx11-dev libxrandr-dev \
-    libxfixes-dev libevdev-dev libxcb1-dev libxcb-shm0-dev \
-    libxcb-xfixes0-dev binutils git ca-certificates \
-    apt-transport-https \
-    && rm -rf /var/lib/apt/lists/*
-
-# Pulling Sunshine v0.14.0
-ARG SUNSHINE_SHA=fbe8a37e9132c47e43fe31bfd8f35c67dc77ce77
-ARG BUILD_TYPE=Release
-
-ENV \
-    SUNSHINE_SHA=${SUNSHINE_SHA} \
-    BUILD_TYPE=${BUILD_TYPE}
-
-# hadolint ignore=DL3003
-RUN git clone --recurse-submodule https://github.com/Logical-sh/Sunshine sunshine && \
-    cd sunshine && \
-    # Fix the SHA commit
-    git checkout -qf "$SUNSHINE_SHA" && \
-    # Just printing out git info so that I can double check on CI if the right version as been picked up
-    git show && \
-    # Normal compile
-    mkdir build && cd build && \
-    cmake \
-        -DCMAKE_C_COMPILER=gcc-10 \
-        -DCMAKE_CXX_COMPILER=g++-10 \
-        -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-        -DSUNSHINE_EXECUTABLE_PATH=sunshine \
-        -DSUNSHINE_ASSETS_DIR=/etc/sunshine .. && \
-    make -j${nproc} && \
-    # Generate the debian install package
-    cpack -G DEB
-
-######################################
+FROM lizardbyte/sunshine:${SUNSHINE_TAG} AS sunshine-image
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine
 
 ARG REQUIRED_PACKAGES="\
     libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
+    libvdpau1 libnuma1 \
     i965-va-driver-shaders \
     intel-media-va-driver-non-free \
     libdrm-intel1 \
@@ -62,7 +20,7 @@ ARG REQUIRED_PACKAGES="\
 # Install using the official .deb package
 # This will take care of installing the required dependencies
 RUN \
-  --mount=type=bind,from=sunshine-builder,source=/sunshine/build/cpack_artifacts/Sunshine.deb,target=/sunshine.deb \
+  --mount=type=bind,from=sunshine-image,source=/sunshine.deb,target=/sunshine.deb \
     apt-get update -y && \
     apt-get install -y --no-install-recommends -f /sunshine.deb && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
