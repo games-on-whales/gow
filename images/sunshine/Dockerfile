@@ -1,8 +1,7 @@
 ARG BASE_APP_IMAGE
-ARG SUNSHINE_TAG=latest
 
 ######################################
-FROM lizardbyte/sunshine:${SUNSHINE_TAG} AS sunshine-image
+FROM lizardbyte/sunshine:v0.16.0 AS sunshine-image
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine

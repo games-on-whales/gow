@@ -21,8 +21,6 @@ services:
   #   args:
   #     BASE_IMAGE: ${BUILD_BASE_IMAGE}
   #     BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
-  # Uncomment the following to override the default sunshine version
-  #     SUNSHINE_TAG: latest
 
     runtime: ${DOCKER_RUNTIME}
     ports:
