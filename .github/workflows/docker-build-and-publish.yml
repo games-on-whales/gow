@@ -119,7 +119,7 @@ jobs:
 
       # Prepare for multi-arch
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: all
 
