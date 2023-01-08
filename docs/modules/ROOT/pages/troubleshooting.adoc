@@ -6,7 +6,7 @@ Here’s a list of common problems, feel free to
 https://github.com/games-on-whales/gow/issues/new[open an issue] if
 something is not listed here.
 
-IMPORTANT: In order for Sunshine to stream your desktop you have to *have a monitor plugged* (or use a dummy plug).
+IMPORTANT: In order for Sunshine to be able to stream your desktop, you must meet the xref:monitor.adoc[Monitor requirements].
 
 === Intel iGPU
 

@@ -8,7 +8,7 @@ We are working to build our own unRAID plugin to enable easily starting, stoppin
 
 === Pre-requisites
 
-IMPORTANT: In order for Sunshine to stream your desktop you have to *have a monitor plugged* (or use a dummy plug).
+IMPORTANT: In order for Sunshine to be able to stream your desktop, you must meet the xref:monitor.adoc[Monitor requirements].
 
 While a dedicated GPU isn’t strictly necessary (Sunshine does support SW
 encoding) it’s highly recommended.
