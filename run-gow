@@ -28,7 +28,7 @@ function main {
         compose_files+=("compose/headless.yml")
     else
         launch_env+=("env/host-desktop.env")
-        compose_files+=("compose/host-destkop.yml")
+        compose_files+=("compose/host-desktop.yml")
     fi
 
     launch_env+=("env/$gpu_type.env")
