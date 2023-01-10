@@ -9,12 +9,13 @@ gow_log "Waiting for X Server $DISPLAY to be available"
 LOG_LEVEL=${LOG_LEVEL:-INFO}
 gow_log "Starting sunshine with DISPLAY=${DISPLAY} and LOG_LEVEL=${LOG_LEVEL}"
 
-mkdir -p "$HOME/sunshine/" "$HOME/.config/sunshine/"
-cp -u /cfg/sunshine.conf "$HOME/sunshine/sunshine.conf"
-cp -u /cfg/apps.json "$HOME/sunshine/apps.json"
+mkdir -p "$HOME/.config/sunshine/"
+cp -n /cfg/sunshine.conf "$HOME/.config/sunshine/sunshine.conf"
+cp -n /cfg/sunshine.conf "$HOME/.config/sunshine/sunshine.conf.sample"
+cp -n /cfg/apps.json "$HOME/.config/sunshine/apps.json"
 
 ## Pass sunshine credentials via ENV
-sunshine "${HOME}/sunshine/sunshine.conf" --creds "${SUNSHINE_USER:-admin}" "${SUNSHINE_PASS:-admin}"
+sunshine "${HOME}/.config/sunshine/sunshine.conf" --creds "${SUNSHINE_USER:-admin}" "${SUNSHINE_PASS:-admin}"
 
 # Start Sunshine
-exec sunshine min_log_level="$LOG_LEVEL" "${HOME}/sunshine/sunshine.conf"
+exec sunshine min_log_level="$LOG_LEVEL" "${HOME}/.config/sunshine/sunshine.conf"
