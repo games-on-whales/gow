@@ -35,8 +35,8 @@ message (`run-gow --help`) for full details. Some examples follow:
 
 [source,bash]
 ----
-sudo run-gow --headless --gpu nvidia --app retroarch pull
-sudo run-gow --headless --gpu nvidia --app retroarch up
+sudo run-gow --platform headless --gpu nvidia --app retroarch pull
+sudo run-gow --platform headless --gpu nvidia --app retroarch up
 ----
 
 Currently supported apps are `steam`, `retroarch`, and `firefox`, but you can

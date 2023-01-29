@@ -10,7 +10,7 @@ following:
 git clone https://github.com/games-on-whales/gow.git
 cd gow
 mkdir local_state
-run-gow [--headless] --app retroarch up -d
+run-gow [--platform headless] --app retroarch up -d
 ....
 
 === Can I use it for something else?

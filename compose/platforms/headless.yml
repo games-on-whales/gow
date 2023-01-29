@@ -69,12 +69,6 @@ services:
     volumes:
       - udev:/run/udev/
 
-  sunshine:
-    depends_on:
-      - xorg
-      - pulse
-      - udevd
-
 ####################
 volumes:
   xorg: # This will hold the xorg socket file and it'll be shared between containers
