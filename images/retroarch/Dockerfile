@@ -5,8 +5,8 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
+    wget p7zip-full \
     retroarch \
-    retroarch-assets \
     libretro* \
 "
 
