@@ -4,8 +4,6 @@ services:
   # also an example of running a 3rd-party container that wasn't necessarily
   # designed with GoW in mind.
   firefox:
-    depends_on:
-      - sunshine
     image: andrewmackrodt/firefox-x11
     volumes:
       - ${XORG_SOCKET}:/tmp/.X11-unix

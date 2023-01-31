@@ -84,5 +84,5 @@ sudo run-gow [options] build
 ....
 
 You should call `run-gow` with the same options you plan to run apps with;
-specifically, be sure to use the right combination of `--gpu`, `--headless`,
-and `--app`.
+specifically, be sure to use the right combination of `--gpu`, `--platform`,
+`--streamer`, and `--app`.

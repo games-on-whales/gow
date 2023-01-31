@@ -51,7 +51,7 @@ Now it’s time to download the containers prebuilt images:
 
 [source,bash]
 ----
-run-gow --headless --app [appname] pull
+run-gow --platform headless --app [appname] pull
 ----
 
 Currently supported applications include `steam`, `retroarch`, and `firefox`,
@@ -62,13 +62,13 @@ IMPORTANT: Nvidia users: be sure to add `--gpu nvidia` to your `run-gow` command
 
 [source,bash]
 ----
-run-gow --headless --app [application] up -d # start the containers in background
+run-gow --platform headless --app [application] up -d # start the containers in background
 ----
 
 This will take some time to start; you can check the status using:
-`run-gow --headless --app [application] ps`. If one or more containers are
+`run-gow --platform headless --app [application] ps`. If one or more containers are
 stopped, you can
-check the logs using: `run-gow --headless --app [application] logs -f`.
+check the logs using: `run-gow --platform headless --app [application] logs -f`.
 
 === Accessing GOW
 

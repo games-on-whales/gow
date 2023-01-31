@@ -10,29 +10,42 @@ readonly SCRIPT_NAME SCRIPT_DIR MIN_COMPOSE_VERSION
 
 # Configuration values. These will be set based on the command-line arguments we get
 launch_env=("env/base.env" "env/build.env")
-compose_files=("docker-compose.yml")
+compose_files=()
 apps=()
 
 gpu_type=none
+streamer=sunshine # by default, use sunshine to stream to moonlight
+platform=host
 quiet=false
-headless=false
 debug=false
 
 function main {
     parse_cli SCRIPT_ARGV
 
+    # which moonlight host should we be using? Wolf (beta) or Sunshine (default)?
+    case "$streamer" in
+        wolf)
+            compose_files+=("compose/streamers/wolf.yml")
+            ;;
+        *)
+            compose_files+=("compose/streamers/sunshine.yml")
+            ;;
+    esac
+
     # which compose and environment files should we be using? this will depend
     # on command-line options as well as what app(s) we're launching
-    if [ "$headless" = "true" ]; then
-        launch_env+=("env/headless.env")
-        compose_files+=("compose/headless.yml")
-    else
-        launch_env+=("env/host-desktop.env")
-        compose_files+=("compose/host-desktop.yml")
-    fi
+    case "$platform" in
+        headless)
+            launch_env+=("env/headless.env")
+            compose_files+=("compose/platforms/headless.yml")
+            ;;
+        *)
+            launch_env+=("env/host-desktop.env")
+            compose_files+=("compose/platforms/host.yml")
+            ;;
+    esac
 
     launch_env+=("env/$gpu_type.env")
-    compose_files+=("compose/$gpu_type.yml")
 
     # if there's an app-specific env file, load it too
     for app in "${apps[@]}"; do
@@ -60,6 +73,9 @@ function main {
             fi
         done
         set +o allexport
+
+        # the compose files can use this variable to distinguish between streamers, if needed
+        export GOW_MOONLIGHT_HOST="$streamer"
 
         echo_stderr "Running docker compose..."
         if [ "${#SCRIPT_ARGV}" -gt 0 ]; then
@@ -99,11 +115,23 @@ function usage() {
     echo_stderr "      Possible types:"
     echo_stderr "        nvidia, intel"
     echo_stderr
+    echo_stderr "  -p, --platform"
+    echo_stderr "      Use this option to specify whether system services like Xorg should be containerized or not."
+    echo_stderr "      Possible values:"
+    echo_stderr "        headless     - run xorg, udev, and pulse in containers"
+    echo_stderr "        host         - use system services already running on the host server [default]"
+    echo_stderr
     echo_stderr "  -q, --quiet"
     echo_stderr "      If set, this script will not produce any output of its own. This will not affect output from 'docker compose'."
     echo_stderr
+    echo_stderr "  -s, --streamer"
+    echo_stderr "      Use this option to specify which streaming server should be used to connect with Moonlight."
+    echo_stderr "      Possible values:"
+    echo_stderr "        sunshine     - the original, more stable option [default]"
+    echo_stderr "        wolf         - the bleeding edge option. still in beta."
+    echo_stderr
     echo_stderr "  -x, --headless"
-    echo_stderr "      If set, run in headless mode. Use this mode if your host does not have an Xorg server running on it."
+    echo_stderr "      DEPRECATED.  If set, has the same effect as '--platform headless'"
     echo_stderr
     echo_stderr "  --"
     echo_stderr "      Signifies the end of options."
@@ -144,11 +172,30 @@ function parse_cli {
             # even if they gave us one we don't recognize/need, skip over it
             idx=$((idx + 1))
             ;;
+        -p|--platform)
+            local plat="${argv[$idx+1]}"
+            # validate that the given value is one we support
+            if [ "$plat" = "headless" ] || [ "$plat" = "host" ]; then
+                platform="$plat"
+            fi
+            # even if they gave us one we don't recognize/need, skip over it
+            idx=$((idx + 1))
+            ;;
         -q|--quiet)
             quiet="true"
             ;;
+        -s|--streamer)
+            local str="${argv[$idx+1]}"
+            # validate that the given value is one we support
+            if [ "$str" = "sunshine" ] || [ "$str" = "wolf" ]; then
+                streamer="$str"
+            fi
+            # even if they gave us one we don't recognize/need, skip over it
+            idx=$((idx + 1))
+            ;;
         -x|--headless)
-            headless="true"
+            echo_stderr "WARNING: the run-gow option '--headless' has been deprecated. Please use '--platform headless' instead."
+            platform="headless"
             ;;
         --)
             break
@@ -215,7 +262,7 @@ function print_debug_info() {
     done
 
     for app in "${apps[@]}"; do
-        app_file="compose/$app.yml"
+        app_file="compose/apps/$app.yml"
         if [ -f "$app_file" ]; then
             echo_stderr "Transformed file: $app_file"
             echo_stderr "$(transform_file "$app_file")"
@@ -321,7 +368,7 @@ function get_compose_cmd() {
         done)
     yaml_files+=$(
         for app in "${apps[@]}"; do
-            app_file="compose/$app.yml"
+            app_file="compose/apps/$app.yml"
             if [ -f "$app_file" ]; then
                 echo -ne " -f <(transform_file $app_file)"
             fi
