@@ -16,3 +16,9 @@
 #    # clear itself on unload.
 #    load-module module-x11-publish
 #.endif
+
+# Adds a default null sink
+load-module module-null-sink
+
+### Make sure we always have a sink around, even if it is a null sink.
+load-module module-always-sink
