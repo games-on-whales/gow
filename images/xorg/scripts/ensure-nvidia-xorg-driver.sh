@@ -21,7 +21,7 @@ function fail() {
 # If there's an nvidia_drv.so in the mount location, or in the location where
 # the xserver-xorg-video-nvidia package installs to, assume it's the right one
 for d in $NVIDIA_DRIVER_MOUNT_LOCATION $NVIDIA_PACKAGE_LOCATION; do
-    if [ -f $d/nvidia_drv.so ]; then
+    if [ -f "$d/nvidia_drv.so" ]; then
         echo "Found an existing nvidia_drv.so"
         exit
     fi
