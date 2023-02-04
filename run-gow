@@ -398,7 +398,7 @@ function check_compose_version() {
         # shellcheck disable=2086
         printf -v installed_version %08d ${version_string}
         printf -v min_version %08d $MIN_COMPOSE_VERSION
-        test "$installed_version" -ge $min_version
+        test "$installed_version" -ge "$min_version"
     else
         echo_stderr "Docker Compose was not found. Please install Docker Compose version $MIN_COMPOSE_VERSION or newer."
         false

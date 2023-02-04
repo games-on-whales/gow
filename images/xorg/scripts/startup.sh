@@ -66,10 +66,10 @@ if ! xrandr --output "${CURRENT_OUTPUT}" --mode "${RESOLUTION}" --rate "${REFRES
   echo "${RESOLUTION} is not detected, FORCE_RESOLUTION=${FORCE_RESOLUTION}"
   if $FORCE_RESOLUTION; then
     WIDTH_HEIGHT=("${RESOLUTION//x/ }")
-    MODELINE=$(cvt ${WIDTH_HEIGHT[0]} ${WIDTH_HEIGHT[1]} ${REFRESH_RATE} | awk 'FNR==2{print substr($0, index($0,$3))}')
-    xrandr --newmode "${RESOLUTION}_${REFRESH_RATE}.00" ${MODELINE}
-    xrandr --addmode ${CURRENT_OUTPUT} "${RESOLUTION}_${REFRESH_RATE}.00"
-    xrandr --output ${CURRENT_OUTPUT} --mode "${RESOLUTION}_${REFRESH_RATE}.00" --rate ${REFRESH_RATE} --primary
+    MODELINE=$(cvt "${WIDTH_HEIGHT[0]}" "${WIDTH_HEIGHT[1]}" "${REFRESH_RATE}" | awk 'FNR==2{print substr($0, index($0,$3))}')
+    xrandr --newmode "${RESOLUTION}_${REFRESH_RATE}.00" "${MODELINE}"
+    xrandr --addmode "${CURRENT_OUTPUT}" "${RESOLUTION}_${REFRESH_RATE}.00"
+    xrandr --output "${CURRENT_OUTPUT}" --mode "${RESOLUTION}_${REFRESH_RATE}.00" --rate "${REFRESH_RATE}" --primary
   fi
 fi
 
