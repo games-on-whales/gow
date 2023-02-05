@@ -34,7 +34,9 @@ RUN \
             wget \
     && \
     echo "**** Install gosu ****" \
-        && wget -O /usr/bin/gosu https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 \
+        && wget --progress=dot:giga \
+            -O /usr/bin/gosu \
+            https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 \
         && chmod +x /usr/bin/gosu \
     && \
     echo "**** Verify gosu works ****" \

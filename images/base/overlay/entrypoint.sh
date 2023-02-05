@@ -11,13 +11,14 @@ if [ "$(id -u)" = "0" ]; then
         gow_log
         gow_log "[ ${init_script}: executing... ]"
         sed -i 's/\r$//' "${init_script}"
+        # shellcheck source=/dev/null
         source "${init_script}"
     done
 fi
 
 # If a command was passed, run that instead of the usual init startup script
-if [ ! -z "$@" ]; then
-    exec $@
+if [ -n "$@" ]; then
+    exec "$@"
     exit $?
 fi
 
