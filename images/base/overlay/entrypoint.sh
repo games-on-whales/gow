@@ -17,7 +17,7 @@ if [ "$(id -u)" = "0" ]; then
 fi
 
 # If a command was passed, run that instead of the usual init startup script
-if [ -n "$@" ]; then
+if [ -n "${@:-}" ]; then
     exec "$@"
     exit $?
 fi
