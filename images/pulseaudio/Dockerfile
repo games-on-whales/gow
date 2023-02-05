@@ -12,17 +12,6 @@ ARG REQUIRED_PACKAGES=" \
     pulseaudio \
     "
 
-# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY configs/default.pa /etc/pulse/default.pa
-COPY configs/client.conf /etc/pulse/client.conf
-COPY configs/daemon.conf /etc/pulse/daemon.conf
-
-COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
-
 # Configure container to run process as root user
 # Note: 
 #   The PulseAudio daemon will refuse to start if the $HOME directory is not
@@ -33,6 +22,17 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 ENV \
     UNAME="root" \
     HOME="/root"
+
+# Taken from https://github.com/jessfraz/dockerfiles/blob/master/pulseaudio/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY configs/default.pa /etc/pulse/default.pa
+COPY configs/client.conf /etc/pulse/client.conf
+COPY configs/daemon.conf /etc/pulse/daemon.conf
+
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 EXPOSE 4713
 

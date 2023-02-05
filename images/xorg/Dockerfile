@@ -26,6 +26,11 @@ ARG REQUIRED_PACKAGES=" \
     jwm libxft2 libxext6 breeze-cursor-theme \
     "
 
+# Configure container to run process as root user
+ENV \
+    UNAME="root" \
+    HOME="/root"
+
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
@@ -41,11 +46,6 @@ COPY --chmod=777 scripts/ensure-nvidia-xorg-driver.sh /opt/gow/ensure-nvidia-xor
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
-
-# Configure container to run process as root user
-ENV \
-    UNAME="root" \
-    HOME="/root"
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE
