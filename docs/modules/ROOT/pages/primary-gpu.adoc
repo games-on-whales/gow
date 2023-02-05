@@ -20,6 +20,8 @@ Set the contents based on what type of GPU you want to use as primary:
 NVIDIA::
 +
 --
+[source]
+....
 Section "OutputClass"
     Identifier "nvidia"
     MatchDriver "nvidia-drm"
@@ -28,10 +30,13 @@ Section "OutputClass"
     ModulePath "/nvidia/xorg"
     Option "PrimaryGPU" "yes"
 EndSection
+....
 --
 AMD::
 +
 --
+[source]
+....
 Section "OutputClass"
     Identifier "amd"
     MatchDriver "amdgpu"
@@ -39,10 +44,13 @@ Section "OutputClass"
     Option "AllowEmptyInitialConfiguration"
     Option "PrimaryGPU" "yes"
 EndSection
+....
 --
 Intel::
 +
 --
+[source]
+....
 Section "OutputClass"
     Identifier "intel"
     MatchDriver "i915" # change this to the correct driver for your iGPU
@@ -50,6 +58,7 @@ Section "OutputClass"
     Option "AllowEmptyInitialConfiguration"
     Option "PrimaryGPU" "yes"
 EndSection
+....
 --
 ======
 
