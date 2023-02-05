@@ -6,7 +6,9 @@ SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 SCRIPT_ARGV=("$@")
 
 MIN_COMPOSE_VERSION=2.6.0
-readonly SCRIPT_NAME SCRIPT_DIR MIN_COMPOSE_VERSION
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/gow"
+RC_FILE_NAME=run-gow-rc
+readonly SCRIPT_NAME SCRIPT_DIR MIN_COMPOSE_VERSION RC_FILE_NAME
 
 # Configuration values. These will be set based on the command-line arguments we get
 launch_env=("env/base.env" "env/build.env")
@@ -52,7 +54,12 @@ function main {
         launch_env+=("env/$app.env")
     done
 
-    launch_env+=("user.env")
+    # prefer the user.env in the global config directory, if there is one
+    if [ -f "$CONFIG_DIR/user.env" ]; then
+        launch_env+=("$CONFIG_DIR/user.env")
+    else
+        launch_env+=("user.env")
+    fi
 
     if [ "$debug" = "true" ]; then
         print_debug_info
@@ -67,9 +74,13 @@ function main {
         # load the files we need before we execute docker-compose.
         set -o allexport
         for env_file in "${launch_env[@]}"; do
-            if [ -f "$SCRIPT_DIR/$env_file" ]; then
+            local full_file="$env_file"
+            if [ ! -f "$full_file" ]; then
+                full_file="$SCRIPT_DIR/$full_file"
+            fi
+            if [ -f "$full_file" ]; then
                 # shellcheck disable=1090
-                source "$SCRIPT_DIR/$env_file"
+                source "$full_file"
             fi
         done
         set +o allexport
@@ -140,6 +151,22 @@ function usage() {
 # Parse the command line args we were given
 function parse_cli {
     local -n argv=$1
+
+    # read the rc file, if one exists
+    local rc_file="${CONFIG_DIR}/${RC_FILE_NAME}"
+    if [ -f "$rc_file" ]; then
+        # read the first non-empty, non-commented line
+        local comment_re='^[[:space:]]*#'
+        local empty_re='^[[:space:]]*$'
+        while IFS= read -r line; do
+            if [[ $line =~ $comment_re || $line =~ $empty_re ]]; then
+                continue
+            fi
+            read -r -a rc_args <<< "$line"
+            argv=("${rc_args[@]}" "${argv[@]}")
+            break
+        done < "$rc_file"
+    fi
 
     if [ "${#argv}" -eq 0 ]; then
         usage
@@ -241,7 +268,10 @@ function print_debug_info() {
     # Print out the environment variables
     echo_stderr "Loading environment variables:"
     for env_file in "${launch_env[@]}"; do
-        local full_file="$SCRIPT_DIR/$env_file"
+        local full_file="$env_file"
+        if [ ! -f "$full_file" ]; then
+            full_file="$SCRIPT_DIR/$env_file"
+        fi
         if [ -f "$full_file" ]; then
             while IFS= read -r line; do
                 if [[ $line =~ $variable_re ]]; then
