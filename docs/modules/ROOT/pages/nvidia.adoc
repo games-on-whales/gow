@@ -1,6 +1,6 @@
-== Nvidia HW acceleration
+= NVIDIA GPUs
 
-=== Nvidia GPUs with proprietary drivers
+== Using proprietary drivers
 
 You can see if your host is using the proprietary driver using `lshw`:
 
@@ -14,11 +14,9 @@ In order to make use of your GPU inside a docker container, you’ll need
 to set up the https://github.com/NVIDIA/nvidia-docker[NVIDIA Container
 Toolkit].
 
-If you have more than one nvidia GPU, you may want to set the `GPU_UUID`
-variable in `env/nvidia.env` to indicate which card to use.
-
-To get the correct UUID for your GPU, use the `nvidia-container-cli`
-command:
+If you have more than one NVIDIA GPU, you may want to set the `GPU_UUID`
+variable in `env/nvidia.env` to indicate which card to use.  To get the correct
+UUID for your GPU, use the `nvidia-container-cli` command:
 
 [source,bash]
 ....
@@ -35,31 +33,30 @@ Bus Location:   00000000:0a:00.0
 Architecture:   7.5
 ....
 
-==== Older Nvidia GPUs
+=== Older NVIDIA GPUs
 
-Older Nvidia GPUs data might not appear in `nvidia-smi`. There is a patch that
-exists that will fix the issue. For more information, see https://github.com/CFSworks/nvml_fix
+Older NVIDIA GPUs data might not appear in `nvidia-smi`, but there is a patch
+that will fix the issue. For more information, see
+https://github.com/CFSworks/nvml_fix
 
-
-==== Xorg drivers
+=== Xorg drivers
 
 Although the NVIDIA Container Toolkit automatically provides most of the
-drivers needed to use the GPU inside a container, Xorg is _not_
-officially supported. This means that the runtime will not automatically
-map in the specific drivers needed by Xorg.
+drivers needed to use the GPU inside a container, Xorg is _not_ officially
+supported. This means that the runtime will not automatically map in the
+specific drivers needed by Xorg.
 
-There are two libraries needed by Xorg: `nvidia_drv.so` and
-`libglxserver_nvidia.so.[version]`. It is preferred to map these into
-the container as a bind volume from the host, because this guarantees
-that the version will exactly match between the container and the host.
-Locate the two modules and add a section like this to the `xorg` service
-in your `docker-compose.yml`:
-IMPORTANT: You will also need to pass the `--gpu nvidia` flag any time you run
-a `run-gow` command.
+The `run-gow` script attempts to automatically handle this situation for you,
+if you tell it you're using an NVIDIA GPU, but under rare circumstances it may
+not be able to. If you run into trouble, come chat with us on Discord.
 
-=== Nvidia GPUs with `nouveau` drivers
+IMPORTANT: You will need to pass the `--gpu nvidia` flag any time you run a
+`run-gow` command.
 
-It should be possible to use the `nouveau` driver, but be aware that this path is significantly less well-tested than using the proprietary driver.
+== NVIDIA GPUs with `nouveau` drivers
+
+It should be possible to use the `nouveau` driver, but be aware that this path
+is significantly less well-tested than using the proprietary driver.
 
 Make sure that the host doesn’t use proprietary drivers but that it’s
 using the open source `nouveau` drivers.
@@ -83,4 +80,5 @@ crw-rw----  1 root video  226,   0 Jun 20 09:47 card0
 crw-rw----  1 root render 226, 128 Jun 20 09:47 renderD128
 ....
 
-IMPORTANT: Because the `nouveau` driver implements standard APIs, you will _not_ need to pass `--gpu nvidia` when using `run-gow`.
+IMPORTANT: Because the `nouveau` driver implements standard APIs, you will
+need to make sure you do _not_ pass `--gpu nvidia` when using `run-gow`.

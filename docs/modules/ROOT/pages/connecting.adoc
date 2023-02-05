@@ -1,0 +1,21 @@
+= Connecting
+
+Once the containers are up and running, connect to your server using
+https://moonlight-stream.org/[Moonlight]. You may need to manually specify the
+IP address of your host system if it isn't automatically discovered.
+
+If this is your first time connecting, you'll need to pair your client and
+server.  Moonlight will prompt you with a PIN to enter on the server side.
+To validate the PIN you can use the Sunshine web interface (at
+`https://<IP>:47990/` default username: `admin`, password: `admin`) or
+you can directly call: `curl <IP>:47989/pin/<PIN>`.
+
+After you've completed the pairing step, you can click your host in Moonlight,
+then open the `Desktop` app. At this point you should be able to see your X11
+apps running!
+
+== Next steps
+
+* Check out the xref:troubleshooting.adoc[troubleshooting] guide if anything
+isn't working quite right
+* Play some games!

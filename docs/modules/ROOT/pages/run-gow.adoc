@@ -1,0 +1,132 @@
+= `run-gow`
+
+Games on Whales ties together several different components, with support for
+many host OSes and hardware configurations.  In order to make it easier to
+manage all that, and even make most of it automatic, we've provided a Bash
+script to handle the details for you.
+
+You can think of `run-gow` as a frontend for `docker-compose`; it takes some of
+its own arguments at the beginning, but passes everything else on untouched.
+The complete usage description is below, but first let's talk about a few of
+the options you're definitely going to want to set.
+
+== `--platform`
+
+The `--platform` option is used to specify whether the underlying Xorg and
+Pulse platform is provided by the host computer, or if GoW should launch
+containers for those components.
+
+Use `--platform host` to use the host's platform, or `--platform headless` to
+launch the platform in containers.  The default is `--platform host`.
+
+== `--gpu`
+
+Some GPUs require extra configuration, so the `--gpu` option is available to
+tell `run-gow` which GPU you plan on using.  Possible values are `nvidia` and
+`intel`. Notably, AMD GPUs are reported to be working well without any
+additional configuration, so you won't need this option if you're using AMD.
+
+IMPORTANT: If you're running headless and you have more than one GPU, including
+if you have a dedicated GPU and an iGPU, you may need to manually tell Xorg
+which GPU to use. See xref:primary-gpu.adoc[here] for details on how to do
+that.  You should set the `--gpu` option appropriately for the GPU you plan to
+use.
+
+== `--app`
+
+By default, if you launch GoW and connect with Moonlight, you'll only see a
+basic desktop.  However, it's likely that you have at least one application in
+mind that you'd like to launch, and you can use the `--app` argument to specify
+that.  Supported apps can be found in the `compose/apps` directory; just leave
+off the `.yml`:
+
+[source,bash]
+....
+$ ./run-gow --app steam
+....
+
+You can specify `--app [app name]` as many times as you like, if you want to
+launch multiple applications.
+
+.`run-gow` Usage
+[%collapsible]
+====
+....
+Launch the Games on Whales system
+
+Usage: run-gow [options] [compose commands]
+Arguments after the last option will be passed directly to 'docker compose'.
+For example, to launch the containers in the background, try:
+  $ run-gow --app retroarch up -d
+
+Options:
+  -h, --help
+      Print this help text.
+
+  -a, --app <app name>
+      Specify an application to launch. Can be used multiple times.
+
+  -d, --debug
+      Print some extra debugging information before running Docker commands.
+
+  -e, --env-file <file>
+      Specify an additional file of environment varibles to load before launching 'docker compose'.
+
+  -g, --gpu <type>
+      Use this option to specify what type of GPU to use with Games on Whales. Not
+      all GPU types require this option (notably, AMD does not).
+      Possible types:
+        nvidia, intel
+
+  -p, --platform
+      Use this option to specify whether system services like Xorg should be containerized or not.
+      Possible values:
+        headless     - run xorg, udev, and pulse in containers
+        host         - use system services already running on the host server [default]
+
+  -q, --quiet
+      If set, this script will not produce any output of its own. This will not affect output from 'docker compose'.
+
+  -s, --streamer
+      Use this option to specify which streaming server should be used to connect with Moonlight.
+      Possible values:
+        sunshine     - the original, more stable option [default]
+        wolf         - the bleeding edge option. still in beta.
+
+  -x, --headless
+      DEPRECATED.  If set, has the same effect as '--platform headless'
+
+  --
+      Signifies the end of options.
+....
+====
+
+== `run-gow-rc`
+
+Once you've got your system set up how you like it, you'll find that many of
+the options you provide to `run-gow` won't actually change very frequently, if
+at all.  In order to cut down on the repetitiveness of always having to type
+those arguments every time you use `run-gow`, we've provided a mechanism to
+supply a set of "default arguments".
+
+You can do that by creating a file called `$HOME/.config/gow/run-gow-rc` that
+contains the defaults you'd like to use.  The script will use the first
+non-empty, non-commented line as defaults each time you run, and any extra
+arugments you provide on the command line will override what's in the
+`run-gow-rc` file.
+
+For example, if you set your `run-gow-rc` to this:
+[source]
+....
+--platform headless --gpu nvidia
+....
+
+and run:
+[source]
+....
+$ ./run-gow --app steam up
+....
+
+`run-gow` will launch Steam in headless mode with NVIDIA GPU.
+
+

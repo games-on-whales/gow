@@ -1,0 +1,69 @@
+= Adding an App
+
+Adding a new app to the GoW system is a very straightforward process.  The
+easiest way is to follow the examples that already exist; one particularly good
+option is the RetroArch app that is bundled with GoW.  Once you have your app
+working as you like it, consider submitting a pull request to add it to the
+official repo!
+
+== The Container
+
+First you'll need a Docker container for your app.  It's possible that one may
+already exist, but if not, creating one is pretty easy.  Copy the
+`images/retroarch` directory and all of its contents to a new directory for
+your app; let's call it `images/myapp`.
+
+=== Configuration
+
+Inside the `configs` directory, you can put default versions of any
+configuration files that may be needed by your app. If there aren't any, you
+can simply delete the `configs` directory.
+
+=== Scripts
+
+In the `scripts` directory, edit the `startup.sh` script.  Here's an example of
+a minimal `startup.sh` script; you can modify it for your app as much as
+necessary.
+
+[source,bash]
+....
+#!/bin/bash
+set -e
+
+source /opt/gow/bash-lib/utils.sh
+
+gow_log "Starting myapp"
+
+exec /usr/bin/myapp
+....
+
+=== Dockerfile
+
+Our Docker images are based on the latest Ubuntu LTS release, and you should be
+able to easily repurpose the RetroArch `Dockerfile` for your application as
+long as it can be installed on Ubuntu.  Here are a few specifics that you'll
+definitely want to update:
+
+==== `REQUIRED_PACKAGES`
+
+Be sure to update the `REQUIRED_PACKAGES` variable to include all of the
+packages your app will need to have installed when it's running.
+
+==== `add-apt-repository`
+
+You can use the `add-apt-repository` tool in your `RUN` command to add any
+extra package repositories you might need to install from.
+
+==== `COPY`
+
+Be sure to change the line that installs the configuration file to install the
+files required by your app.
+
+== The Compose file
+
+In the `compose/apps` directory, copy `retroarch.yml` to `myapp.yml`.  Make
+sure the build context is pointing to `images/myapp`, and also be sure to set
+the `image:` appropriately.
+
+
+
