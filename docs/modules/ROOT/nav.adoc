@@ -22,6 +22,7 @@
 *** xref:nvidia.adoc[Nvidia GPU]
 *** xref:primary-gpu.adoc[Multiple GPUs]
 *** xref:steam.adoc[Steam]
+*** xref:run-gow.adoc[run-gow]
 *** xref:troubleshooting.adoc[Troubleshooting]
 
 ** Contributing/Developing
