@@ -64,6 +64,9 @@ echo "Setting ${CURRENT_OUTPUT} output to: ${RESOLUTION}@${REFRESH_RATE}"
 if ! xrandr --output "${CURRENT_OUTPUT}" --mode "${RESOLUTION}" --rate "${REFRESH_RATE}"; then
   FORCE_RESOLUTION=${FORCE_RESOLUTION:-false}
   echo "${RESOLUTION} is not detected, FORCE_RESOLUTION=${FORCE_RESOLUTION}"
+
+  # this line disables the check for the whole if block
+  # shellcheck disable=SC2086
   if $FORCE_RESOLUTION; then
     WIDTH_HEIGHT=("${RESOLUTION//x/ }")
     MODELINE=$(cvt ${WIDTH_HEIGHT[0]} ${WIDTH_HEIGHT[1]} ${REFRESH_RATE} | awk 'FNR==2{print substr($0, index($0,$3))}')
