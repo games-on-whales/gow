@@ -1,0 +1,62 @@
+= Configuration
+
+Before launching GoW for the first time, you'll want to set up your environment
+to your tastes.
+
+== Local state
+
+GoW is set up to use a directory of your choice from your host system as a
+place to store anything that needs to persist when you stop and restart
+containers.  Because this same directory is (typically) mapped into each
+container, it can also be a way to share data between multiple containers.
+
+Before you launch GoW for the first time, create a new directory and update the
+`local_state` variable in your <<User environment>> to match.
+
+TIP: On unRAID, the `local_state` folder you just created will likely be owned
+by `root`, and it may not be writable from the containers launched by GoW,
+which mostly do _not_ run as `root`. Until GoW has support for changing the UID
+inside the containers, you may need to `chmod 777 local_state` to make sure
+anyone can write to it.
+
+== Time zone
+
+In order to make the time zone inside your container match your actual local
+time zone, you'll need to update the `TIME_ZONE` variable in your <<User
+environment>>.  If you're not sure what to set it to, check out
+https://en.wikipedia.org/wiki/List_of_tz_database_time_zones[this list] of `tz`
+database time zones.
+
+== User environment
+
+Your user environment is typically stored in the `user.env` file in the
+directory you cloned GoW into.  It contains a simple list of environment
+variables, one per line.  Comments and blank lines are allowed, but variable
+substitutions are not.
+
+If it's more convenient to store your user environment outside the git
+directory, you can also put it in `$HOME/.config/gow/user.env` instead.  If
+both files exist, the one in `$HOME/.config` will be preferred.
+
+== Platform environment
+
+[tabs]
+======
+Host Desktop::
++
+--
+Configuration values that are specific to running with the host desktop can be
+found in the `env/host-desktop.env` file. You might need to tweak the socket
+locations or `XORG_DISPLAY` based on your system.
+--
+Headless::
++
+--
+Configuration values that are specific to running in headless mode can be found
+in the `env/headless.env` file.  Most of those values will already be set
+correctly, but you may want to tweak the resolution, frame rate, and display
+port to suit your preferences.
+--
+======
+
+Now it's time to xref:running.adoc[launch GoW]!

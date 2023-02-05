@@ -1,19 +1,17 @@
-== Roadmap
+= Roadmap
 
-We are in a proof of concept phase right now. So far we have achieved
-the following: - We know _it’s possible_ to run HW accelerated games on
-Docker - We have working environments in both `Debian` and `Unraid`,
-with and without a GPU
+GoW is used by many people to play games and run other graphical applications
+every day, including hardware accelerated graphics.  But we've got many more
+features and improvements in the pipeline!  Here's a peek at some things we're
+working on:
 
-We would like to achieve the following:
-* Make a general set of Docker containers that can run any GUI app (as long as
-  it can run on Docker)
-* Make a _``launcher app''_ that will let users start/stop other GUI containers
-  _easily_ - This will be possible by passing the Docker socket
-* Create a list of curated docker containers for popular GUI applications like:
-  Firefox, Steam, RetroArch, etc.
+* Expand our list of curated docker containers for popular GUI applications
+like: Firefox, Steam, RetroArch, etc.
 * Support as many platforms as we can
 * Create great documentation so that anybody can understand and learn from this
-  project
+project
+* Make a _``launcher app''_ that will let users start/stop other GUI containers
+_easily_
+* Much more!
 
 Do you want to xref:contributing.adoc[contribute] to this project?

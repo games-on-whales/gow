@@ -1,52 +1,43 @@
-== How can I use GOW?
+= How can I use GOW?
 
-Out of the box, by using the `docker-compose` default configuration, you
-should be able to run `RetroArch` and play games remotely from another
-machine. It’s all taken care from you and you only have to run the
-following:
+One of the earliest use cases for Games on Whales was to be able to host retro
+video games on a central server running RetroArch and stream them to clients
+wherever they happened to be.
 
-[source,bash]
-....
-git clone https://github.com/games-on-whales/gow.git
-cd gow
-mkdir local_state
-run-gow [--platform headless] --app retroarch up -d
-....
+== Can I use it for something else?
+Absolutely! Streaming games works very well, but GoW can do so much more!
 
-=== Can I use it for something else?
+Out of the box, GoW provides a platform for running just about any graphical
+applications you like.  In fact, despite the name, you can think of GoW as a
+low-latency remote desktop solution.  Often the focus is on a single
+full-screen application, but this does not necessarily have to be the case.
 
 You should be able to run any Graphical Application on top of the basic
-combination of `Xorg` + `PulseAudio` + `Sunshine`.  We supply compose files for
-`steam`, `retroarch`, and `firefox` by default, but you can use them as
-templates to create your own.  Then, you can use `--app [your app]` as an
-argument to `run-gow` to launch your app.
+combination of `Xorg` + `PulseAudio` + `Sunshine`.  We supply the necessary
+configuration files for `steam`, `retroarch`, and `firefox` by default, but you
+can use them as templates to create your own. See
+xref:adding-an-app.adoc[Adding an App] for more details.
 
-A few things to note:
-- This is an image that we didn’t built:
-  https://github.com/andrewmackrodt/dockerfiles/tree/master/firefox-x11[`andrewmackrodt/firefox-x11`]
-  it’s an open source Dockerfile and image. It’s a great example of running a
-  container which wasn’t built with GOW in mind.
+GoW is even often capable of running containers provided by third parties; as
+long as the container can accept a `DISPLAY` environment variable to specify
+the Xorg display, it can be made to work.  For example,
+https://github.com/andrewmackrodt/dockerfiles/tree/master/firefox-x11[this
+Firefox container] (`andrewmackrodt/firefox-x11`) is an open-source Dockerfile
+and image. It’s a great example of running a container which wasn’t built with
+GOW in mind.
 
-* This container doesn’t need to be run with `privileged: true` nor
-`network_mode: host`. This is because mouse and keyboard events are
-handled by `Xorg` and passing the `X11` socket is enough to have display
-and inputs
-** This increases security for non trusted containers by restricting the
-things they can access
-** If you would like to also have joypad support you’ll have to use
-`privileged` and `host` network just like in the `RetroArch` example
+This container doesn’t need to be run any special privileges or network mode ,
+because mouse and keyboard events are handled by `Xorg` and passing the `X11`
+socket is enough to have display and inputs.  This increases security for non
+trusted containers by restricting what's accessible inside the container.
 
-The main advantage is that if you have a desktop environment already,
-you can run this Firefox container even without using any of the GOW
-parts because you already have `Xorg`, `PulseAudio`, and possibly a
-keyboard and mouse connected.
-
-If you don’t have a desktop environment, or you would like to have a
-remote desktop solution that *is faster* than VNC or RDP that lets you
-run GUI *with HW acceleration*, then *GOW* is the solution for you!
-
-And it lets you re-use docker containers that can be run in both
-environments!
+Unfortunately, the same cannot be said for gamepads; if your container requires
+gamepad support you'll need to use `privileged: true` and `+network_mode:
+${UDEVD_NETWORK}+` just like in the RetroArch example.  This is required
+because the device files for the gamepad do not exist at the time the container
+is launched (they're only created once a client connects) and so far the only
+way we've found for a running container to see a newly created device file is
+using the `privileged` setting.
 
 https://blog.jessfraz.com/post/docker-containers-on-the-desktop/#guis[Heres a blog post] with a few GUI docker containers like:
 

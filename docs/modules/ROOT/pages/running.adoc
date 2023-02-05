@@ -1,0 +1,66 @@
+= Running
+
+Now that you've got your system set up, and GoW installed and configured,
+you're ready to launch the system.  Launching GoW is done with the aptly named
+`run-gow` script in the install directory.  If you're unsure about what any of
+the examples on this page mean, xref:run-gow.adoc[this deep dive] guide should
+help to explain things.  Also, if you're using a GPU for hardware acceleration
+(and you should!) you may need to provide a `--gpu` option.  See the
+xref:run-gow.adoc[deep dive] for details.
+
+== Pulling containers
+
+Now it’s time to download the pre-built container images:
+
+[tabs]
+======
+Host Desktop::
++
+--
+[source,bash]
+----
+run-gow --app [appname] pull
+----
+--
+Headless (incl. unRAID)::
++
+--
+[source,bash]
+----
+run-gow --platform headless --app [appname] pull
+----
+--
+======
+
+Currently supported appnames can be found in
+https://github.com/games-on-whales/gow/tree/master/compose/apps[our GitHub]
+repo, or you can always xref:adding-an-app.adoc[add your own].
+
+This may take a minute or two to complete, since it has to download the
+container images.
+
+== Launching
+
+Next, you can launch the system:
+
+[tabs]
+======
+Host Desktop::
++
+--
+[source,bash]
+----
+run-gow --app [appname] up
+----
+--
+Headless (incl. unRAID)::
++
+--
+[source,bash]
+----
+run-gow --platform headless --app [appname] up
+----
+--
+======
+
+Next up, xref:connecting.adoc[connecting]!

@@ -1,12 +1,37 @@
-== Steam
+= Steam
 
-You can use the `gameonwhales/steam` image to play Steam games on GOW.
-It’s highly recommended using a GPU in order to run Steam games.
+You can use the `gameonwhales/steam` image to play Steam games on GOW.  It’s
+highly recommended to use a GPU in order to run Steam games.
 
-There are a few connected bits that we took care for you, here’s a
-rundown of the possible errors you might encounter:
+IMPORTANT: The Steam client and many Steam games are 32-bit applications and
+therefore require 32-bit drivers for your GPU.  If the multilib drivers are not
+automatically installed on your host, please make sure you have installed both
+the 64-bit and the 32-bit drivers installed.
 
-=== Can I run Windows games?
+Here are a few frequently asked questions related to Steam support; if you run
+into any other issues, feel free to file an issue on GitHub or reach out in
+Discord.
+
+== Can Steam see my GPU?
+
+You can look at Steam's 'System Information' to verify that your GPU is detected.
+
+== UI: Why are all the Steam windows black?
+
+Many parts of the Steam client's UI are rendered using an integrated webview,
+which can be sensitive to the size of `/dev/shm`.  You can check the size in
+your container like this:
+
+[source,bash]
+....
+$ docker exec -it gow-steam-1 df -h | grep shm
+....
+
+If it is at least 500MB, you may be experiencing a different issue.  Check the
+logs at `local_state/.steam/debian-installation/error.log` for more info on the
+specific issue.
+
+== Can I run Windows games?
 
 Surprisingly, you can! And it’s fairly easy to do it using
 https://www.protondb.com/[proton] which is integrated in Steam via
@@ -18,33 +43,20 @@ In order to enable it:
 * [✓] Enable Steam Play for supported titles
 * (optional) [✓] Enable Steam Play for all other titles
 
-=== Something is wrong, where are the logs?
+== Something is wrong! Where are the logs?
 
-There are a lot of different places for logs, for example, each game
-logs in a different folder but here are a few hints on where things are:
+There are a lot of different places for logs; for example, each game logs in a
+different folder.  Here are a few hints on where to look
 
 * `local_state/.steam/debian-installation/error.log`
-** This is where most of the issues with the Steam client are logged
++
+This is where most of the issues with the Steam client are logged
 * `local_state/.config/`
-** This is where games _usually_ put log and config files
-** For example `local_state/.config/unity3d/NoBrakesGames/Human/Player.log` is the log file for Human Fall Flat
++
+This is where games _usually_ put log and config files.  For example,
+`local_state/.config/unity3d/NoBrakesGames/Human/Player.log` is the log file
+for Human Fall Flat
 * `local_state/Steam/logs/bootstrap_log.txt`
-** This is the log file related to starting/updating the steam client
++
+This is the log file related to starting/updating the steam client
 
-=== UI: I can’t see my games or store (black pages)
-
-Steam includes an integrated webview, there are a few things to check if
-you hit this issue:
-
-* Make sure that `/dev/shm` is _big enough_
-** `docker exec -it gow_steam_1 df -h`
-* if `/dev/shm` is 64MB double check your docker-compose file
-* Checkout the logs at `local_state/.steam/debian-installation/error.log` for more info on the specific issue.
-
-=== 32-bit Drivers
-
-Steam requires the 32-bit drivers for your GPU. If the multilib drivers are not automatically installed on your host, please make sure you have installed both the 64-bit and the 32-bit drivers installed.
-
-=== Verify Steam is using the correct GPU
-
-You can look at Steam's 'System Information' to verify that your GPU is detected.

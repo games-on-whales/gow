@@ -1,5 +1,0 @@
-== Raspberry PI
-
-It should be possible to run everything on Raspberry PIs too, we are
-working on it, https://github.com/games-on-whales/gow/issues/20[stay
-tuned]

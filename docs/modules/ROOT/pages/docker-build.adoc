@@ -1,4 +1,4 @@
-== Docker build
+= Docker builds
 
 So you don’t trust downloading Docker images from the web, eh? You are
 right! No one should trust _the internet_!
@@ -11,7 +11,7 @@ check if the images are being tampered with by doing the following:
 this is the sha256 checksum of the image generated on Github
 * Head over to the https://hub.docker.com/layers/gameonwhales/xorg/sha-98e5080/images/sha256-6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61?context=repo[Docker hub] and check that the sha256 checksum for the image and the sha256 checksum for the commit are the same as it’s displayed in Github
 
-=== Example
+== Example
 
 Here’s an example from the commit
 https://github.com/games-on-whales/gow/commit/98e508019247f8aecd82db9ffb4320f00de4e1dc[`98e5080`]
@@ -34,11 +34,11 @@ gameonwhales/xorg:sha-98e5080
 Digest:sha256:6b8555260ed07c7ed466e0b821922a3cedf4ee27b9d6b8fea9d6aa2995b75f61
 ....
 
-=== I don’t trust you, can't I just build the images myself?
+== I don’t trust you, can't I just build the images myself?
 
 You sure can! Here's what you'll need to know.
 
-==== Base Images
+=== Base Images
 
 We have two images that are only used as the base for our other images; they
 aren't ever launched by themselves and therefore they don't appear in the
@@ -69,7 +69,7 @@ BUILD_BASE_APP_IMAGE=my-gow-base-app
 
 You can, of course, choose any tags you like instead of `my-gow-base` and `my-gow-base-app`.
 
-==== App and System Images
+=== App and System Images
 
 Any of the app or system images described in the compose files can be easily
 built using the `run-gow` script.  First, edit the appropriate compose YAML files

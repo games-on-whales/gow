@@ -8,48 +8,70 @@ image::ROOT:gow-diagram.svg[]
 
 GOW is a composition of Docker containers that enable users to stream graphical applications to Moonlight clients.
 
-We wrapped each individual piece of software with the necessary dependencies into a single Docker image and use https://docs.docker.com/compose/[`docker-compose`] in order to manage the composition.
+We wrapped each individual piece of software with the necessary dependencies
+into its own Docker image and use
+https://docs.docker.com/compose/[`docker-compose`] in order to manage the
+composition of all the necessary pieces.
 
-== Sunshine
+== Streaming host
 
-https://github.com/SunshineStream/Sunshine[Sunshine] is the heart of this system: it's the streaming host and it's in charge of:
+The streaming host is the heart of this system; it's in charge of:
 
 * Encoding the graphical environment (`Xorg`) and audio (`PulseAudio`) into a video that will be streamed to https://moonlight-stream.org/[Moonlight] clients
-** This process can be HW accelerated using [`VAAPI`](https://en.wikipedia.org/wiki/Video_Acceleration_API) on compatible HW
-* Translating remote inputs into local input devices (aka: keyboards, mouse, joypad)
-** This is achieved by using the https://www.kernel.org/doc/html/v4.12/input/uinput.html[`uinput`] kernel module
++
+This process can be hardware accelerated using
+https://en.wikipedia.org/wiki/Video_Acceleration_API[VAAPI] or
+https://en.wikipedia.org/wiki/CUDA[CUDA] depending on your GPU hardware
+* Translating remote input devices into local input devices (eg: keyboards, mice, gamepads)
++
+This is achieved by using the xref:requirements.adoc[uinput] kernel module.
 
-=== uinput
+Games on Whales currently has support for two streaming hosts: https://github.com/LizardByte/Sunshine[Sunshine] (more mature, and the default), and https://github.com/games-on-whales/wolf[Wolf] (still in alpha, but very usable).
 
-Uinput makes it possible to emulate virtual devices. It's required by Sunshine and it's the only real requirement that we need in the host machine's kernel.
+== Xorg & PulseAudio
 
-Most Linux distributions already ship with it (For example, it is already available in Ubuntu and Debian).
+These two components are in charge of *Display* and *Audio*, respectively.
 
-If it's not there already, since it's part of the Linux kernel, it might be difficult to compile it from scratch. We generally try to add support for platforms that don't have it, like, https://github.com/games-on-whales/unraid-plugin[older versions of unRAID].
+* If your OS comes with a
+https://en.wikipedia.org/wiki/Desktop_environment[desktop environment] already,
+you will most likely want to use that instead of trying to run it in a
+container.
+* If you're running a
+https://en.wikipedia.org/wiki/Headless_computer[headless] system you'll need to
+run them in order to run graphical applications. You can use our Docker images
+for that.
 
-If you have issues with inputs (mouse, joypad) while streaming using GOW, it's very likely that something is wrong with `uinput`
-
-== Xorg + PulseAudio
-
-These two components are in charge of *Display* and *Audio*, respectively. 
-
-* If your OS comes with a https://en.wikipedia.org/wiki/Desktop_environment[desktop environment] already, you can use that instead of running it over Docker
-* If you are running a https://en.wikipedia.org/wiki/Headless_computer[headless] system you'll need to run them in order to run graphical applications, you can use our Docker images for that
-
-While PulseAudio runs just fine without a real sound device, Xorg can (and should) be HW accelerated using a GPU. That's the main reason why we choose Xorg over https://en.wikipedia.org/wiki/Xvfb[`Xvfb`]. While it's more complicated to run the full Xorg server, the benefits of having HW acceleration are too great to be dismissed.
+While PulseAudio runs just fine without a real sound device, for best results
+Xorg should be hardware accelerated using a GPU. That's the main reason why we
+choose the full Xorg server over https://en.wikipedia.org/wiki/Xvfb[`Xvfb`].
+While it's more complicated to run the full Xorg server, the benefits of having
+hardware acceleration are too great to be dismissed.
 
 == GUIs
 
-Graphical applications can run easily on top of Xorg and PulseAudio -- that's how most desktop environments work!
+Graphical applications can run easily on top of Xorg and PulseAudio -- that's
+how most desktop environments work!
 
 image::ROOT:gui-overview.svg[]
 
-Sharing https://en.wikipedia.org/wiki/Unix_domain_socket[sockets] between containers is the mechanism that enables us to have proper isolation. Instead of having a big single Docker image which installs and runs all the individual pieces of software together, we can decouple them and share only a communication channel.
+Sharing https://en.wikipedia.org/wiki/Unix_domain_socket[sockets] between
+containers is the mechanism that enables us to have proper isolation. Instead
+of having a big single Docker image which installs and runs all the individual
+pieces of software together, we can decouple them and share only a
+communication channel.
 
-This means that it's very simple to make a Docker container of any given GUI application and that same container will work both on **GOW** or on a normal *Desktop Environment*, enabling users to have a high degree of freedom on how to use them.
+This means that it's very simple to make a Docker container of any given GUI
+application and that same container will work both on **GOW** or on a normal
+*Desktop Environment*, enabling users to have a high degree of freedom on how
+to use them.
 
 == GPU
 
-A GPU is not required to run any of this, but it's highly recommended.
+A GPU is not required to run any of this, but it's highly recommended for best
+results.
 
-Sharing a GPU across Docker containers is possible and it's generally done by sharing the https://en.wikipedia.org/wiki/Direct_Rendering_Manager[DRM devices (`/dev/dri/cardX`)]. As always there are exceptions and we have specific instructions for xref:nvidia.adoc[Nvidia cards].
+Sharing a GPU across Docker containers is generally done by sharing the
+https://en.wikipedia.org/wiki/Direct_Rendering_Manager[DRM devices
+(`/dev/dri/cardX`)]. This should work as long as your GPU supports `VA-API`.
+Notably, NVIDIA cards _don't_; instead we provide xref:nvidia.adoc[specific
+instructions] for them.

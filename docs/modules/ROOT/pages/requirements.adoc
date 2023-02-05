@@ -1,0 +1,85 @@
+= Requirements
+
+== `uinput`
+
+`uinput` is a required
+https://www.kernel.org/doc/html/v4.12/input/uinput.html[kernel module] allows
+software running on Linux systems to create virtual input devices. It's
+required by the streaming host and it's the only hard requirement that we need
+in the host machine's kernel.
+
+Most Linux distributions, such as Ubuntu and Debian, already ship with it.  You
+can easily verify that it's installed by checking for the `/dev/uinput` device
+on your host:
+
+[source,bash]
+----
+ls -la /dev/uinput
+crw------- 1 root root 10, 223 Jul 15 11:46 /dev/uinput
+----
+
+If it's not there by default, consult your distro's documentation for adding
+kernel modules. If you're using unRAID, see our <<_tabs_1_unraid,unRAID
+instructions>>.  If you're using some other platform and you're having
+difficulty with this step, come chat with us about it on
+https://discord.gg/kRGUDHNHt2[Discord]; we'd be happy to try to help you get on
+the right track.
+
+TIP: If you have issues with inputs (mouse, gamepad, etc) while streaming with
+GOW, it's very likely that something is wrong with `uinput`.
+
+== Platform-specific requirements
+
+[tabs]
+======
+Host Desktop::
++
+--
+[discrete]
+=== Monitor
+You must have a monitor connected, or alternatively a dummy plug.
+
+[discrete]
+=== User
+You must have a user logged in.  To make this easier for unattended systems,
+you might want to enable
+https://help.ubuntu.com/community/AutoLogin[autologin].
+--
+Headless::
++
+--
+[discrete]
+=== Monitor
+You must meet the monitor requirements detailed here: xref:monitor.adoc[Monitor requirements].
+--
+unRAID::
++
+--
+[discrete]
+=== Monitor
+You must meet the monitor requirements detailed here: xref:monitor.adoc[Monitor requirements].
+
+[discrete]
+=== `uinput`
+unRAID before version 6.11.0-rc3 is missing the required `uinput` kernel module
+out of the box. If you are using an older version, we recommend installing the
+https://github.com/ich777/unraid-uinput[uinput plugin]
+
+[discrete]
+=== `docker-compose`
+
+unRAID doesn't come with `docker-compose`, but you can easily install it by
+installing the
+https://forums.unraid.net/topic/114415-plugin-docker-compose-manager/[docker-compose-manager]
+plugin.
+
+[discrete]
+=== NVIDIA GPU
+
+If you have an NVIDIA GPU you’ll also have to install the
+https://forums.unraid.net/topic/98978-plugin-nvidia-driver/[nvidia-driver
+plugin]
+--
+======
+
+After you've set up your host, you can xref:installation.adoc[install] GoW.

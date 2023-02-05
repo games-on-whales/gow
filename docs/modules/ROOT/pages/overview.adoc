@@ -1,42 +1,78 @@
-== Overview
+= Overview
 
-*Games on Whales (GOW)* lets you stream games (and GUI) running on
-Docker with HW acceleration and low latency.
+*Games on Whales (GOW)* lets you stream games (and other graphical
+applications) running in Docker containers with hardware acceleration and low
+latency.
 
-The basic idea is that a
-https://en.wikipedia.org/wiki/Server_(computing)[server] can stream
-games to clients the same way you play a video on Youtube. There are a
-lot of supported clients already such as: mobile phones, laptops,
-desktops, and even the Nintendo Switch!
+The goal is to allow a
+https://en.wikipedia.org/wiki/Server_(computing)[server] to stream
+games to clients the same way you play a video on YouTube.  A server is not
+necessarily a
+https://upload.wikimedia.org/wikipedia/commons/6/69/Wikimedia_Foundation_Servers-8055_35.jpg[gigantic beast of a machine];
+in fact, GoW will probably run on hardware you already have, such as a laptop
+or desktop computer, or even something smaller and compact like a Raspberry Pi
+(https://github.com/games-on-whales/gow/issues/20[in theory]).
 
-A server is not necessary a https://upload.wikimedia.org/wikipedia/commons/6/69/Wikimedia_Foundation_Servers-8055_35.jpg[gigantic beast of a machine], it can be: a laptop, a normal desktop machine, or even something smaller and compact like a Raspberry PI (https://github.com/games-on-whales/gow/issues/20[in theory]).
-Generally, you should be able to pick any OS that supports
+NOTE: Generally, you should be able to pick any OS that supports
 https://en.wikipedia.org/wiki/Docker_(software)[Docker] and start using
-GOW!
+GoW, but testing and development are focused on Linux-based systems.
 
-=== How does it work?
+== How does it work?
 
 We bring together a few different components:
 
-* https://moonlight-stream.org/[Moonlight]: An open source
-implementation of NVIDIA’s GameStream protocol. You can stream your
-collection of PC games from your GameStream-compatible PC to any
-supported device and play them remotely
-* https://github.com/loki-47-6F-64/sunshine[Sunshine]: An opensource
-Gamestream host for Moonlight. This gives us the ability to stream from
-a Linux box since it’s not tied to the proprietary Nvidia GameStream
-(Windows only and not opensource)
-* https://en.wikipedia.org/wiki/Docker_(software)[Docker]: The platform
-that we use in order to deliver software packages (called containers)
-that you can easily run without having to manually install and configure
-everything
-* https://en.wikipedia.org/wiki/X.Org_Server[Xorg]: The window system
-that we use in order to manage and display graphical applications
+Platform::
+Most of the software in the Games on Whales system runs in
+https://en.wikipedia.org/wiki/Docker_(software)[Docker] containers.
+Containers are software packages that are designed to make installation and
+configuration easy by providing a consistent platform everywhere the package is
+run.
++
+You can choose to run GoW in either Host Desktop mode, or Headless mode.  In
+Headless mode, we run a few platform containers for you:
+
+* https://en.wikipedia.org/wiki/X.Org_Server[Xorg]: The famous windowing system
+for managing and displaying graphical applications
 (https://en.wikipedia.org/wiki/Graphical_user_interface[GUI])
-* https://en.wikipedia.org/wiki/PulseAudio[PulseAudio]: The software
-that will manage audio for our GUIs
+* https://en.wikipedia.org/wiki/PulseAudio[PulseAudio]: A sound server that can
+manage audio coming from multiple sources (apps).
+
++
+In Host Desktop mode, we expect the host server to provide those pieces.
+
+Streaming Server::
+GoW streams running apps to clients using NVIDIA's GameStream protocol.  We
+provide a choice of two open-source server implementations.
++
+NOTE: Although NVIDIA has announced that they are ending support for GameStream
+in early 2023, these open-source implementations (and thus GoW itself) do not
+rely on any NVIDIA support or infrastructure and will continue to work even
+after that date.
+
+* https://github.com/LizardByte/Sunshine[Sunshine]: The original open-source
+GameStream host, and still the most well-tested. Use this if you're unsure
+which one to pick.
+* https://github.com/games-on-whales/wolf[Wolf]: A new GameStream host, still
+in alpha.
+
+Client::
+https://moonlight-stream.org/[Moonlight] is an open-source GameStream protocol
+client.  Moonlight runs on many platforms, including: mobile phones, laptops,
+desktops, Steam Deck, and even the Nintendo Switch!
++
+NOTE: Moonlight is not distributed with GoW.  You'll need to install it on each
+device you plan to use as a client for playing games.
+
+Applications::
+The GoW system aims to be compatible with as many GUI app containers as
+possible.  Here's a selection of the ones we provide, though adding more is a
+very straightforward process.
+
 * https://en.wikipedia.org/wiki/RetroArch[RetroArch]: An open source,
 cross-platform frontend for emulators, game engines, and more!
+* https://store.steampowered.com/[Steam]: The popular game store and launcher,
+now sandboxed in a container
+* https://www.firefox.com[Firefox]: A modern web browser
 
 image::ROOT:gow-diagram.svg[]
 

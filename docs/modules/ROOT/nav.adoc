@@ -6,21 +6,24 @@
 *** xref:how-to-use.adoc[How can I use GOW?]
 *** xref:roadmap.adoc[Roadmap]
 
-** Installation
-*** xref:headless.adoc[Headless]
-**** xref:debian-headless.adoc[Debian/Ubuntu]
-**** xref:headless-unraid.adoc[Unraid]
-**** xref:raspberry-headless.adoc[Raspberry]
-**** xref:kubernetes.adoc[Kubernetes]
-*** xref:desktop.adoc[Desktop]
-**** xref:debian-desktop.adoc[Debian/Ubuntu]
-**** xref:windows.adoc[Windows]
+** Getting Started
+*** xref:requirements.adoc[Prerequisites]
+**** xref:monitor.adoc[Monitor requirements]
+*** xref:installation.adoc[Installation]
+*** xref:configuration.adoc[Configuration]
+*** xref:running.adoc[Running]
+*** xref:connecting.adoc[Connecting]
 
-** Configuration
-*** xref:monitor.adoc[Monitor requirements]
-*** xref:troubleshooting.adoc[Troubleshooting]
-*** xref:steam.adoc[Steam]
+** Advanced
+*** xref:which-platform.adoc[Which platform?]
+*** xref:adding-an-app.adoc[Adding a new app]
+*** xref:kubernetes.adoc[Kubernetes]
+*** xref:windows.adoc[Is Windows supported?]
 *** xref:nvidia.adoc[Nvidia GPU]
+*** xref:primary-gpu.adoc[Multiple GPUs]
+*** xref:steam.adoc[Steam]
+*** xref:run-gow.adoc[run-gow]
+*** xref:troubleshooting.adoc[Troubleshooting]
 
 ** Contributing/Developing
 *** xref:contributing.adoc[Contributing]
