@@ -26,6 +26,11 @@ ARG REQUIRED_PACKAGES=" \
     jwm libxft2 libxext6 breeze-cursor-theme \
     "
 
+# Configure container to run process as root user
+ENV \
+    UNAME="root" \
+    HOME="/root"
+
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*

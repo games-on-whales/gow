@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-function start_udev() {
+start_udev() {
 	# mount_dev
     if command -v udevd &>/dev/null; then
         unshare --net udevd --daemon &> /dev/null

@@ -1,38 +1,58 @@
 FROM ubuntu:22.04
 
+# Configure default user and set env
+# The users UID and GID will be set on container startup
 ENV \
-    TZ="Europe/London" \
-    UNAME=retro \
     PUID=1000 \
-    PGID=1000
+    PGID=1000 \
+    UMASK=000 \
+    UNAME="retro" \
+    HOME="/home/retro" \
+    TZ="Europe/London"
+RUN \
+    echo "**** Configure default user '${UNAME}' ****" \
+        && useradd -m -d ${HOME} -s /bin/bash ${UNAME} \
+    && \
+    echo
 
-# These depend on values defined in the previous set, so they (sadly) must be
-# in their own layer.
-ENV HOME=/home/$UNAME
-
-# Set up the user
-RUN --mount=type=bind,source=build/setup-retro-user,target=/setup-retro-user /setup-retro-user
-
-# use ARG instead of ENV because we only need it at runtime
+# Install default required packages
 ARG DEBIAN_FRONTEND=noninteractive
-ARG REQUIRED_PACKAGES="\
-    sudo \
-    fuse \
-    libnss3 \
-    "
+# TODO: If we need to download multi arch, then this will beed to be updated
+ARG GOSU_VERSION=1.14
+RUN \
+    echo "**** Update apt database ****" \
+        && apt-get update \
+    && \
+    echo "**** Install certificates ****" \
+        && apt-get install -y --reinstall --no-install-recommends \
+            ca-certificates \
+    && \
+    echo "**** Install base packages ****" \
+        && apt-get install -y --no-install-recommends \
+            fuse \
+            libnss3 \
+            wget \
+    && \
+    echo "**** Install gosu ****" \
+        && wget --progress=dot:giga \
+            -O /usr/bin/gosu \
+            https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 \
+        && chmod +x /usr/bin/gosu \
+    && \
+    echo "**** Verify gosu works ****" \
+        && gosu nobody true && echo "Working!" \
+    && \
+    echo "**** Section cleanup ****" \
+        && rm -rf \
+            /var/lib/apt/lists/* \
+    && \
+    echo
 
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    $REQUIRED_PACKAGES && \
-    rm -rf /var/lib/apt/lists/*
+# Import overlay
+COPY overlay /
 
-WORKDIR $HOME
-
-COPY --chmod=777 scripts/bootstrap.sh /opt/gow/bootstrap.sh
-COPY --chmod=777 scripts/ensure-groups /opt/gow/ensure-groups
-COPY scripts/lib/ /opt/gow/bash-lib/
-
-CMD [ "/opt/gow/bootstrap.sh" ]
+# Set entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE

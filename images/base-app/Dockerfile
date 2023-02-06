@@ -26,3 +26,5 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 # so we just do it unconditionally.
 COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
 
+# Configure the default directory to be the 'retro' users home directory
+WORKDIR ${HOME}

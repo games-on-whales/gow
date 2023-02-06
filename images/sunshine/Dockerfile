@@ -31,8 +31,6 @@ RUN \
 #     && apt-get remove -y software-properties-common \
 #     && rm -rf /var/lib/apt/lists/*
 
-USER ${UNAME}
-
 # Config files
 COPY configs/sunshine.conf /cfg/sunshine.conf
 COPY configs/apps.json /cfg/apps.json

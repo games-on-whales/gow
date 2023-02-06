@@ -5,6 +5,11 @@ FROM ${BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Configure container to run process as root user
+ENV \
+    UNAME="root" \
+    HOME="/root"
+
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends udev \
     && rm -rf /var/lib/apt/lists/*
