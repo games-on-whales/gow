@@ -49,7 +49,7 @@ download_pkg() {
     fi
 }
 
-DOWNLOAD_URL=https://us.download.nvidia.com/XFree86/Linux-x86_64/$HOST_DRIVER_VERSION/NVIDIA-Linux-x86_64-$HOST_DRIVER_VERSION.run
+DOWNLOAD_URL=https://download.nvidia.com/XFree86/Linux-x86_64/$HOST_DRIVER_VERSION/NVIDIA-Linux-x86_64-$HOST_DRIVER_VERSION.run
 DL_FILE=/tmp/nvidia-$HOST_DRIVER_VERSION.run
 EXTRACT_LOC=/tmp/nvidia-drv
 
