@@ -11,7 +11,7 @@ ARG REQUIRED_PACKAGES=" \
 "
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 && \
+    apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
