@@ -8,12 +8,14 @@ FROM ${BASE_APP_IMAGE} AS sunshine
 
 ARG REQUIRED_PACKAGES="\
     libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
+    libvulkan1 \
     libvdpau1 libnuma1 \
     i965-va-driver-shaders \
     intel-media-va-driver-non-free \
     libdrm-intel1 \
     libva-drm2 libva-x11-2 va-driver-all \
     libavahi-client3 \
+    libcap2-bin \
     "
 
 # Install using the official .deb package
@@ -21,8 +23,8 @@ ARG REQUIRED_PACKAGES="\
 RUN \
   --mount=type=bind,from=sunshine-image,source=/sunshine.deb,target=/sunshine.deb \
     apt-get update -y && \
-    apt-get install -y --no-install-recommends -f /sunshine.deb && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    apt-get install -y --no-install-recommends -f /sunshine.deb && \
     rm -rf /var/lib/apt/lists/*
 
 # Utils for debugging
