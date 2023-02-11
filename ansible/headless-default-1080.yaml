@@ -14,6 +14,8 @@
     user_env_local_state: "{{ dir_home }}/gow"
     file_location_src_headless_yaml: "../compose/platforms/headless.yml"
     file_location_dst_headless_yaml: "{{ dir_repos_gow }}/compose/platforms/headless.yml"
+    service_file_name: gow.service
+    file_location_service: /etc/systemd/system/gow.service
   tasks:
     - name: Prerequisite checks
       block:
@@ -121,10 +123,49 @@
           line: 'TIME_ZONE={{ user_env_time_zone }}'
           backrefs: yes
 
-    - name: Pull images and run gow
+    - name: Setup and enable systemd service
       block:
-      - name: "Pull images for application {{ application }}"
-        shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} pull"
+        - name: Copy over the service file for systemd
+          become: true
+          copy:
+            src: configs/{{ service_file_name }}
+            dest: "{{ file_location_service }}"
 
-      # - name: Run gow
-      #   shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} up"
+        - name: "Service file edit: Add command to start minikube"
+          become: true  
+          lineinfile: 
+            path: "{{ file_location_service }}"
+            regexp: '^WorkingDirectory=(.*)$' 
+            line: 'WorkingDirectory={{ dir_repos_gow }}'
+            backrefs: yes
+
+        - name: "Service file edit: Add command to start minikube"
+          become: true  
+          lineinfile: 
+            path: "{{ file_location_service }}"
+            regexp: '^ExecStartPre=(.*)$' 
+            line: 'ExecStartPre={{ dir_repos_gow }}/run-gow --platform headless --app {{ application }} pull'
+            backrefs: yes
+
+        - name: "Service file edit: Add reverse proxy script"
+          become: true  
+          lineinfile: 
+            path: "{{ file_location_service }}"
+            regexp: '^ExecStart=(.*)$' 
+            line: "ExecStart={{ dir_repos_gow }}/run-gow --platform headless --app {{ application }} up"
+            backrefs: yes
+
+        - name: "Service file edit: Change User to be {{ ansible_user }}"
+          become: True
+          # https://gist.github.com/drmalex07/c0f9304deea566842490
+          lineinfile:
+            path: "{{ file_location_service }}"
+            regexp: '^User=(.*)$'
+            line: "User={{ ansible_user }}"
+            backrefs: yes
+
+        - name: Reload systemd service
+          include_tasks: tasks-reload-systemd-service.yaml
+          vars:
+            service_name: "{{ service_file_name }}"
+            become: True

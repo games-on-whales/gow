@@ -1,0 +1,18 @@
+[Unit]
+Description=Games on Whales service
+StartLimitInterval=0
+After=docker.service
+
+[Service]
+Type=simple 
+WorkingDirectory=PLACEHOLDER
+RemainAfterExit=no
+ExecStartPre=PLACEHOLDER
+ExecStart=PLACEHOLDER
+Restart=always
+RestartSec=5
+User=PLACEHOLDER
+TimeoutSec=36000
+
+[Install]
+WantedBy=multi-user.target
