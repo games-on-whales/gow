@@ -5,8 +5,8 @@
   gather_facts: true
   vars:
     uinput_location: "/dev/uinput"
-    file_location_edid: "/etc/edid.txt"
-    file_location_xorg_screen_config: "/etc/xorg-screen.conf"
+    file_location_edid: "{{ dir_home }}/gow/edid.txt"
+    file_location_xorg_screen_config: "{{ dir_home }}/gow/xorg-screen.conf"
     file_location_sunshine_conf: "{{ dir_repos_gow }}/images/sunshine/configs/sunshine.conf"
     file_location_headless_env: "{{ dir_repos_gow }}/env/headless.env"
     file_location_user_env: "{{ dir_repos_gow }}/user.env"
@@ -42,7 +42,6 @@
 
     - name: Headless monitor configuration
       # https://games-on-whales.github.io/gow/monitor.html
-      become: True
       block:
       - name: Create EDID file for 1920x1080 resolution
         copy:
@@ -101,6 +100,13 @@
           block: |
             origin_web_ui_allowed = {{ sunshine_conf_origin_web_ui_allowed }}
 
+      - name: "Copy {{ file_location_sunshine_conf }} to {{ user_env_local_state }}/sunshine/"
+        copy:
+          remote_src: true
+          src: "{{ file_location_sunshine_conf }}"
+          dest: "{{ user_env_local_state }}/sunshine/"
+          mode: '0777'
+
     - name: Basic configuration
       # https://games-on-whales.github.io/gow/configuration.html
       block:    
@@ -117,10 +123,11 @@
           regexp: '^TIME_ZONE=(.*)$' 
           line: 'TIME_ZONE={{ user_env_time_zone }}'
           backrefs: yes
-    
+
     - name: Run gow
       block:
-      - name: Pull images
+      - name: "Pull images for application {{ application }}"
         shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} pull"
-      # - name: Pull images
-      #   shell: "{{ dir_repos_gow }}/run-gow --platform headless --app firefox pull"
+
+      # - name: Run gow
+      #   shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} up"
