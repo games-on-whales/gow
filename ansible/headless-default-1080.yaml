@@ -11,12 +11,9 @@
     file_location_headless_env: "{{ dir_repos_gow }}/env/headless.env"
     file_location_user_env: "{{ dir_repos_gow }}/user.env"
     use_display_device: "DP-0"
-    user_env_time_zone: "Europe/London"
     user_env_local_state: "{{ dir_home }}/gow"
-    sunshine_conf_origin_web_ui_allowed: "wan"
     file_location_src_headless_yaml: "../compose/platforms/headless.yml"
     file_location_dst_headless_yaml: "{{ dir_repos_gow }}/compose/platforms/headless.yml"
-    application: "firefox"
   tasks:
     - name: Prerequisite checks
       block:
@@ -105,7 +102,7 @@
           remote_src: true
           src: "{{ file_location_sunshine_conf }}"
           dest: "{{ user_env_local_state }}/sunshine/"
-          mode: '0777'
+          directory_mode: '0777'
 
     - name: Basic configuration
       # https://games-on-whales.github.io/gow/configuration.html
@@ -124,7 +121,7 @@
           line: 'TIME_ZONE={{ user_env_time_zone }}'
           backrefs: yes
 
-    - name: Run gow
+    - name: Pull images and run gow
       block:
       - name: "Pull images for application {{ application }}"
         shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} pull"

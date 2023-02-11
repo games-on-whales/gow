@@ -9,4 +9,11 @@
         dir_repos_gow: "/home/{{ ansible_user }}/repos/gow"
         dir_repos: "/home/{{ ansible_user }}/repos"
 
+- import_playbook: install-docker.yaml
+  when: install.docker
+
 - import_playbook: headless-default-1080.yaml
+  vars:
+    application: "firefox"
+    sunshine_conf_origin_web_ui_allowed: "wan"
+    user_env_time_zone: "Europe/London"
