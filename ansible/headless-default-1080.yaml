@@ -36,7 +36,7 @@
     - name: Clone gow repository from github
       include_tasks: tasks-clone-git-repo.yaml
       vars:
-        repo_dir:  "{{ dir_repos_gow }}"
+        repo_base_dir:  "{{ dir_repos_gow }}"
         repo_link:  https://github.com/games-on-whales/gow.git
 
     - name: Headless monitor configuration

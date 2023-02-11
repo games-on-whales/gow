@@ -1,0 +1,11 @@
+---
+- name: Setup GOW
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Set facts
+      set_fact:
+        dir_home: "/home/{{ ansible_user }}"
+        dir_repos: "/home/{{ ansible_user }}/repos"
+
+- import_playbook: headless-default-1080.yaml

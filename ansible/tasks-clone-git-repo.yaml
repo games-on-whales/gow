@@ -1,0 +1,16 @@
+- name: "Delete {{ repo_base_dir }} directory"
+  file:
+    path: "{{ repo_base_dir }}"
+    state: absent
+
+- name: "Create {{ repo_base_dir }} directory"
+  file:
+    path: "{{ repo_base_dir }}"
+    recurse: True
+    state: directory
+    mode: '0755'
+
+- name: Clone repo
+  git:
+    repo: "{{ repo_link }}"
+    dest: "{{ repo_base_dir }}"
