@@ -6,6 +6,7 @@
     - name: Set facts
       set_fact:
         dir_home: "/home/{{ ansible_user }}"
+        dir_repos_gow: "/home/{{ ansible_user }}/repos/gow"
         dir_repos: "/home/{{ ansible_user }}/repos"
 
 - import_playbook: headless-default-1080.yaml

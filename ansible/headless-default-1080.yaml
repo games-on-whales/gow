@@ -14,7 +14,9 @@
     user_env_time_zone: "Europe/London"
     user_env_local_state: "{{ dir_home }}/gow"
     sunshine_conf_origin_pin_allowed: "wan"
-
+    file_location_src_headless_yaml: "../compose/platforms/headless.yml"
+    file_location_dst_headless_yaml: "{{ dir_repos_gow }}/compose/platforms/headless.yml"
+    application: "firefox"
   tasks:
     - name: Prerequisite checks
       block:
@@ -35,7 +37,7 @@
     - name: Clone gow repository from github
       include_tasks: tasks-clone-git-repo.yaml
       vars:
-        repo_base_dir:  "{{ dir_repos }}"
+        repo_dir:  "{{ dir_repos_gow }}"
         repo_link:  https://github.com/games-on-whales/gow.git
 
     - name: Headless monitor configuration
@@ -65,13 +67,44 @@
                 EndSubSection
             EndSection
 
+      - name: Update docker configuration to see new EDID and xorg-screen.conf files
+        block:
+        - name: "Include {{ file_location_src_headless_yaml }} as a dict"
+          include_vars:
+            file: "{{ file_location_src_headless_yaml }}"
+            name: headless_yml
+
+        - name: "Add lines for new config to {{ file_location_src_headless_yaml }} and write to {{ file_location_dst_headless_yaml }}"
+          copy:
+            dest: "{{ file_location_dst_headless_yaml }}"
+            content: |
+              {{ headless_yml_new | to_nice_yaml }}
+          vars:
+            additional_data:
+              services:
+                xorg:
+                  volumes:
+                    - "{{ file_location_edid }}:/home/retro/edid.txt:ro"
+                    - "{{ file_location_xorg_screen_config }}:/usr/share/X11/xorg.conf.d/01-xorg-screen.conf:ro"
+            headless_yml_new: "{{ headless_yml | combine(additional_data, list_merge='append', recursive=true) }}"
+
       - name: "Edit '{{ file_location_headless_env }}' file to update XORG_DISPLAY_PORT to be '{{ use_display_device }}'"
         lineinfile: 
           path: "{{ file_location_headless_env }}"
           regexp: '^XORG_DISPLAY_PORT=(.*)$' 
           line: 'XORG_DISPLAY_PORT={{ use_display_device }}'
           backrefs: yes
-    
+
+      - name: "Edit '{{ file_location_sunshine_conf }}' file to update origin_pin_allowed to be '{{ sunshine_conf_origin_pin_allowed }}'"
+        lineinfile: 
+          path: "{{ file_location_sunshine_conf }}"
+          regexp: '^.*origin_pin_allowed = (.*)$' 
+          line: 'origin_pin_allowed = {{ sunshine_conf_origin_pin_allowed }}'
+          backrefs: yes
+
+    - name: Basic configuration
+      # https://games-on-whales.github.io/gow/configuration.html
+      block:    
       - name: "Edit '{{ file_location_user_env }}' file to update local_state to be '{{ user_env_local_state }}'"
         lineinfile: 
           path: "{{ file_location_user_env }}"
@@ -86,9 +119,9 @@
           line: 'TIME_ZONE={{ user_env_time_zone }}'
           backrefs: yes
     
-      - name: "Edit '{{ file_location_sunshine_conf }}' file to update TIME_ZONE to be '{{ sunshine_conf_origin_pin_allowed }}'"
-        lineinfile: 
-          path: "{{ file_location_sunshine_conf }}"
-          regexp: '^.*origin_pin_allowed = (.*)$' 
-          line: 'origin_pin_allowed = {{ sunshine_conf_origin_pin_allowed }}'
-          backrefs: yes
+    - name: Run gow
+      block:
+      - name: Pull images
+        shell: "cd {{ dir_repos_gow }}; ./run-gow --platform headless --app {{ application }} pull"
+      # - name: Pull images
+      #   shell: "{{ dir_repos_gow }}/run-gow --platform headless --app firefox pull"
