@@ -5,12 +5,11 @@
   gather_facts: true
   vars:
     uinput_location: "/dev/uinput"
-    dir_repos_gow: "{{ dir_repos }}/gow"
     file_location_edid: "/etc/edid.txt"
     file_location_xorg_screen_config: "/etc/xorg-screen.conf"
-    file_location_sunshine_conf: "{{ dir_repos }}/gow/images/sunshine/configs/sunshine.conf"
-    file_location_headless_env: "{{ dir_repos }}/gow/env/headless.env"
-    file_location_user_env: "{{ dir_repos }}/gow/user.env"
+    file_location_sunshine_conf: "{{ dir_repos_gow }}/images/sunshine/configs/sunshine.conf"
+    file_location_headless_env: "{{ dir_repos_gow }}/env/headless.env"
+    file_location_user_env: "{{ dir_repos_gow }}/user.env"
     use_display_device: "DP-0"
     user_env_time_zone: "Europe/London"
     user_env_local_state: "{{ dir_home }}/gow"
@@ -36,7 +35,7 @@
     - name: Clone gow repository from github
       include_tasks: tasks-clone-git-repo.yaml
       vars:
-        repo_base_dir:  "{{ dir_repos_gow }}"
+        repo_base_dir:  "{{ dir_repos }}"
         repo_link:  https://github.com/games-on-whales/gow.git
 
     - name: Headless monitor configuration
