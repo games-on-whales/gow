@@ -13,7 +13,7 @@
     use_display_device: "DP-0"
     user_env_time_zone: "Europe/London"
     user_env_local_state: "{{ dir_home }}/gow"
-    sunshine_conf_origin_pin_allowed: "wan"
+    sunshine_conf_origin_web_ui_allowed: "wan"
     file_location_src_headless_yaml: "../compose/platforms/headless.yml"
     file_location_dst_headless_yaml: "{{ dir_repos_gow }}/compose/platforms/headless.yml"
     application: "firefox"
@@ -95,12 +95,11 @@
           line: 'XORG_DISPLAY_PORT={{ use_display_device }}'
           backrefs: yes
 
-      - name: "Edit '{{ file_location_sunshine_conf }}' file to update origin_pin_allowed to be '{{ sunshine_conf_origin_pin_allowed }}'"
-        lineinfile: 
+      - name: "Edit '{{ file_location_sunshine_conf }}' file to update origin_web_ui_allowed to be '{{ sunshine_conf_origin_web_ui_allowed }}'"
+        blockinfile: 
           path: "{{ file_location_sunshine_conf }}"
-          regexp: '^.*origin_pin_allowed = (.*)$' 
-          line: 'origin_pin_allowed = {{ sunshine_conf_origin_pin_allowed }}'
-          backrefs: yes
+          block: |
+            origin_web_ui_allowed = {{ sunshine_conf_origin_web_ui_allowed }}
 
     - name: Basic configuration
       # https://games-on-whales.github.io/gow/configuration.html
