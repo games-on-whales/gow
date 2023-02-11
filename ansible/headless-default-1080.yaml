@@ -123,6 +123,20 @@
           line: 'TIME_ZONE={{ user_env_time_zone }}'
           backrefs: yes
 
+    - include_tasks: tasks-allow-ports.yaml
+      vars:
+        ports: 
+          - "47984/tcp"
+          - "47985/tcp"
+          - "47986/tcp"
+          - "47987/tcp"
+          - "47988/tcp"
+          - "47989/tcp"
+          - "47990/tcp"
+          - "48010"
+          - "47998/udp"
+          - "47999/udp"
+          - "48000/udp"
     - name: Setup and enable systemd service
       block:
         - name: Copy over the service file for systemd
@@ -169,3 +183,6 @@
           vars:
             service_name: "{{ service_file_name }}"
             become: True
+    - name: End info
+      debug:
+        msg: "You can access Sunshine's web UI at {{ ansible_host }}:47990 and login using admin/admin (dont forget to change this) to approve of pins"
