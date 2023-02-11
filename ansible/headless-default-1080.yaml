@@ -1,0 +1,95 @@
+---
+# https://games-on-whales.github.io/gow/index.html
+- name: Install Games on Whales
+  hosts: all
+  gather_facts: true
+  vars:
+    uinput_location: "/dev/uinput"
+    dir_repos_gow: "{{ dir_repos }}/gow"
+    file_location_edid: "/etc/edid.txt"
+    file_location_xorg_screen_config: "/etc/xorg-screen.conf"
+    file_location_sunshine_conf: "{{ dir_repos }}/gow/images/sunshine/configs/sunshine.conf"
+    file_location_headless_env: "{{ dir_repos }}/gow/env/headless.env"
+    file_location_user_env: "{{ dir_repos }}/gow/user.env"
+    use_display_device: "DP-0"
+    user_env_time_zone: "Europe/London"
+    user_env_local_state: "{{ dir_home }}/gow"
+    sunshine_conf_origin_pin_allowed: "wan"
+
+  tasks:
+    - name: Prerequisite checks
+      block:
+      - name: "Check if {{ uinput_location }} exists"
+        stat: 
+          path: "{{ uinput_location }}"
+        register: stat_result
+      - name: "Fail if {{ uinput_location }} not present"
+        fail:
+        when: not stat_result.stat.exists
+
+    - name: Make gow local state home dir
+      file:
+        path: "{{ user_env_local_state }}"
+        state: directory
+        mode: '0777'
+
+    - name: Clone gow repository from github
+      include_tasks: tasks-clone-git-repo.yaml
+      vars:
+        repo_dir:  "{{ dir_repos_gow }}"
+        repo_link:  https://github.com/games-on-whales/gow.git
+
+    - name: Headless monitor configuration
+      # https://games-on-whales.github.io/gow/monitor.html
+      become: True
+      block:
+      - name: Create EDID file for 1920x1080 resolution
+        copy:
+          dest: "{{ file_location_edid }}"
+          content: "00 ff ff ff ff ff ff 00 1e 6d f5 56 71 ca 04 00 05 14 01 03 80 35 1e 78 0a ae c5 a2 57 4a 9c 25 12 50 54 21 08 00 b3 00 81 80 81 40 01 01 01 01 01 01 01 01 01 01 1a 36 80 a0 70 38 1f 40 30 20 35 00 13 2b 21 00 00 1a 02 3a 80 18 71 38 2d 40 58 2c 45 00 13 2b 21 00 00 1e 00 00 00 fd 00 38 3d 1e 53 0f 00 0a 20 20 20 20 20 20 00 00 00 fc 00 57 32 34 35 33 0a 20 20 20 20 20 20 20 01 3d 02 03 21 f1 4e 90 04 03 01 14 12 05 1f 10 13 00 00 00 00 23 09 07 07 83 01 00 00 65 03 0c 00 10 00 02 3a 80 18 71 38 2d 40 58 2c 45 00 13 2b 21 00 00 1e 01 1d 80 18 71 1c 16 20 58 2c 25 00 13 2b 21 00 00 9e 01 1d 00 72 51 d0 1e 20 6e 28 55 00 13 2b 21 00 00 1e 8c 0a d0 8a 20 e0 2d 10 10 3e 96 00 13 2b 21 00 00 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26"
+      
+      - name: Create Xorg screen config
+        copy:
+          dest: "{{ file_location_xorg_screen_config }}"
+          content: |
+            Section "Screen"
+                Identifier     "Screen0"
+                Device         "Device0"
+                Monitor        "Monitor0"
+                DefaultDepth    24
+                Option         "AllowEmptyInitialConfiguration" "True"
+                Option         "UseDisplayDevice" "{{ use_display_device }}"
+                Option         "CustomEDID" "{{ use_display_device }}:/home/retro/edid.txt"
+                Option         "ConnectedMonitor" "{{ use_display_device }}"
+                SubSection     "Display"
+                    Depth       24
+                EndSubSection
+            EndSection
+
+      - name: "Edit '{{ file_location_headless_env }}' file to update XORG_DISPLAY_PORT to be '{{ use_display_device }}'"
+        lineinfile: 
+          path: "{{ file_location_headless_env }}"
+          regexp: '^XORG_DISPLAY_PORT=(.*)$' 
+          line: 'XORG_DISPLAY_PORT={{ use_display_device }}'
+          backrefs: yes
+    
+      - name: "Edit '{{ file_location_user_env }}' file to update local_state to be '{{ user_env_local_state }}'"
+        lineinfile: 
+          path: "{{ file_location_user_env }}"
+          regexp: '^local_state=(.*)$' 
+          line: 'local_state={{ user_env_local_state }}'
+          backrefs: yes
+    
+      - name: "Edit '{{ file_location_user_env }}' file to update TIME_ZONE to be '{{ user_env_time_zone }}'"
+        lineinfile: 
+          path: "{{ file_location_user_env }}"
+          regexp: '^TIME_ZONE=(.*)$' 
+          line: 'TIME_ZONE={{ user_env_time_zone }}'
+          backrefs: yes
+    
+      - name: "Edit '{{ file_location_sunshine_conf }}' file to update TIME_ZONE to be '{{ sunshine_conf_origin_pin_allowed }}'"
+        lineinfile: 
+          path: "{{ file_location_sunshine_conf }}"
+          regexp: '^.*origin_pin_allowed = (.*)$' 
+          line: 'origin_pin_allowed = {{ sunshine_conf_origin_pin_allowed }}'
+          backrefs: yes
