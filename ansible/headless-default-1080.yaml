@@ -185,4 +185,4 @@
             become: True
     - name: End info
       debug:
-        msg: "You can access Sunshine's web UI at {{ ansible_host }}:47990 and login using admin/admin (dont forget to change this) to approve of pins"
+        msg: "You can access Sunshine's web UI at 'https://{{ ansible_host }}:47990' and login using admin/admin (dont forget to change this) to approve of pins"
