@@ -32,7 +32,7 @@ jobs:
         - { name: xorg,       platforms: "linux/amd64,linux/arm64" }
         - { name: pulseaudio, platforms: "linux/amd64,linux/arm64" }
         - { name: udevd,      platforms: "linux/amd64,linux/arm64" }
-        - { name: sunshine,   platforms: "linux/amd64" }
+        - { name: sunshine,   platforms: "linux/amd64,linux/arm64" }
         - { name: retroarch,  platforms: "linux/amd64,linux/arm64" }
         - { name: steam,      platforms: "linux/amd64"             }
       fail-fast: false
