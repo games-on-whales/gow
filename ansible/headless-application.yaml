@@ -5,8 +5,8 @@
   gather_facts: true
   vars:
     uinput_location: "/dev/uinput"
-    file_location_dst_edid: "{{ dir_home }}/gow/edid.txt"
-    file_location_xorg_screen_config: "{{ dir_home }}/gow/xorg-screen.conf"
+    file_location_dst_edid: "/etc/edid.txt"
+    file_location_xorg_screen_config: "/etc/xorg-screen.conf"
     file_location_sunshine_conf: "{{ dir_repos_gow }}/images/sunshine/configs/sunshine.conf"
     file_location_headless_env: "{{ dir_repos_gow }}/env/headless.env"
     file_location_user_env: "{{ dir_repos_gow }}/user.env"
@@ -27,13 +27,21 @@
         fail:
         when: not stat_result.stat.exists
 
-    - name: Make gow local state home dir
-      file:
-        path: "{{ user_env_local_state }}"
-        state: directory
-        mode: '0777'
+    - name: GOW local_state dir creation
+      block:
+      - name: Cleanup GOW local_state dir
+        file:
+          path: "{{ dir_home }}/a"
+          state: absent
+        when: local_state.cleanup
 
-    - name: Clone gow repository from github
+      - name: Create GOW local_state dir  
+        file:
+          path: "{{ dir_home }}/a"
+          state: directory
+          mode: '0777'
+
+    - name: Clone GOW repository from github
       include_tasks: tasks-clone-git-repo.yaml
       vars:
         repo_dir:  "{{ dir_repos_gow }}"
@@ -43,11 +51,13 @@
       # https://games-on-whales.github.io/gow/monitor.html
       block:
       - name: "Copy over EDID file from local:{{ file_location_src_edid }} to remote:{{ file_location_dst_edid }}"
+        become: True
         copy:
           src: "{{ file_location_src_edid }}"
           dest: "{{ file_location_dst_edid }}"
       
       - name: Create Xorg screen config
+        become: True
         copy:
           dest: "{{ file_location_xorg_screen_config }}"
           content: |

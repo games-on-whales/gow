@@ -1,3 +1,6 @@
 # Put all generic vars in here which will be accessible by any playbook
 install:
     docker: false
+
+local_state:
+    cleanup: true
