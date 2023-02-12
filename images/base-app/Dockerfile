@@ -24,7 +24,11 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 # _does_ handle making the actual drivers available, it doesn't install the ICD
 # JSON.  So we provide one ourselves.  This is harmless on non-NVIDIA systems,
 # so we just do it unconditionally.
+# NOTE: as of nvidia-container-toolkit v1.12, this is no longer necessary. once
+# that version is sufficiently widely available, we may want to make it a
+# requirement and stop doing this manually
 COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
+COPY configs/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
