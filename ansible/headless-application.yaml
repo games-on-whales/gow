@@ -42,7 +42,7 @@
     - name: Headless monitor configuration
       # https://games-on-whales.github.io/gow/monitor.html
       block:
-      - name: Create EDID file for 1920x1080 resolution
+      - name: "Copy over EDID file from local:{{ file_location_src_edid }} to remote:{{ file_location_dst_edid }}"
         copy:
           src: "{{ file_location_src_edid }}"
           dest: "{{ file_location_dst_edid }}"
@@ -77,6 +77,7 @@
             dest: "{{ file_location_dst_headless_yaml }}"
             content: |
               {{ headless_yml_new | to_nice_yaml }}
+            
           vars:
             additional_data:
               services:
@@ -105,6 +106,7 @@
           src: "{{ file_location_sunshine_conf }}"
           dest: "{{ user_env_local_state }}/sunshine/"
           directory_mode: '0777'
+          mode: '0777'
 
     - name: Basic configuration
       # https://games-on-whales.github.io/gow/configuration.html
