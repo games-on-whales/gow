@@ -29,13 +29,15 @@ ARG REQUIRED_PACKAGES_arm64="\
 
 # Install using the official .deb package
 # This will take care of installing the required dependencies
+# hadolint ignore=SC2086
 RUN \
   --mount=type=bind,from=sunshine-image,source=/sunshine.deb,target=/sunshine.deb \
   <<_INSTALL_PACKAGES
 #!/bin/bash
 set -e
-export REQUIRED_PACKAGES_ARCH=REQUIRED_PACKAGES_${TARGETARCH}${TARGETVARIANT}
+export REQUIRED_PACKAGES_ARCH="REQUIRED_PACKAGES_${TARGETARCH}${TARGETVARIANT}"
 apt-get update -y
+# shellcheck disable=SC2086
 apt-get install -y --no-install-recommends $REQUIRED_PACKAGES ${!REQUIRED_PACKAGES_ARCH}
 apt-get install -y --no-install-recommends -f /sunshine.deb
 rm -rf /var/lib/apt/lists/*

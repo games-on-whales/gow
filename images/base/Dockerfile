@@ -43,7 +43,7 @@ apt-get install -y --no-install-recommends \
 echo "**** Install gosu ****"
 wget --progress=dot:giga \
     -O /usr/bin/gosu \
-    https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${TARGETARCH}${TARGETVARIANT}
+    "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${TARGETARCH}${TARGETVARIANT}"
 chmod +x /usr/bin/gosu
 
 echo "**** Verify gosu works ****"
