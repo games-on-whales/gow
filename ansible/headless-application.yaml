@@ -31,13 +31,13 @@
       block:
       - name: Cleanup GOW local_state dir
         file:
-          path: "{{ dir_home }}/a"
+          path: "{{ user_env_local_state }}"
           state: absent
         when: local_state.cleanup
 
       - name: Create GOW local_state dir  
         file:
-          path: "{{ dir_home }}/a"
+          path: "{{ user_env_local_state }}"
           state: directory
           mode: '0777'
 
