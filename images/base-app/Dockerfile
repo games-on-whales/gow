@@ -7,8 +7,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # TODO: should we include any drivers or anything here? The GL stuff that the
 # sunshine container has, or the intel drivers, etc?  AMD drivers?
+#
+# x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
+# pulseaudio-utils: some apps can't play sound unless this package is installed
 ARG REQUIRED_PACKAGES="\
     x11-utils \
+    pulseaudio-utils \
     "
 
 RUN apt-get update -y && \
