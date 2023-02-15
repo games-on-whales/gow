@@ -1,7 +1,9 @@
 # Headless Monitor install of GOW
 Mainly following the default instructions from the [Getting Started](https://games-on-whales.github.io/gow/requirements.html) page to automate the install of a headless monitor instance of GOW.
 
-You could, for instance, use this to setup GOW on an [Oracle Free Tier](https://www.oracle.com/cloud/free/) cloud VM
+You could, for instance, use this to setup GOW on an [Oracle Free Tier](https://www.oracle.com/cloud/free/) cloud VM.
+
+This will install GOW in headless mode on the server as a systemd service. Regular `systemctl` commands like `status`, `restart`, `stop`, `start`, etc apply here, and the service name is called `gow.service`. On failure, it will attempt to restart the service, however if a container exits it will NOT restart the service. So please check the logs for that and restart manually if required.
 
 ## Server Setup
 
@@ -77,3 +79,9 @@ At the very least, search for the items with tags `# FILL OUT`
   | 48000 |      udp |
 
   **NOTE**: Security is an unknown when exposing a service to the internet.
+
+### Troubleshooting
+
+Run `systemctl status gow` or `journalctl -u gow` to get logs.
+
+Try running `sudo systemctl restart gow` to see if that fixes it first too. The service will first try to pull the images required for the application, and then bring up the application itself. Could be failing in either sections of this, the logs will help you identify where the issue might be.

@@ -10,7 +10,8 @@ time_zone: "Europe/London"
 
 install:
     # Install docker on the server
-    docker: False
+    # Example: True, False
+    docker: True # FILL OUT
 
 
 sunshine:
