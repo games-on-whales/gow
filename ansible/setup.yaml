@@ -15,6 +15,6 @@
 - import_playbook: headless-application.yaml
   vars:
     file_location_src_edid: "configs/edid-1920-1080.txt"
-    application: "firefox"
-    user_env_time_zone: "Europe/London"
-    sunshine_conf_origin_web_ui_allowed: "wan"
+    user_env_time_zone: "{{ time_zone }}"
+    sunshine_conf_origin_web_ui_allowed: "{{ sunshine.web_ui.access_level }}"
+    sunshine_local_state_cleanup: "{{ sunshine.local_state.cleanup }}"

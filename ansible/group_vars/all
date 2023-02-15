@@ -1,6 +1,24 @@
 # Put all generic vars in here which will be accessible by any playbook
-install:
-    docker: false
 
-local_state:
-    cleanup: true
+# The GOW application you wish to install
+# Example: "firefox", "steam", "retroarch"
+application: "firefox"
+
+# Time zone to use on Sunshine
+# Example: "Europe/London"
+time_zone: "Europe/London"
+
+install:
+    # Install docker on the server
+    docker: False
+
+
+sunshine:
+    local_state:
+        # Cleanup the localstate of Sunshine
+        cleanup: True
+    web_ui:
+        # Where should sunshine be accessible from
+        # https://docs.lizardbyte.dev/projects/sunshine/en/latest/about/advanced_usage.html#origin-web-ui-allowed
+        # Example: "wan", "lan", "pc"
+        access_level: "wan"

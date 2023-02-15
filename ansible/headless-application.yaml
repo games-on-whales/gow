@@ -11,7 +11,7 @@
     file_location_headless_env: "{{ dir_repos_gow }}/env/headless.env"
     file_location_user_env: "{{ dir_repos_gow }}/user.env"
     use_display_device: "DP-0"
-    user_env_local_state: "{{ dir_home }}/gow"
+    user_env_sunshine_local_state: "{{ dir_home }}/gow"
     file_location_src_headless_yaml: "../compose/platforms/headless.yml"
     file_location_dst_headless_yaml: "{{ dir_repos_gow }}/compose/platforms/headless.yml"
     service_file_name: gow.service
@@ -31,13 +31,13 @@
       block:
       - name: Cleanup GOW local_state dir
         file:
-          path: "{{ user_env_local_state }}"
+          path: "{{ user_env_sunshine_local_state }}"
           state: absent
-        when: local_state.cleanup
+        when: sunshine_local_state_cleanup
 
       - name: Create GOW local_state dir  
         file:
-          path: "{{ user_env_local_state }}"
+          path: "{{ user_env_sunshine_local_state }}"
           state: directory
           mode: '0777'
 
@@ -110,22 +110,22 @@
           block: |
             origin_web_ui_allowed = {{ sunshine_conf_origin_web_ui_allowed }}
 
-      - name: "Copy {{ file_location_sunshine_conf }} to {{ user_env_local_state }}/sunshine/"
+      - name: "Copy {{ file_location_sunshine_conf }} to {{ user_env_sunshine_local_state }}/sunshine/"
         copy:
           remote_src: true
           src: "{{ file_location_sunshine_conf }}"
-          dest: "{{ user_env_local_state }}/sunshine/"
+          dest: "{{ user_env_sunshine_local_state }}/sunshine/"
           directory_mode: '0777'
           mode: '0777'
 
     - name: Basic configuration
       # https://games-on-whales.github.io/gow/configuration.html
       block:    
-      - name: "Edit '{{ file_location_user_env }}' file to update local_state to be '{{ user_env_local_state }}'"
+      - name: "Edit '{{ file_location_user_env }}' file to update local_state to be '{{ user_env_sunshine_local_state }}'"
         lineinfile: 
           path: "{{ file_location_user_env }}"
           regexp: '^local_state=(.*)$' 
-          line: 'local_state={{ user_env_local_state }}'
+          line: 'local_state={{ user_env_sunshine_local_state }}'
           backrefs: yes
     
       - name: "Edit '{{ file_location_user_env }}' file to update TIME_ZONE to be '{{ user_env_time_zone }}'"

@@ -1,14 +1,13 @@
 all:
   hosts:
     main:
-      ansible_host: <YOUR_SERVER_IP_OR_DOMAIN_NAME>
-      ansible_port: <YOUR_SERVER_SSH_PORT>
-      ansible_user: <YOUR_SERVER_USERNAME>
+      ansible_host: <YOUR_SERVER_IP_OR_DOMAIN_NAME> # FILL OUT
+      ansible_port: <YOUR_SERVER_SSH_PORT> # FILL OUT
+      ansible_user: <YOUR_SERVER_USERNAME> # FILL OUT
       # will ignore password if not required
-      ansible_sudo_pass: <YOUR_SERVER_PASSWORD>
+      ansible_sudo_pass: <YOUR_SERVER_PASSWORD> # FILL OUT
     # throwaway:
     #   ansible_host: 192.168.178.3
     #   ansible_port: 2002
     #   ansible_user: kimi450
     #   ansible_sudo_pass: i_HaVe_A_gOoD_pAsSwOrD+123!
-
