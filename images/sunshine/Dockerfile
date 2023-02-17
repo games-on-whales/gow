@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 ARG BASE_APP_IMAGE
 
 ######################################
@@ -6,26 +7,40 @@ FROM lizardbyte/sunshine:v0.18.1-ubuntu-22.04 AS sunshine-image
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine
 
+ARG TARGETARCH TARGETVARIANT
+
 ARG REQUIRED_PACKAGES="\
     libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
     libvulkan1 \
     libvdpau1 libnuma1 \
-    i965-va-driver-shaders \
-    intel-media-va-driver-non-free \
-    libdrm-intel1 \
     libva-drm2 libva-x11-2 va-driver-all \
     libavahi-client3 \
     libcap2-bin \
     "
 
+ARG REQUIRED_PACKAGES_amd64="\
+    i965-va-driver-shaders \
+    intel-media-va-driver-non-free \
+    libdrm-intel1 \
+"
+
+ARG REQUIRED_PACKAGES_arm64="\
+"
+
 # Install using the official .deb package
 # This will take care of installing the required dependencies
 RUN \
   --mount=type=bind,from=sunshine-image,source=/sunshine.deb,target=/sunshine.deb \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    apt-get install -y --no-install-recommends -f /sunshine.deb && \
-    rm -rf /var/lib/apt/lists/*
+  <<_INSTALL_PACKAGES
+#!/bin/bash
+set -e
+export REQUIRED_PACKAGES_ARCH="REQUIRED_PACKAGES_${TARGETARCH}${TARGETVARIANT}"
+apt-get update -y
+# shellcheck disable=SC2086,SC3053
+apt-get install -y --no-install-recommends $REQUIRED_PACKAGES ${!REQUIRED_PACKAGES_ARCH}
+apt-get install -y --no-install-recommends -f /sunshine.deb
+rm -rf /var/lib/apt/lists/*
+_INSTALL_PACKAGES
 
 # Utils for debugging
 # RUN apt-get update -y && \
