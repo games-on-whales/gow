@@ -32,12 +32,22 @@ RUN apt-get update && \
 RUN add-apt-repository -y ppa:pcsx2-team/pcsx2-daily && \
     apt-get update && \
     apt-get install -y pcsx2-unstable && \
+    # \
+    # Cleanup \
+    apt-get remove -y software-properties-common gpg-agent && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install XEMU
 RUN add-apt-repository ppa:mborgerson/xemu && \
     apt-get update && \
     apt-get install -y xemu && \
-
+    # \
+    # Cleanup \
+    apt-get remove -y software-properties-common gpg-agent && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+	
 # Install RPCS3
 RUN \
     echo "**** Install RPCS3 ****" && \
