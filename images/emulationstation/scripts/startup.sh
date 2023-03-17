@@ -5,7 +5,7 @@ source /opt/gow/bash-lib/utils.sh
 
 gow_log "Starting EmulationStation-DE"
 
-CFG_DIR=$HOME/.config/es
+CFG_DIR=$HOME/.config/retroarch
 
 # Copying config in case it's the first time we mount from the host
 mkdir -p "$CFG_DIR/cores/"
