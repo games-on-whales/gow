@@ -15,6 +15,7 @@ RUN \
         && wget -O /tmp/esde.deb https://gitlab.com/es-de/emulationstation-de/-/package_files/71412450/download \
         && apt install -y /tmp/esde.deb
 
+# Install RetroArch
 RUN apt-get update && \
     apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
     # \
@@ -27,7 +28,7 @@ RUN apt-get update && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-#Install PCSX2
+# Install PCSX2
 RUN apt-get update && \
     add-apt-repository -y ppa:pcsx2-team/pcsx2-daily && \
     apt-get install -y pcsx2-unstable && \
