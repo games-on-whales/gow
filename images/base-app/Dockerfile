@@ -20,6 +20,16 @@ RUN apt-get update -y && \
     $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
+# Add Gamescope
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:ar-lex/gamescope && \
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends  gamescope && \
+    apt-get remove -y software-properties-common && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
@@ -31,8 +41,8 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 # NOTE: as of nvidia-container-toolkit v1.12, this is no longer necessary. once
 # that version is sufficiently widely available, we may want to make it a
 # requirement and stop doing this manually
-COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
-COPY configs/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+#COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
+#COPY configs/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
