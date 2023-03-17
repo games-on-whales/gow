@@ -39,7 +39,7 @@ RUN add-apt-repository -y ppa:pcsx2-team/pcsx2-daily && \
     rm -rf /var/lib/apt/lists/*
 
 # Install XEMU
-RUN add-apt-repository ppa:mborgerson/xemu && \
+RUN add-apt-repository -y ppa:mborgerson/xemu && \
     apt-get update && \
     apt-get install -y xemu && \
     # \
