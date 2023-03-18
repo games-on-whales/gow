@@ -9,6 +9,7 @@ ARG REQUIRED_PACKAGES=" \
     retroarch \
     libretro* \
     fuse \
+    libfuse2 \
 "
 RUN \
     echo "**** Install ESDE ****" && \
