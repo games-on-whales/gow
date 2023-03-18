@@ -21,12 +21,14 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Add Gamescope
+# Add setcap as seen in: https://github.com/Plagman/gamescope/issues/497#issuecomment-1127110769
 RUN apt-get update -y && \
-    apt-get install -y software-properties-common && \
+    apt-get install -y software-properties-common libcap2-bin && \
     add-apt-repository ppa:ar-lex/gamescope && \
     apt-get update -y && \
-    apt-get install -y --no-install-recommends  gamescope && \
-    apt-get remove -y software-properties-common && \
+    apt-get install -y --no-install-recommends gamescope && \
+    setcap 'cap_sys_nice=eip' /usr/games/gamescope && \
+    apt-get remove -y software-properties-common libcap2-bin && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
