@@ -23,4 +23,8 @@ if [ ! -d "$CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-exec /usr/bin/retroarch
+if [ -z "$RUN_GAMESCOPE" ]; then
+  exec /usr/bin/retroarch
+else
+  /usr/games/gamescope -b -- /usr/bin/retroarch
+fi

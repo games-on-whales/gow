@@ -9,4 +9,8 @@ gow_log "Starting Steam with DISPLAY=${DISPLAY}"
 mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
 
 # Start Steam
-exec /usr/games/steam
+if [ -z "$RUN_GAMESCOPE" ]; then
+  exec /usr/games/steam
+else
+  /usr/games/gamescope -b -- /usr/games/steam -oldbigpicture -bigpicture
+fi
