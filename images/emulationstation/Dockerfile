@@ -51,6 +51,12 @@ RUN \
         wget -O rpcs3-emu.AppImage https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-6809d84a0029377eab059a51ce38f440e325be1c/rpcs3-v0.0.26-14564-6809d84a_linux64.AppImage && \
         chmod +x /home/retro/Applications/rpcs3-emu.AppImage
 
+RUN \
+    echo "**** Install YUZU ****" && \
+        mkdir -p /home/default/Applications && \
+        cd /home/default/Applications && \
+        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1373/yuzu-mainline-20230315-6d76a54d3.AppImage && \
+        chmod +x /home/default/Applications/yuzu-emu.AppImage	
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
