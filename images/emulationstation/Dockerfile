@@ -54,10 +54,10 @@ RUN \
 
 RUN \
     echo "**** Install YUZU ****" && \
-        mkdir -p /home/default/Applications && \
-        cd /home/default/Applications && \
+        mkdir -p /home/retro/Applications && \
+        cd /home/retro/Applications && \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1373/yuzu-mainline-20230315-6d76a54d3.AppImage && \
-        chmod +x /home/default/Applications/yuzu-emu.AppImage	
+        chmod +x /home/retro/Applications/yuzu-emu.AppImage	
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
