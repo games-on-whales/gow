@@ -1,14 +1,14 @@
 #########################
-# retroarch.yml
+# emulationstationde.yml
 #########################
 #
-# This container runs RetroArch
+# This container runs EmulationStastion-DE with several preinstalled emulators
 
 services:
   ####################
   emulationstationde:
     build:
-     context: ./images/emulationstation
+     context: ./images/emulationstationde
      args:
        BASE_IMAGE: ${BUILD_BASE_IMAGE}
        BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
