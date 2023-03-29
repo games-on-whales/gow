@@ -7,7 +7,7 @@
 services:
   ####################
   emulationstationde:
-   build:
+    build:
      context: ./images/emulationstation
      args:
        BASE_IMAGE: ${BUILD_BASE_IMAGE}
