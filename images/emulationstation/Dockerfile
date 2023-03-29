@@ -6,6 +6,7 @@ FROM ${BASE_APP_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     wget p7zip-full \
+	software-properties-common \
     retroarch \
     libretro* \
     fuse \
@@ -23,12 +24,7 @@ RUN apt-get update && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    # \
-    # Cleanup \
-    apt-get remove -y software-properties-common gpg-agent && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
 
 # Install PCSX2
 RUN add-apt-repository -y ppa:pcsx2-team/pcsx2-daily && \
