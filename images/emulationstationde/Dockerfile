@@ -46,7 +46,7 @@ RUN \
     echo "**** Install RPCS3 ****" && \
         mkdir /home/retro/Applications && \
         cd /home/retro/Applications && \
-        wget -O rpcs3-emu.AppImage https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-6809d84a0029377eab059a51ce38f440e325be1c/rpcs3-v0.0.26-14564-6809d84a_linux64.AppImage && \
+        wget -O rpcs3-emu.AppImage https://rpcs3.net/latest-appimage && \
         chmod +x /home/retro/Applications/rpcs3-emu.AppImage
 
 RUN \
