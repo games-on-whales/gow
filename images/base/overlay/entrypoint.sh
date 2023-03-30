@@ -18,7 +18,7 @@ fi
 
 # If a command was passed, run that instead of the usual init startup script
 if [ -n "${@:-}" ]; then
-    exec "$@"
+    /bin/bash -c "$@"
     exit $?
 fi
 
