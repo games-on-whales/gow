@@ -7,6 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     wget p7zip-full \
     retroarch \
+    libvulkan1 \
+    mesa-vulkan-drivers \
     libretro* \
 "
 
