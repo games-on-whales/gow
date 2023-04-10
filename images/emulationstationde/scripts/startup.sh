@@ -12,7 +12,7 @@ mkdir -p "$CFG_DIR/cores/"
 
 cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
-# Copy pre-installed cores from the retroarch ppa
+# if there are no cores, copy from the retroarch ppa
 # shellcheck disable=SC2046
 cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"
 
@@ -23,4 +23,26 @@ if [ ! -d "$CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-exec /usr/bin/emulationstation
+gow_log "Installing AppImage Emulators"
+mkdir -p /home/retro/Applications
+chown ${UNAME}:${UNAME} /home/retro/Applications
+cp -u /tmp/yuzu-emu.AppImage /home/retro/Applications/yuzu-emu.AppImage
+chmod a+x /home/retro/Applications/yuzu-emu.AppImage	
+cp -u /tmp/rpcs3-emu.AppImage /home/retro/Applications/rpcs3-emu.AppImage
+chmod a+x /home/retro/Applications/rpcs3-emu.AppImage
+
+gow_log "Installing Winetricks"
+winetricks d3dx9
+
+gow_log "Launching with Gamescope"
+chown ${UNAME}:${UNAME} /usr/games/gamescope
+
+if [ -n "$RUN_GAMESCOPE" ]; then
+  GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
+  GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
+  GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
+  GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
+  /usr/games/gamescope ${GAMESCOPE_MODE} -W ${GAMESCOPE_WIDTH} -H ${GAMESCOPE_HEIGHT} -r ${GAMESCOPE_REFRESH} -- /usr/bin/emulationstation
+else
+ exec /usr/bin/emulationstation
+fi
