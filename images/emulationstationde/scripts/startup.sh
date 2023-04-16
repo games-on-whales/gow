@@ -3,7 +3,7 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
-gow_log "Starting EmulationStation-DE"
+gow_log "Starting Application"
 
 CFG_DIR=$HOME/.config/retroarch
 
@@ -31,6 +31,10 @@ chmod a+x /home/retro/Applications/yuzu-emu.AppImage
 cp -u /tmp/rpcs3-emu.AppImage /home/retro/Applications/rpcs3-emu.AppImage
 chmod a+x /home/retro/Applications/rpcs3-emu.AppImage
 
+gow_log "777 permissions on necessary folder"
+mkdir -p /home/retro/.local/share/yuzu/keys/
+chmod 777 /home/retro/.local/share/yuzu/keys/
+
 gow_log "Installing Winetricks"
 winetricks d3dx9
 
@@ -42,7 +46,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
   GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
-  /usr/games/gamescope ${GAMESCOPE_MODE} -W ${GAMESCOPE_WIDTH} -H ${GAMESCOPE_HEIGHT} -r ${GAMESCOPE_REFRESH} -- /usr/bin/emulationstation
+  /usr/games/gamescope ${GAMESCOPE_MODE} -W ${GAMESCOPE_WIDTH} -H ${GAMESCOPE_HEIGHT} -r ${GAMESCOPE_REFRESH} -- /opt/gow/startup-es.sh
 else
  exec /usr/bin/emulationstation
 fi
