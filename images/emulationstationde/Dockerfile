@@ -83,6 +83,7 @@ RUN \
         
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
