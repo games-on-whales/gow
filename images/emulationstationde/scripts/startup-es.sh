@@ -7,4 +7,4 @@ export DISPLAY=:0
 xhost +
 
 gow_log "Launching EmulationStation-DE"
-exec /usr/bin/emulationstation --no-update-check --gamelist-only
+exec /usr/bin/emulationstation

@@ -12,6 +12,20 @@ mkdir -p "$CFG_DIR/cores/"
 
 cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
+gow_log "Copying custom config - es_systems.xml"
+mkdir -p /home/retro/.emulationstation/custom_systems
+cp -u /cfg/es_systems.xml /home/retro/.emulationstation/custom_systems
+
+gow_log "Copying custom laucnh scripts for emulators"
+mkdir -p /home/retro/.emulationstation/custom_scripts
+cp -u /cfg/retroarch.sh /home/retro/.emulationstation/custom_scripts/Launch_Retroarch.sh
+cp -u /cfg/rpcs3.sh /home/retro/.emulationstation/custom_scripts/Launch_rpcs3.sh
+cp -u /cfg/yuzu.sh /home/retro/.emulationstation/custom_scripts/Launch_yuzu.sh
+cp -u /cfg/pcsx2.sh /home/retro/.emulationstation/custom_scripts/Launch_pcsx2.sh
+cp -u /cfg/xemu.sh /home/retro/.emulationstation/custom_scripts/Launch_xemu.sh
+
+
+
 # if there are no cores, copy from the retroarch ppa
 # shellcheck disable=SC2046
 cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"

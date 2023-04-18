@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- This is the ES-DE game systems configuration file for Unix -->
+<systemList>
+    <system>
+        <name>Custom Scripts</name>
+        <fullname>Custom Scripts</fullname>
+        <path>/home/retro/.emulationstation/custom_scripts</path>
+        <extension>.desktop .sh</extension>
+        <command label="Various">%ENABLESHORTCUTS% %EMULATOR_OS-SHELL% %ROM%</command>
+        <platform>pc, pcwindows</platform>
+        <theme>ports</theme>
+    </system>
+</systemList>

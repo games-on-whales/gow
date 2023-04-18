@@ -7,9 +7,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install prereqs
 RUN \
-    echo "**** Install Prereqs ****" && \
+    echo "**** Install Prereqs and latest Mesa ****" && \
 		apt-get update && \
 		apt-get install -y --no-install-recommends software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers fuse libfuse2 && \
+		add-apt-repository ppa:kisak/kisak-mesa && \
+		apt-get update && \
+		apt-get install -y mesa* && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -68,7 +71,7 @@ RUN \
     echo "**** Downloading YUZU ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1373/yuzu-mainline-20230315-6d76a54d3.AppImage
+        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1404/yuzu-mainline-20230414-e0895a858.AppImage
 
 # Install WINE
 RUN \
@@ -80,8 +83,15 @@ RUN \
 		apt-get remove -y software-properties-common gpg-agent && \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
-        
+
+
+COPY configs/es_systems.xml /cfg/es_systems.xml        
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
+COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
+COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
+COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/yuzu.sh
+COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/xemu.sh
+COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/pcsx2.sh       
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 
