@@ -22,10 +22,10 @@ mkdir -p /home/retro/.emulationstation/custom_scripts
 chown ${UNAME}:${UNAME} /home/retro/.emulationstation/custom_scripts
 cp -u /cfg/retroarch.sh /home/retro/.emulationstation/custom_scripts/Launch_Retroarch.sh
 cp -u /cfg/rpcs3.sh /home/retro/.emulationstation/custom_scripts/Launch_rpcs3.sh
+cp -u /cfg/!Install_RPCS3_Firmware.sh /home/retro/.emulationstation/custom_scripts/!Install_RPCS3_Firmware.sh
 cp -u /cfg/yuzu.sh /home/retro/.emulationstation/custom_scripts/Launch_yuzu.sh
 cp -u /cfg/pcsx2.sh /home/retro/.emulationstation/custom_scripts/Launch_pcsx2.sh
 cp -u /cfg/xemu.sh /home/retro/.emulationstation/custom_scripts/Launch_xemu.sh
-
 
 
 # if there are no cores, copy from the retroarch ppa
@@ -50,9 +50,6 @@ chmod a+x /home/retro/Applications/rpcs3-emu.AppImage
 gow_log "777 permissions on necessary folder"
 mkdir -p /home/retro/.local/share/yuzu/keys/
 chmod 777 /home/retro/.local/share/yuzu/keys/
-
-gow_log "Installing Winetricks"
-winetricks d3dx9
 
 gow_log "Launching with Gamescope"
 chown ${UNAME}:${UNAME} /usr/games/gamescope

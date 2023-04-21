@@ -9,10 +9,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN \
     echo "**** Install Prereqs and latest Mesa ****" && \
 		apt-get update && \
-		apt-get install -y --no-install-recommends software-properties-common gpg-agent wget p7zip-full libvulkan1 build-essential libfontconfig1 libglu1-mesa-dev fuse libfuse2 qtbase5-dev qt5-qmake ffmpeg libsdl2* autoconf cmake g++-11 gcc-11 git glslang-tools libasound2 libboost-context-dev libglu1-mesa-dev libhidapi-dev libpulse-dev libtool libudev-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxext-dev libxkbcommon-x11-0 nasm ninja-build qtbase5-private-dev qtwebengine5-dev qtmultimedia5-dev libmbedtls-dev catch2 libfmt-dev liblz4-dev nlohmann-json3-dev libzstd-dev libssl-dev libavfilter-dev libavcodec-dev libswscale-dev xserver-xorg-input-evdev && \
+		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev fuse libfuse2 qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils && \
 		add-apt-repository ppa:kisak/kisak-mesa && \
 		apt-get update && \
-		apt-get install -y mesa* && \
+		apt-get upgrade -y && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -74,21 +74,22 @@ RUN \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1404/yuzu-mainline-20230414-e0895a858.AppImage
 
 # Install WINE
-RUN \
-    echo "**** Install WINE ****" && \
-		dpkg --add-architecture i386 && \
-		apt-get update && \
-		apt-get install -y wine32 wine64 winetricks && \
-    # Cleanup \
-		apt-get remove -y software-properties-common gpg-agent && \
-		apt-get autoremove -y && \
-		rm -rf /var/lib/apt/lists/*
+#RUN \
+#    echo "**** Install WINE ****" && \
+#		dpkg --add-architecture i386 && \
+#		apt-get update && \
+#		apt-get install -y wine32 wine64 winetricks && \
+#    # Cleanup \
+#		apt-get remove -y software-properties-common gpg-agent && \
+#		apt-get autoremove -y && \
+#		rm -rf /var/lib/apt/lists/*
 
 
 COPY configs/es_systems.xml /cfg/es_systems.xml        
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
 COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
+COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh
 COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/yuzu.sh
 COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/xemu.sh
 COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/pcsx2.sh       
