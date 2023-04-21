@@ -14,10 +14,12 @@ cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
 gow_log "Copying custom config - es_systems.xml"
 mkdir -p /home/retro/.emulationstation/custom_systems
+chown ${UNAME}:${UNAME} /home/retro/.emulationstation/custom_systems
 cp -u /cfg/es_systems.xml /home/retro/.emulationstation/custom_systems
 
 gow_log "Copying custom laucnh scripts for emulators"
 mkdir -p /home/retro/.emulationstation/custom_scripts
+chown ${UNAME}:${UNAME} /home/retro/.emulationstation/custom_scripts
 cp -u /cfg/retroarch.sh /home/retro/.emulationstation/custom_scripts/Launch_Retroarch.sh
 cp -u /cfg/rpcs3.sh /home/retro/.emulationstation/custom_scripts/Launch_rpcs3.sh
 cp -u /cfg/yuzu.sh /home/retro/.emulationstation/custom_scripts/Launch_yuzu.sh
