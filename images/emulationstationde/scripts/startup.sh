@@ -10,14 +10,21 @@ CFG_DIR=$HOME/.config/retroarch
 # Copying config in case it's the first time we mount from the host
 mkdir -p "$CFG_DIR/cores/"
 
+gow_log "Copying custom config - retroarch.cfg, if not edited"
 cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
-gow_log "Copying custom config - es_systems.xml"
+gow_log "Copying custom config - ES-DE Custom Scripts Platform, if not edited"
 mkdir -p /home/retro/.emulationstation/custom_systems
 chown ${UNAME}:${UNAME} /home/retro/.emulationstation/custom_systems
 cp -u /cfg/es_systems.xml /home/retro/.emulationstation/custom_systems
 
-gow_log "Copying custom laucnh scripts for emulators"
+gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf, if not edited"
+cp -u /cfg/rpcs3/Default.yml /home/retro/.config/rpcs3/input_configs/global/Default.yml
+
+gow_log "Copying custom config - PCSX2 settings, if not edited"
+cp -u /cfg/pcsx2/PCSX2.ini /home/retro/.config/PCSX2/inis/PCSX2.ini
+
+gow_log "Copying custom launch scripts for emulators"
 mkdir -p /home/retro/.emulationstation/custom_scripts
 chown ${UNAME}:${UNAME} /home/retro/.emulationstation/custom_scripts
 cp -u /cfg/retroarch.sh /home/retro/.emulationstation/custom_scripts/Launch_Retroarch.sh
