@@ -14,10 +14,9 @@ ES_CFG_DIR=$HOME/.emulationstation
 BIOSES_DIR=$HOME/bioses
 ROMS_DIR=$HOME/ROMs
 
-# Copying config in case it's the first time we mount from the host
-mkdir -p "$RA_CFG_DIR/cores/"
 
 gow_log "Copying custom config - retroarch.cfg, if not edited"
+mkdir -p "$RA_CFG_DIR/cores/"
 cp -u /cfg/retroarch.cfg "$RA_CFG_DIR/retroarch.cfg"
 
 gow_log "Copying custom config - ES-DE Custom Scripts Platform, if not edited"
@@ -56,13 +55,12 @@ cp -u /cfg/yuzu.sh $ES_CFG_DIR/custom_scripts/Launch_yuzu.sh
 cp -u /cfg/pcsx2.sh $ES_CFG_DIR/custom_scripts/Launch_pcsx2.sh
 cp -u /cfg/xemu.sh $ES_CFG_DIR/custom_scripts/Launch_xemu.sh
 
-# if there are no cores, copy from the retroarch ppa
-# shellcheck disable=SC2046
+gow_log "Checking RA Cores presence, if none - install them from PPA"
 cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$RA_CFG_DIR/cores/"
 
-# if there are no assets, manually download them
+gow_log "Checking RA Assets presence, if none - install them"
 if [ ! -d "$RA_CFG_DIR/assets" ]; then
-    wget -q --show-progress -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
+    wget -q -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
     7z x /tmp/assets.zip -bso0 -bse0 -bsp1 -o"$RA_CFG_DIR/assets"
     rm /tmp/assets.zip
 fi
