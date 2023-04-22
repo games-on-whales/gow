@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
-TIMESTAMP=$(date +%Y-%m-%d' '%H:%M:%S)
+source /opt/gow/bash-lib/utils.sh
+
+gow_log "Starting XEMU with DISPLAY=${DISPLAY}"
 
 xemu

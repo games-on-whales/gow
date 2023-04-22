@@ -9,7 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN \
     echo "**** Install Prereqs and latest Mesa ****" && \
 		apt-get update && \
-		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev fuse libfuse2 qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils && \
+		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev fuse libfuse2 qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 && \
 		add-apt-repository ppa:kisak/kisak-mesa && \
 		apt-get update && \
 		apt-get upgrade -y && \
@@ -73,6 +73,20 @@ RUN \
         cd /tmp && \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1404/yuzu-mainline-20230414-e0895a858.AppImage
 
+# Install Steam
+RUN \
+    echo "**** Install Steam ****" && \
+		apt-get update && \
+		apt-get install -y --no-install-recommends software-properties-common && \
+		dpkg --add-architecture i386 && \
+		add-apt-repository multiverse && \
+		apt-get update && \
+		apt-get install -y --no-install-recommends steam libvulkan1 libvulkan1:i386 mesa-vulkan-drivers mesa-vulkan-drivers:i386 && \
+	# Cleanup \
+	    apt-get remove -y software-properties-common && \
+		apt-get autoremove -y && \
+		rm -rf /var/lib/apt/lists/*
+
 # Install WINE
 #RUN \
 #    echo "**** Install WINE ****" && \
@@ -96,7 +110,8 @@ COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
 COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh
 COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/yuzu.sh
 COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/xemu.sh
-COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/pcsx2.sh       
+COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/pcsx2.sh
+COPY --chmod=777 scripts/custom_scripts/steam.sh  /cfg/steam.sh       
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 

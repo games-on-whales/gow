@@ -9,4 +9,4 @@ gow_log "Configure xhost for all hosts"
 xhost +
 
 gow_log "Launching EmulationStation-DE"
-exec /usr/bin/emulationstation
+exec /usr/bin/emulationstation --no-update-check
