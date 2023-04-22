@@ -1,0 +1,15 @@
+[general]
+show_welcome = false
+
+[input.bindings]
+port1 = '030000005e040000d102000000ab0000'
+port2 = '030000005e040000d102000000ab0000'
+port3 = '030000005e040000d102000000ab0000'
+port4 = '030000005e040000d102000000ab0000'
+
+[sys.files]
+bootrom_path = '/home/retro/bioses/mcpx_1.0.bin'
+flashrom_path = '/home/retro/bioses/Complex_4627.bin'
+eeprom_path = '/home/retro/.local/share/xemu/xemu/eeprom.bin'
+hdd_path = '/home/retro/bioses/xbox_hdd.qcow2'
+

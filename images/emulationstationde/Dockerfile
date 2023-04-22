@@ -89,6 +89,7 @@ COPY configs/es_systems.xml /cfg/es_systems.xml
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY configs/rpcs3/Default.yml /cfg/rpcs3/Default.yml
 COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
+COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
 COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
 COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
 COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh
