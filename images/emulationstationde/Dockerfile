@@ -105,6 +105,7 @@ COPY configs/rpcs3/Default.yml /cfg/rpcs3/Default.yml
 COPY configs/rpcs3/CurrentSettings.ini /cfg/rpcs3/CurrentSettings.ini
 COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
 COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
+COPY configs/yuzu/qt-config.ini /cfg/yuzu/qt-config.ini
 COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
 COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
 COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh
@@ -115,7 +116,7 @@ COPY --chmod=777 scripts/custom_scripts/steam.sh  /cfg/steam.sh
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 
-ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
+ENV XDG_RUNTIME_DIR=/tmp/sockets
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE
