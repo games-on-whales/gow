@@ -26,17 +26,21 @@ chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_systems
 cp -u /cfg/es_systems.xml $ES_CFG_DIR/custom_systems
 
 gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf, if not edited"
+mkdir -p $RPCS3_CFG_DIR/input_configs/global/
 cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
 
 gow_log "Copying custom config - PCSX2 settings, if not edited"
+mkdir -p $PCSX2_CFG_DIR/inis/
 cp -u /cfg/pcsx2/PCSX2.ini $PCSX2_CFG_DIR/inis/PCSX2.ini
 
 gow_log "Copying custom config - XEMU settings, if not edited"
+mkdir -p $XEMU_CFG_DIR/xemu/
 cp -u /cfg/xemu/xemu.toml $XEMU_CFG_DIR/xemu/xemu.toml
 
 gow_log "Copying keys for YUZU if they are present or newer"
 if test -f $HOME/bioses/prod.keys; then
     gow_log "YUZU keys are present, copy them to YUZU folder"
+	mkdir -p $YUZU_CFG_DIR/keys/
     cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
 fi
 
@@ -68,10 +72,6 @@ cp -u /tmp/yuzu-emu.AppImage $HOME/Applications/yuzu-emu.AppImage
 chmod a+x $HOME/Applications/yuzu-emu.AppImage	
 cp -u /tmp/rpcs3-emu.AppImage $HOME/Applications/rpcs3-emu.AppImage
 chmod a+x $HOME/Applications/rpcs3-emu.AppImage
-
-gow_log "777 permissions on necessary folder"
-mkdir -p $YUZU_CFG_DIR/keys/
-chmod 777 $YUZU_CFG_DIR/keys/
 
 gow_log "Launching with Gamescope"
 chown ${UNAME}:${UNAME} /usr/games/gamescope
