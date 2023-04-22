@@ -1,0 +1,31 @@
+"""
+[[apps]]
+title = "EmulationStation"
+start_virtual_compositor = true
+
+[apps.runner]
+type = "docker"
+name = "WolfEmulationStation"
+image = "docker.io/library/wolfemulationstation:latest"
+mounts = [
+"/run/udev:/run/udev:ro","${LOCAL_STATE}:/home/retro:rw",
+"${ROMS_DIRECTORY}:/home/retro/ROMs:ro",
+"${BIOS_DIRECTORY}:/home/retro/bioses:ro",
+]
+env = [
+"RUN_GAMESCOPE=true","ENABLE_VKBASALT=1",
+"GOW_REQUIRED_DEVICES=/dev/uinput /dev/input/event* /dev/dri/* /dev/nvidia*",
+]
+devices = []
+ports = []
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["SYS_ADMIN", "SYS_NICE"],
+    "Privileged": true,
+    "CpusetCpus": "3,0"
+  }
+}
+\
+"""
