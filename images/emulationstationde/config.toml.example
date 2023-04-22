@@ -10,7 +10,7 @@ image = "docker.io/library/wolfemulationstation:latest"
 mounts = [
 "/run/udev:/run/udev:ro","${LOCAL_STATE}:/home/retro:rw",
 "${ROMS_DIRECTORY}:/home/retro/ROMs:ro",
-"${BIOS_DIRECTORY}:/home/retro/bioses:ro",
+"${BIOS_DIRECTORY}:/home/retro/bioses:rw",
 ]
 env = [
 "RUN_GAMESCOPE=true","ENABLE_VKBASALT=1",
