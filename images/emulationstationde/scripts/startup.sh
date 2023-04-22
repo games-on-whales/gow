@@ -25,9 +25,11 @@ mkdir -p $ES_CFG_DIR/custom_systems
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_systems
 cp -u /cfg/es_systems.xml $ES_CFG_DIR/custom_systems
 
-gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf, if not edited"
+gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf and disable Auto-Update pop-up, if not edited"
 mkdir -p $RPCS3_CFG_DIR/input_configs/global/
 cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
+mkdir -p $RPCS3_CFG_DIR/GuiConfigs
+cp -u /cfg/rpcs3/CurrentSettings.ini $RPCS3_CFG_DIR/GuiConfigs/CurrentSettings.ini
 
 gow_log "Copying custom config - PCSX2 settings, if not edited"
 mkdir -p $PCSX2_CFG_DIR/inis/

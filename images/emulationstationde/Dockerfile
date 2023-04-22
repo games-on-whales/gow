@@ -85,9 +85,10 @@ RUN \
 #		rm -rf /var/lib/apt/lists/*
 
 
-COPY configs/es_systems.xml /cfg/es_systems.xml        
-COPY configs/retroarch.cfg /cfg/retroarch.cfg
+COPY configs/es/es_systems.xml /cfg/es_systems.xml        
+COPY configs/retroarch/retroarch.cfg /cfg/retroarch.cfg
 COPY configs/rpcs3/Default.yml /cfg/rpcs3/Default.yml
+COPY configs/rpcs3/CurrentSettings.ini /cfg/rpcs3/CurrentSettings.ini
 COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
 COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
 COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
