@@ -88,15 +88,23 @@ RUN \
 		rm -rf /var/lib/apt/lists/*
 
 # Install WINE
-#RUN \
-#    echo "**** Install WINE ****" && \
-#		dpkg --add-architecture i386 && \
-#		apt-get update && \
-#		apt-get install -y wine32 wine64 winetricks && \
-#    # Cleanup \
-#		apt-get remove -y software-properties-common gpg-agent && \
-#		apt-get autoremove -y && \
-#		rm -rf /var/lib/apt/lists/*
+RUN \
+    echo "**** Install WINE and Winetricks ****" && \
+		dpkg --add-architecture i386 && \
+		apt-get update && \
+		mkdir -pm755 /etc/apt/keyrings && \
+		apt-get install -y --no-install-recommends software-properties-common && \
+		wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key && \
+		wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources && \
+		apt-get update && \
+		apt-get install -y winehq-stable cabextract && \
+		wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
+		chmod +x winetricks && \
+		mv -v winetricks /usr/local/bin && \
+    # Cleanup \
+		apt-get remove -y software-properties-common gpg-agent && \
+		apt-get autoremove -y && \
+		rm -rf /var/lib/apt/lists/*
 
 
 COPY configs/es/es_systems.xml /cfg/es_systems.xml        
@@ -106,6 +114,7 @@ COPY configs/rpcs3/CurrentSettings.ini /cfg/rpcs3/CurrentSettings.ini
 COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
 COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
 COPY configs/yuzu/qt-config.ini /cfg/yuzu/qt-config.ini
+COPY --chmod=777 scripts/custom_scripts/winecfg.sh /cfg/winecfg.sh
 COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
 COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
 COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh

@@ -54,6 +54,7 @@ gow_log "Copying custom launch scripts for emulators"
 mkdir -p $ES_CFG_DIR/custom_scripts
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_scripts
 cp -u /cfg/retroarch.sh $ES_CFG_DIR/custom_scripts/Launch_Retroarch.sh
+cp -u /cfg/winecfg.sh $ES_CFG_DIR/custom_scripts/Launch_Winecfg.sh
 cp -u /cfg/rpcs3.sh $ES_CFG_DIR/custom_scripts/Launch_rpcs3.sh
 cp -u /cfg/!Install_RPCS3_Firmware.sh $ES_CFG_DIR/custom_scripts/!Install_RPCS3_Firmware.sh
 cp -u /cfg/yuzu.sh $ES_CFG_DIR/custom_scripts/Launch_yuzu.sh
