@@ -3,7 +3,7 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
-gow_log "Starting Application"
+gow_log "Starting Application preparation"
 
 RA_CFG_DIR=$HOME/.config/retroarch
 RPCS3_CFG_DIR=$HOME/.config/rpcs3
@@ -14,6 +14,7 @@ PCSX2_CFG_DIR=$HOME/.config/PCSX2
 ES_CFG_DIR=$HOME/.emulationstation
 BIOSES_DIR=$HOME/bioses
 ROMS_DIR=$HOME/ROMs
+APP_DIR=$HOME/Applications
 
 
 gow_log "Copying custom config - retroarch.cfg, if not edited"
@@ -50,7 +51,7 @@ mkdir -p $YUZU_CFG_DIR2
 cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 
 
-gow_log "Copying custom launch scripts for emulators"
+gow_log "Copying custom launch scripts for emulators, if not edited"
 mkdir -p $ES_CFG_DIR/custom_scripts
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_scripts
 cp -u /cfg/retroarch.sh $ES_CFG_DIR/custom_scripts/Launch_Retroarch.sh
@@ -72,13 +73,16 @@ if [ ! -d "$RA_CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-gow_log "Installing AppImage Emulators"
-mkdir -p $HOME/Applications
-chown ${UNAME}:${UNAME} $HOME/Applications
-cp -u /tmp/yuzu-emu.AppImage $HOME/Applications/yuzu-emu.AppImage
-chmod a+x $HOME/Applications/yuzu-emu.AppImage	
-cp -u /tmp/rpcs3-emu.AppImage $HOME/Applications/rpcs3-emu.AppImage
-chmod a+x $HOME/Applications/rpcs3-emu.AppImage
+gow_log "Symlinking AppImage Emulators in /Applications"
+rm -rf $APP_DIR
+ln -sf /Applications $HOME
+
+# mkdir -p $HOME/Applications
+# chown ${UNAME}:${UNAME} $APP_DIR
+# cp -u /tmp/yuzu-emu.AppImage $HOME/Applications/yuzu-emu.AppImage
+# chmod a+x $HOME/Applications/yuzu-emu.AppImage	
+# cp -u /tmp/rpcs3-emu.AppImage $HOME/Applications/rpcs3-emu.AppImage
+# chmod a+x $HOME/Applications/rpcs3-emu.AppImage
 
 gow_log "Launching with Gamescope"
 chown ${UNAME}:${UNAME} /usr/games/gamescope

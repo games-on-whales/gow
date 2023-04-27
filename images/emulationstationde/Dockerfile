@@ -106,6 +106,14 @@ RUN \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 
+RUN \
+    echo "**** Permissions on Appimages ****" && \
+        mkdir -p /Applications && \
+		mv /tmp/*.AppImage /Applications && \
+        chmod 777 /Applications/rpcs3-emu.AppImage && \
+        chmod 777 /Applications/yuzu-emu.AppImage && \
+		chmod a+x /Applications/yuzu-emu.AppImage && \
+		chmod a+x /Applications/rpcs3-emu.AppImage
 
 COPY configs/es/es_systems.xml /cfg/es_systems.xml        
 COPY configs/retroarch/retroarch.cfg /cfg/retroarch.cfg
