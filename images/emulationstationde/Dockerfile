@@ -109,27 +109,27 @@ RUN \
 RUN \
     echo "**** Permissions on Appimages ****" && \
         mkdir -p /Applications && \
-		mv /tmp/*.AppImage /Applications && \
+        mv /tmp/*.AppImage /Applications && \
         chmod 777 /Applications/rpcs3-emu.AppImage && \
         chmod 777 /Applications/yuzu-emu.AppImage && \
-		chmod a+x /Applications/yuzu-emu.AppImage && \
-		chmod a+x /Applications/rpcs3-emu.AppImage
+        chmod a+x /Applications/yuzu-emu.AppImage && \
+        chmod a+x /Applications/rpcs3-emu.AppImage
 
-COPY configs/es/es_systems.xml /cfg/es_systems.xml        
-COPY configs/retroarch/retroarch.cfg /cfg/retroarch.cfg
+COPY configs/es/es_systems.xml /cfg/es/es_systems.xml        
+COPY configs/retroarch/retroarch.cfg /cfg/retroarch/retroarch.cfg
 COPY configs/rpcs3/Default.yml /cfg/rpcs3/Default.yml
 COPY configs/rpcs3/CurrentSettings.ini /cfg/rpcs3/CurrentSettings.ini
 COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
 COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
 COPY configs/yuzu/qt-config.ini /cfg/yuzu/qt-config.ini
-COPY --chmod=777 scripts/custom_scripts/winecfg.sh /cfg/winecfg.sh
-COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/retroarch.sh
-COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/rpcs3.sh
-COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/!Install_RPCS3_Firmware.sh
-COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/yuzu.sh
-COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/xemu.sh
-COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/pcsx2.sh
-COPY --chmod=777 scripts/custom_scripts/steam.sh  /cfg/steam.sh       
+COPY --chmod=777 scripts/custom_scripts/winecfg.sh /cfg/custom_scripts/winecfg.sh
+COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/custom_scripts/retroarch.sh
+COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/custom_scripts/rpcs3.sh
+COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/custom_scripts/!Install_RPCS3_Firmware.sh
+COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/custom_scripts/yuzu.sh
+COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/custom_scripts/xemu.sh
+COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/custom_scripts/pcsx2.sh
+COPY --chmod=777 scripts/custom_scripts/steam.sh  /cfg/custom_scripts/steam.sh       
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 
