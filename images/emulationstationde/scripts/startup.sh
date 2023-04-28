@@ -40,12 +40,20 @@ gow_log "Copying custom config - XEMU settings, if not edited"
 mkdir -p $XEMU_CFG_DIR/xemu/
 cp -u /cfg/xemu/xemu.toml $XEMU_CFG_DIR/xemu/xemu.toml
 
-gow_log "Copying keys for YUZU if they are present or newer"
+gow_log "Copying hdd for XEMU if it is present in bioses or newer"
+if test -f $HOME/bioses/xbox_hdd.qcow2; then
+    gow_log "XEMU hdd is present, copy it to XEMU folder"
+	mkdir -p $XEMU_CFG_DIR/xemu/
+    cp -u $HOME/bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
+fi
+
+gow_log "Copying keys for YUZU if it is present in bioses or newer"
 if test -f $HOME/bioses/prod.keys; then
     gow_log "YUZU keys are present, copy them to YUZU folder"
 	mkdir -p $YUZU_CFG_DIR/keys/
     cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
 fi
+
 gow_log "Copying custom config - YUZU QT settings, if not edited"
 mkdir -p $YUZU_CFG_DIR2
 cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
