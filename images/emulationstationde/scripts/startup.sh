@@ -74,8 +74,7 @@ if [ ! -d "$RA_CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-gow_log "Symlinking AppImage Emulators in /Applications"
-rm -rf $APP_DIR
+gow_log "Symlinking AppImage Emulators in /Applications for User"
 ln -sf /Applications $HOME
 
 # mkdir -p $HOME/Applications
