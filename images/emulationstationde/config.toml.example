@@ -8,7 +8,7 @@ type = "docker"
 name = "WolfEmulationStation"
 image = "docker.io/library/wolfemulationstation:latest"
 mounts = [
-"/run/udev:/run/udev:ro","${LOCAL_STATE}:/home/retro:rw",
+"/run/udev:/run/udev:ro","${LOCAL_STATE}:/home:rw",
 "${ROMS_DIRECTORY}:/ROMs:ro",
 "${BIOS_DIRECTORY}:/bioses:ro",
 "${MEDIA_DIRECTORY}:/media:rw",
