@@ -24,9 +24,13 @@ services:
       # Pulse socket, audio
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: retroarch games, downloads, cores etc
-      - ${local_state}/:/home/retro/
+      - ${LOCAL_STATE}/:/home:rw
       # Emulationstation default roms directory
-      - ${game_roms}/:/home/retro/ROMs/
+      - ${ROMS_DIRECTORY}/:/ROMs:ro
+      # Directrory with bioses
+      - ${BIOS_DIRECTORY}:/bioses:ro
+      # Emulationstation media directory
+      - ${MEDIA_DIRECTORY}:/media:rw
       # some emulators need more than 64 MB of shared memory - see https://github.com/libretro/dolphin/issues/222
       # TODO: why shm_size doesn't work ??????
       - type: tmpfs
