@@ -74,17 +74,16 @@ if [ ! -d "$RA_CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-gow_log "Symlinking AppImage Emulators in /Applications for User"
+gow_log "Symlinking AppImage Emulators from /Applications"
 ln -sf /Applications $HOME
 
-# mkdir -p $HOME/Applications
-# chown ${UNAME}:${UNAME} $APP_DIR
-# cp -u /tmp/yuzu-emu.AppImage $HOME/Applications/yuzu-emu.AppImage
-# chmod a+x $HOME/Applications/yuzu-emu.AppImage	
-# cp -u /tmp/rpcs3-emu.AppImage $HOME/Applications/rpcs3-emu.AppImage
-# chmod a+x $HOME/Applications/rpcs3-emu.AppImage
+gow_log "Symlinking Bioses from /Bioses"
+ln -sf /bioses $HOME
 
-gow_log "Launching with Gamescope"
+gow_log "Symlinking Roms from /ROMs"
+ln -sf /ROMs $HOME
+
+gow_log "Starting up Gamescope"
 chown ${UNAME}:${UNAME} /usr/games/gamescope
 
 if [ -n "$RUN_GAMESCOPE" ]; then

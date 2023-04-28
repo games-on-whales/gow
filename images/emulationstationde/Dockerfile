@@ -107,13 +107,28 @@ RUN \
 		rm -rf /var/lib/apt/lists/*
 
 RUN \
-    echo "**** Permissions on Appimages ****" && \
+    echo "**** Preparing /Applications for symlinking ****" && \
         mkdir -p /Applications && \
         mv /tmp/*.AppImage /Applications && \
         chmod 777 /Applications/rpcs3-emu.AppImage && \
         chmod 777 /Applications/yuzu-emu.AppImage && \
         chmod a+x /Applications/yuzu-emu.AppImage && \
         chmod a+x /Applications/rpcs3-emu.AppImage
+		
+RUN \
+    echo "**** Preparing /downloaded_media for symlinking ****" && \
+        mkdir -p /downloaded_media && \
+	    chmod 777 /downloaded_media
+		
+RUN \
+    echo "**** Preparing /bioses for symlinking ****" && \
+        mkdir -p /bioses && \
+		chmod 777 /bioses
+
+RUN \
+    echo "**** Preparing /ROMs for symlinking ****" && \
+        mkdir -p /ROMs && \
+		chmod 777 /ROMs
 
 COPY configs/es/es_systems.xml /cfg/es/es_systems.xml        
 COPY configs/retroarch/retroarch.cfg /cfg/retroarch/retroarch.cfg
