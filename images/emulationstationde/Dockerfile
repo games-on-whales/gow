@@ -21,7 +21,7 @@ RUN \
 RUN \
     echo "**** Install ESDE ****" && \
 	    apt-get update && \
-        wget -O /tmp/esde.deb https://gitlab.com/es-de/emulationstation-de/-/package_files/71412450/download && \
+        wget -O /tmp/esde.deb https://gitlab.com/es-de/emulationstation-de/-/package_files/76389040/download && \
         apt install -y /tmp/esde.deb && \
 		rm /tmp/esde.deb && \
     # Cleanup \
@@ -34,7 +34,8 @@ RUN \
 		apt-get update && \
 		apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
 		add-apt-repository ppa:libretro/stable && \
-		apt-get install -y retroarch libretro*  && \
+		apt-get update && \
+		apt-get install -y retroarch && \
     # Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -117,18 +118,15 @@ RUN \
 		
 RUN \
     echo "**** Preparing /media for EmulationStation ****" && \
-        mkdir -p /media && \
-	    chmod 777 /media
+        mkdir -pm777 /media
 		
 RUN \
     echo "**** Preparing /bioses for symlinking ****" && \
-        mkdir -p /bioses && \
-		chmod 777 /bioses
+        mkdir -pm755 /bioses
 
 RUN \
     echo "**** Preparing /ROMs for symlinking ****" && \
-        mkdir -p /ROMs && \
-		chmod 777 /ROMs
+        mkdir -pm755 /ROMs
 
 COPY configs/es/es_systems.xml /cfg/es/es_systems.xml        
 COPY configs/retroarch/retroarch.cfg /cfg/retroarch/retroarch.cfg

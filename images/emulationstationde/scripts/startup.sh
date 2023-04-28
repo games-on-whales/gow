@@ -73,9 +73,6 @@ cp -u /cfg/custom_scripts/pcsx2.sh $ES_CFG_DIR/custom_scripts/Launch_pcsx2.sh
 cp -u /cfg/custom_scripts/xemu.sh $ES_CFG_DIR/custom_scripts/Launch_xemu.sh
 cp -u /cfg/custom_scripts/steam.sh $ES_CFG_DIR/custom_scripts/Launch_Steam.sh
 
-gow_log "Checking RA Cores presence, if none - install them from PPA"
-cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$RA_CFG_DIR/cores/"
-
 gow_log "Checking RA Assets presence, if none - install them"
 if [ ! -d "$RA_CFG_DIR/assets" ]; then
     gow_log "No assets found, starting install"
