@@ -116,9 +116,9 @@ RUN \
         chmod a+x /Applications/rpcs3-emu.AppImage
 		
 RUN \
-    echo "**** Preparing /downloaded_media for symlinking ****" && \
-        mkdir -p /downloaded_media && \
-	    chmod 777 /downloaded_media
+    echo "**** Preparing /media for EmulationStation ****" && \
+        mkdir -p /media && \
+	    chmod 777 /media
 		
 RUN \
     echo "**** Preparing /bioses for symlinking ****" && \

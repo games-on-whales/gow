@@ -58,6 +58,8 @@ gow_log "Copying custom config - YUZU QT settings, if not edited"
 mkdir -p $YUZU_CFG_DIR2
 cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 
+gow_log "Change media directory for EmulationStation to /media"
+sed -i 's/<string name="MediaDirectory" value="" \/>/<string name="MediaDirectory" value="\/media" \/>/g' $ES_CFG_DIR/es_settings.xml
 
 gow_log "Copying custom launch scripts for emulators, if not edited"
 mkdir -p $ES_CFG_DIR/custom_scripts
