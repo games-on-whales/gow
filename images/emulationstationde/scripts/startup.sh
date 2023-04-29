@@ -61,17 +61,10 @@ cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 gow_log "Change media directory for EmulationStation to /media"
 sed -i 's/<string name="MediaDirectory" value="" \/>/<string name="MediaDirectory" value="\/media" \/>/g' $ES_CFG_DIR/es_settings.xml
 
-gow_log "Copying custom launch scripts for emulators, if not edited"
+gow_log "Copying custom launch scripts for emulators and programs, if not edited"
 mkdir -p $ES_CFG_DIR/custom_scripts
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_scripts
-cp -u /cfg/custom_scripts/retroarch.sh $ES_CFG_DIR/custom_scripts/Launch_Retroarch.sh
-cp -u /cfg/custom_scripts/winecfg.sh $ES_CFG_DIR/custom_scripts/Launch_Winecfg.sh
-cp -u /cfg/custom_scripts/rpcs3.sh $ES_CFG_DIR/custom_scripts/Launch_rpcs3.sh
-cp -u /cfg/custom_scripts/!Install_RPCS3_Firmware.sh $ES_CFG_DIR/custom_scripts/!Install_RPCS3_Firmware.sh
-cp -u /cfg/custom_scripts/yuzu.sh $ES_CFG_DIR/custom_scripts/Launch_yuzu.sh
-cp -u /cfg/custom_scripts/pcsx2.sh $ES_CFG_DIR/custom_scripts/Launch_pcsx2.sh
-cp -u /cfg/custom_scripts/xemu.sh $ES_CFG_DIR/custom_scripts/Launch_xemu.sh
-cp -u /cfg/custom_scripts/steam.sh $ES_CFG_DIR/custom_scripts/Launch_Steam.sh
+cp -ur /cfg/custom_scripts/ $ES_CFG_DIR
 
 gow_log "Checking RA Assets presence, if none - install them"
 if [ ! -d "$RA_CFG_DIR/assets" ]; then
