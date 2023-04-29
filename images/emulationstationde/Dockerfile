@@ -128,21 +128,8 @@ RUN \
     echo "**** Preparing /ROMs for symlinking ****" && \
         mkdir -pm755 /ROMs
 
-COPY configs/es/es_systems.xml /cfg/es/es_systems.xml        
-COPY configs/retroarch/retroarch.cfg /cfg/retroarch/retroarch.cfg
-COPY configs/rpcs3/Default.yml /cfg/rpcs3/Default.yml
-COPY configs/rpcs3/CurrentSettings.ini /cfg/rpcs3/CurrentSettings.ini
-COPY configs/pcsx2/PCSX2.ini /cfg/pcsx2/PCSX2.ini
-COPY configs/xemu/xemu.toml /cfg/xemu/xemu.toml
-COPY configs/yuzu/qt-config.ini /cfg/yuzu/qt-config.ini
-COPY --chmod=777 scripts/custom_scripts/winecfg.sh /cfg/custom_scripts/winecfg.sh
-COPY --chmod=777 scripts/custom_scripts/retroarch.sh /cfg/custom_scripts/retroarch.sh
-COPY --chmod=777 scripts/custom_scripts/rpcs3.sh /cfg/custom_scripts/rpcs3.sh
-COPY --chmod=777 scripts/custom_scripts/!Install_RPCS3_Firmware.sh /cfg/custom_scripts/!Install_RPCS3_Firmware.sh
-COPY --chmod=777 scripts/custom_scripts/yuzu.sh /cfg/custom_scripts/yuzu.sh
-COPY --chmod=777 scripts/custom_scripts/xemu.sh /cfg/custom_scripts/xemu.sh
-COPY --chmod=777 scripts/custom_scripts/pcsx2.sh  /cfg/custom_scripts/pcsx2.sh
-COPY --chmod=777 scripts/custom_scripts/steam.sh  /cfg/custom_scripts/steam.sh       
+COPY configs/ /cfg/        
+COPY --chmod=777 scripts/custom_scripts/ /cfg/custom_scripts/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
 
