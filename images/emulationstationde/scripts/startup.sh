@@ -26,6 +26,11 @@ mkdir -p $ES_CFG_DIR/custom_systems
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_systems
 cp -u /cfg/es/es_systems.xml $ES_CFG_DIR/custom_systems
 
+gow_log "Copying custom gamelist - ES-DE Custom Scripts Platform, if not edited"
+mkdir -p $ES_CFG_DIR/gamelists/Custom\ Scripts
+chown ${UNAME}:${UNAME} $ES_CFG_DIR/gamelists/Custom\ Scripts
+cp -u /cfg/es/gamelist.xml $ES_CFG_DIR/gamelists/Custom\ Scripts
+
 gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf and disable Auto-Update pop-up, if not edited"
 mkdir -p $RPCS3_CFG_DIR/input_configs/global/
 cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
@@ -61,6 +66,9 @@ cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 gow_log "Change media directory for EmulationStation to /media"
 sed -i 's/<string name="MediaDirectory" value="" \/>/<string name="MediaDirectory" value="\/media" \/>/g' $ES_CFG_DIR/es_settings.xml
 
+gow_log "Change ROMs directory for EmulationStation to /ROMs"
+sed -i 's/<string name="ROMDirectory" value="" \/>/<string name="ROMDirectory" value="\/ROMs" \/>/g' $ES_CFG_DIR/es_settings.xml
+
 gow_log "Copying custom launch scripts for emulators and programs, if not edited"
 mkdir -p $ES_CFG_DIR/custom_scripts
 chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_scripts
@@ -79,9 +87,6 @@ ln -sf /Applications $HOME
 
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
-
-gow_log "Symlinking Roms from /ROMs"
-ln -sf /ROMs $HOME
 
 gow_log "Starting up Gamescope"
 chown ${UNAME}:${UNAME} /usr/games/gamescope

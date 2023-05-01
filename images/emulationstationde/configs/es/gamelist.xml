@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<gameList>
+	<game>
+		<path>./Tools/!Install_RPCS3_Firmware.sh</path>
+		<name>!Install_RPCS3_Firmware</name>
+        <desc>Launch Firmware install</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>RPCS3 Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/pcsx2.sh</path>
+		<name>pcsx2</name>
+        <desc>Launch pcsx2</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>PCSX2 Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/retroarch.sh</path>
+		<name>retroarch</name>
+        <desc>Launch RetroArch</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>libretro</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/rpcs3.sh</path>
+		<name>rpcs3</name>
+        <desc>Launch RPCS3</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>RPCS3 Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./steam.sh</path>
+		<name>steam</name>
+        <desc>Launch Steam</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Valve</developer>
+		<publisher>Valve</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/winecfg.sh</path>
+		<name>winecfg</name>
+        <desc>Launch winecfg</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Wine Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/xemu.sh</path>
+		<name>xemu</name>
+        <desc>Launch XEMU</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>XEMU Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/yuzu.sh</path>
+		<name>yuzu</name>
+        <desc>Launch YUZU</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>YUZU Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+</gameList>
