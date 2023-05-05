@@ -13,6 +13,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES="\
     x11-utils \
     pulseaudio-utils \
+    libcap2-bin \
     "
 
 RUN apt-get update -y && \
@@ -21,17 +22,16 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Add Gamescope
-# Add setcap as seen in: https://github.com/Plagman/gamescope/issues/497#issuecomment-1127110769
 RUN apt-get update -y && \
-    apt-get install -y software-properties-common libcap2-bin && \
+    apt-get install -y software-properties-common && \
     add-apt-repository ppa:ar-lex/gamescope && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends gamescope && \
-    setcap 'cap_sys_nice=eip' /usr/games/gamescope && \
-    apt-get remove -y software-properties-common libcap2-bin && \
+    apt-get remove -y software-properties-common && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
+COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/20-gamescope.sh
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 

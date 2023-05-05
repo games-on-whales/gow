@@ -24,21 +24,10 @@ RUN apt-get update && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-ARG NV_VERSION
-RUN if [ -n "$NV_VERSION" ]; then \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends curl kmod pkg-config libglvnd-dev mesa-utils vulkan-tools && \
-    curl -LO https://download.nvidia.com/XFree86/Linux-x86_64/$NV_VERSION/NVIDIA-Linux-x86_64-$NV_VERSION.run && \
-    chmod +x NVIDIA-Linux-x86_64-$NV_VERSION.run && \
-    ./NVIDIA-Linux-x86_64-$NV_VERSION.run --silent -z --skip-depmod --skip-module-unload --no-nvidia-modprobe --no-kernel-modules --no-kernel-module-source && \
-    rm ./NVIDIA-Linux-x86_64-$NV_VERSION.run \
-    ; fi
-
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
-
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source $IMAGE_SOURCE
