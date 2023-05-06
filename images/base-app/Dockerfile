@@ -4,16 +4,11 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
-
-# TODO: should we include any drivers or anything here? The GL stuff that the
-# sunshine container has, or the intel drivers, etc?  AMD drivers?
-#
 # x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
 # pulseaudio-utils: some apps can't play sound unless this package is installed
 ARG REQUIRED_PACKAGES="\
     x11-utils \
     pulseaudio-utils \
-    libcap2-bin \
     "
 
 RUN apt-get update -y && \
@@ -21,30 +16,264 @@ RUN apt-get update -y && \
     $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
-# Add Gamescope
-RUN apt-get update -y && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:ar-lex/gamescope && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends gamescope && \
-    apt-get remove -y software-properties-common && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+ARG MESA_VERSION=23.0.3
+ENV MESA_VERSION=$MESA_VERSION
+ARG INTEL_MEDIA_VERSION=23.1.5
+ENV INTEL_MEDIA_VERSION=$INTEL_MEDIA_VERSION
+ARG LIBVA_VERSION=2.18.0
+ENV LIBVA_VERSION=$LIBVA_VERSION
+ARG LIBDRM_VERSION=2.4.115
+ENV LIBDRM_VERSION=$LIBDRM_VERSION
 
-COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/20-gamescope.sh
+ENV DEBIAN_FRONTEND=noninteractive
+ENV BUILD_ARCHITECTURE=amd64
+ENV DEB_BUILD_OPTIONS=noddebs
+
+ENV SOURCE_PATH=/sources
+ENV INCDIR=/usr/include
+ENV LIBDIR=/usr/lib/x86_64-linux-gnu
+ENV BINDIR=/usr/bin
+ENV PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:${SOURCE_PATH}/lib/pkgconfig
+ENV PKGS_ROOT=/opt/gow/packages
+RUN mkdir -p ${INCDIR} ${SOURCE_PATH}
+
+COPY --chmod=777 packages $PKGS_ROOT
+
+# Take a deep breath...
+# We have to do this all in one go because we don't want the dev packages to be in the final build
+ENV CCACHE_DIR=/cache/ccache
+RUN <<_INSTALL_GPU_DRIVERS
+    #!/bin/bash
+    set -e
+
+    DEV_PACKAGES=" \
+        apt-transport-https curl wget git bison flex \
+        build-essential gcc ninja-build pkg-config \
+        debhelper gnupg devscripts mmv equivs \
+        nasm subversion dh-autoreconf \
+        libvulkan-dev libpciaccess-dev libwayland-dev libwayland-egl-backend-dev libzstd-dev \
+        python3 python3-pip \
+        zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev glslang-tools"
+    PY_PACKAGES="ninja meson cmake mako"
+    apt-get update -y
+    apt-get install -y --no-install-recommends $DEV_PACKAGES
+    python3 -m pip install --no-cache-dir $PY_PACKAGES
+
+    # LIBDRM
+    cd ${SOURCE_PATH}
+    mkdir libdrm
+    cd libdrm
+    libdrm_link="https://dri.freedesktop.org/libdrm/libdrm-${LIBDRM_VERSION}.tar.xz"
+    wget ${libdrm_link} -O libdrm.tar.xz
+    tar xaf libdrm.tar.xz
+    meson setup libdrm-${LIBDRM_VERSION} drm_build \
+        --prefix=/usr/ \
+        --buildtype=release \
+        -Dudev=false -Dtests=false -Dinstall-test-programs=false \
+        -Damdgpu=enabled -Dradeon=enabled -Dintel=enabled \
+        -Dvalgrind=disabled -Dfreedreno=disabled -Dvc4=disabled -Dvmwgfx=disabled -Dnouveau=disabled -Dman-pages=disabled
+    meson configure drm_build
+    ninja -C drm_build install
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/libdrm.control
+    dpkg -i libdrm-dev_${LIBDRM_VERSION}_all.deb
+
+    # GMMLIB
+    cd ${SOURCE_PATH}
+    git clone -b intel-gmmlib-22.3.5 --depth=1 https://github.com/intel/gmmlib.git
+    cd gmmlib
+    mkdir build && cd build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/ ..
+    make -j$(nproc) && make install
+    cd ${SOURCE_PATH}
+
+    # LIBVA (Required by mesa)
+    cd ${SOURCE_PATH}
+    git clone -b ${LIBVA_VERSION} --depth=1 https://github.com/intel/libva.git
+    cd libva
+    ./autogen.sh
+    ./configure --prefix=/usr/ \
+        --enable-drm \
+        --disable-glx --disable-x11 --disable-docs
+    make -j$(nproc) && make install
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/libva.control
+    dpkg -i libva-dev_${LIBVA_VERSION}_all.deb
+
+    # Intel MEDIA-DRIVER
+    cd ${SOURCE_PATH}
+    git clone -b intel-media-${INTEL_MEDIA_VERSION} --depth=1 https://github.com/intel/media-driver.git
+    cd media-driver
+    mkdir build && cd build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/ \
+          -DENABLE_KERNELS=ON \
+          -DENABLE_NONFREE_KERNELS=ON \
+          ..
+    make -j$(nproc) && make install
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/intel-media.control
+    dpkg -i intel-media-driver_${INTEL_MEDIA_VERSION}_all.deb
+
+    # libwayland is needed by vainfo, mesa (and later on by Gstreamer)
+    apt-get install -y libwayland-client0 libwayland-server0 wayland-protocols
+
+    # Libglvnd
+    cd ${SOURCE_PATH}
+    git clone -b v1.6.0 --depth=1 https://github.com/NVIDIA/libglvnd.git
+    cd libglvnd
+    meson setup --buildtype=release build
+    meson compile -C build
+    meson install -C build
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/libglvnd.control
+    dpkg -i libglvnd-core-dev_1.6.0_all.deb
+
+    # MESA
+    # Minimal libs for AMD
+    cd ${SOURCE_PATH}
+    git clone -b mesa-${MESA_VERSION} --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
+    # disable the broken hevc packed header
+    MESA_VA_PIC="mesa/src/gallium/frontends/va/picture.c"
+    MESA_VA_CONF="mesa/src/gallium/frontends/va/config.c"
+    sed -i 's|handleVAEncPackedHeaderParameterBufferType(context, buf);||g' ${MESA_VA_PIC}
+    sed -i 's|handleVAEncPackedHeaderDataBufferType(context, buf);||g' ${MESA_VA_PIC}
+    sed -i 's|if (u_reduce_video_profile(ProfileToPipe(profile)) == PIPE_VIDEO_FORMAT_HEVC)|if (0)|g' ${MESA_VA_CONF}
+    # force reporting all packed headers are supported
+    sed -i 's|value = VA_ENC_PACKED_HEADER_NONE;|value = 0x0000001f;|g' ${MESA_VA_CONF}
+    sed -i 's|if (attrib_list\[i\].type == VAConfigAttribEncPackedHeaders)|if (0)|g' ${MESA_VA_CONF}
+    meson setup mesa mesa_build \
+        --prefix=/usr/ \
+        --buildtype=release \
+        --wrap-mode=nofallback \
+        -Db_ndebug=true \
+        -Db_lto=false \
+        -Dplatforms=wayland \
+        -Dgallium-drivers=radeonsi \
+        -Dvulkan-drivers=amd,intel \
+        -Ddri3=enabled \
+        -Degl=enabled \
+        -Dgallium-extra-hud=false -Dgallium-nine=false \
+        -Dgallium-omx=disabled -Dgallium-vdpau=disabled -Dgallium-xa=disabled -Dgallium-opencl=disabled \
+        -Dgallium-va=enabled \
+        -Dvideo-codecs=h264dec,h264enc,h265dec,h265enc \
+        -Dgbm=enabled \
+        -Dgles1=disabled \
+        -Dgles2=enabled \
+        -Dopengl=true \
+        -Dglvnd=true \
+        -Dglx=disabled \
+        -Dlibunwind=disabled \
+        -Dllvm=enabled \
+        -Dlmsensors=disabled \
+        -Dosmesa=false \
+        -Dshared-glapi=enabled \
+        -Dvalgrind=disabled \
+        -Dtools=[] \
+        -Dzstd=enabled \
+        -Dmicrosoft-clc=disabled
+    meson configure mesa_build
+    ninja -C mesa_build install
+    mkdir -p /usr/lib/dri
+    install /usr/lib/x86_64-linux-gnu/dri/*.so /usr/lib/dri
+    rm /usr/lib/x86_64-linux-gnu/dri/*
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/mesa.control
+    dpkg -i mesa-vulkan-drivers_${MESA_VERSION}_all.deb
+
+    # Final cleanup stage
+    python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
+    apt-get remove -y --purge $DEV_PACKAGES
+    apt-get autoremove -y
+    # We can now safely delete the repo + builds
+    rm -rf  \
+    $SOURCE_PATH \
+    /var/lib/apt/lists/*
+_INSTALL_GPU_DRIVERS
+
+
+ENV PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
+
+
+#################################
+# GAMESCOPE
+####
+ARG GAMESCOPE_VERSION=acef4c24edaecad642b1d4c046fd0afea0d3f09f
+ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
+
+RUN <<_INSTALL_GAMESCOPE
+    #!/bin/bash
+    set -e
+
+    # Dependencies
+    DEV_PACKAGES="\
+    git build-essential gcc pkg-config python3 python3-pip equivs \
+    libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
+    libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
+    libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
+    libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev"
+    PY_PACKAGES="ninja meson cmake"
+    apt-get update -y
+    apt-get install -y --no-install-recommends $DEV_PACKAGES
+    python3 -m pip install --no-cache-dir $PY_PACKAGES
+
+
+    GAMESCOPE_SRC=/tmp/gamescope
+    mkdir -p $GAMESCOPE_SRC
+    cd $GAMESCOPE_SRC
+
+    # Installing from apt will miss the pkgconfig .pc file, building manually
+    git clone https://github.com/vcrhonek/hwdata.git
+    cd hwdata
+    ./configure
+    make
+    make install
+
+    # Installing from APT will pull an old version, gamescope requires >=1.27
+    cd $GAMESCOPE_SRC
+    git clone -b 1.31 --depth=1 https://gitlab.freedesktop.org/wayland/wayland-protocols.git
+    cd wayland-protocols
+    meson setup --buildtype=release build
+    meson compile -C build
+    meson install -C build
+
+    # Installing xwayland
+    cd $GAMESCOPE_SRC
+    git clone -b xwayland-23.1.1 --depth=1 https://gitlab.freedesktop.org/xorg/xserver.git
+    cd xserver
+    mkdir subprojects
+    meson wrap install epoxy
+    meson setup -Dxvfb=false -Ddocs=false build
+    meson compile -C build
+    meson install -C build
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/xwayland.control
+    dpkg -i xwayland_23.1.1_all.deb
+
+    cd $GAMESCOPE_SRC
+    git clone https://github.com/ValveSoftware/gamescope.git
+    cd gamescope
+    git checkout $GAMESCOPE_VERSION
+    git submodule update --init
+
+    meson setup --buildtype=release build
+    meson compile -C build
+    meson install -C build
+
+    # Add setcap as seen in: https://github.com/Plagman/gamescope/issues/497#issuecomment-1127110769
+    install /usr/local/bin/gamescope /usr/games/gamescope
+    apt-get install -y libcap2-bin
+    setcap 'cap_sys_nice=eip' /usr/games/gamescope
+
+    # Cleanup
+    python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
+    apt-get remove -y --purge libcap2-bin $DEV_PACKAGES
+    rm -rf \
+      /var/lib/apt/lists/* \
+      $GAMESCOPE_SRC
+_INSTALL_GAMESCOPE
+
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
-
-# In order to use Vulkan with NVIDIA GPUs, the ICD file must be present (so
-# Vulkan knows how to find the driver libraries).  Although the nvidia runtime
-# _does_ handle making the actual drivers available, it doesn't install the ICD
-# JSON.  So we provide one ourselves.  This is harmless on non-NVIDIA systems,
-# so we just do it unconditionally.
-# NOTE: as of nvidia-container-toolkit v1.12, this is no longer necessary. once
-# that version is sufficiently widely available, we may want to make it a
-# requirement and stop doing this manually
-#COPY configs/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
-#COPY configs/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
