@@ -7,7 +7,7 @@ Standards-Version: 3.9.2
 Section: libglvnd
 Package: libglvnd-core-dev
 Version: 1.6.0
-Provides: libglvnd0
+Provides: libglvnd0, libglvnd-dev
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>
