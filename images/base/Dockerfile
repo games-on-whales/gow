@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_IMAGE=ubuntu:22.10
-FROM $BASE_IMAGE
+FROM ubuntu:22.10
 
 # Configure default user and set env
 # The users UID and GID will be set on container startup
