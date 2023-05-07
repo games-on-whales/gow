@@ -173,9 +173,6 @@ RUN <<_INSTALL_GPU_DRIVERS
         -Dmicrosoft-clc=disabled
     meson configure mesa_build
     ninja -C mesa_build install
-    mkdir -p /usr/lib/dri
-    install /usr/lib/x86_64-linux-gnu/dri/*.so /usr/lib/dri
-    rm /usr/lib/x86_64-linux-gnu/dri/*
     # fake apt install
     equivs-build ${PKGS_ROOT}/mesa.control
     dpkg -i mesa-vulkan-drivers_${MESA_VERSION}_all.deb
