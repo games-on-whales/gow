@@ -27,8 +27,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ARG REQUIRED_PACKAGES=" \
     steam \
-    libvulkan1 libvulkan1:i386 \
-    mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
+    libvulkan1:i386 \
+    mesa-vulkan-drivers:i386 \
     libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 \
 "
 

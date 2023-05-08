@@ -7,7 +7,8 @@ Standards-Version: 3.9.2
 Section: libdrm
 Package: libdrm-dev
 Version: 2.4.115
-Provides: libdrm2, libdrm-amdgpu1, libdrm-intel1, libdrm-radeon1
+Provides: libdrm2, libdrm-amdgpu1, libdrm-intel1, libdrm-radeon1, libdrm-common
+Depends: libc6
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>

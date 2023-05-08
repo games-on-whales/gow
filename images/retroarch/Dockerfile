@@ -5,15 +5,12 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
-    wget p7zip-full \
     retroarch \
-    libvulkan1 \
-    mesa-vulkan-drivers \
-    libretro* \
+    wget p7zip-full libusb-1.0-0 libglu1-mesa libaio1 libaio-dev
 "
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
+    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \

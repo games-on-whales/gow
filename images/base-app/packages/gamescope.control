@@ -4,11 +4,11 @@
 Priority: optional
 Standards-Version: 3.9.2
 
-Section: xwayland
-Package: xwayland
-Version: 23.1.1
-Provides: xwayland
-Depends: libc6, libdrm2, libepoxy0, libgbm1, libgcrypt20, libgl1, libpixman-1-0, libtirpc3, libwayland-client0, libxau6, libxcvt0, libxdmcp6, libxfont2, libxshmfence1, xserver-common
+Section: gamescope
+Package: gamescope-core
+Version: 3.12.0-beta3
+Depends: libatomic1, libc6, libcap2, libdrm2, libgcc-s1, libliftoff0, libpipewire-0.3-0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-server0, libwlroots10, libx11-6, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland
+
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>

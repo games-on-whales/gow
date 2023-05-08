@@ -56,7 +56,8 @@ RUN <<_INSTALL_GPU_DRIVERS
         zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev glslang-tools"
     PY_PACKAGES="ninja meson cmake mako"
     apt-get update -y
-    apt-get install -y --no-install-recommends $DEV_PACKAGES
+    apt-get install -y --no-install-recommends $DEV_PACKAGES \
+      libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
     # LIBDRM
@@ -78,12 +79,12 @@ RUN <<_INSTALL_GPU_DRIVERS
     equivs-build ${PKGS_ROOT}/libdrm.control
     dpkg -i libdrm-dev_${LIBDRM_VERSION}_all.deb
 
-    # GMMLIB
+    # GMMLIB (provides libigdgmm12)
     cd ${SOURCE_PATH}
     git clone -b intel-gmmlib-22.3.5 --depth=1 https://github.com/intel/gmmlib.git
     cd gmmlib
     mkdir build && cd build
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/ ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/ -DRUN_TEST_SUITE=OFF ..
     make -j$(nproc) && make install
     cd ${SOURCE_PATH}
 
@@ -179,8 +180,7 @@ RUN <<_INSTALL_GPU_DRIVERS
 
     # Final cleanup stage
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
-    apt-get remove -y --purge $DEV_PACKAGES
-    apt-get autoremove -y
+    apt-get autoremove -y --purge
     # We can now safely delete the repo + builds
     rm -rf  \
     $SOURCE_PATH \
@@ -207,7 +207,7 @@ RUN <<_INSTALL_GAMESCOPE
     libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
     libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
     libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
-    libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev"
+    libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev xserver-common"
     PY_PACKAGES="ninja meson cmake"
     apt-get update -y
     apt-get install -y --no-install-recommends $DEV_PACKAGES
@@ -238,7 +238,6 @@ RUN <<_INSTALL_GAMESCOPE
     git clone -b xwayland-23.1.1 --depth=1 https://gitlab.freedesktop.org/xorg/xserver.git
     cd xserver
     mkdir subprojects
-    meson wrap install epoxy
     meson setup -Dxvfb=false -Ddocs=false build
     meson compile -C build
     meson install -C build
@@ -251,6 +250,9 @@ RUN <<_INSTALL_GAMESCOPE
     cd gamescope
     git checkout $GAMESCOPE_VERSION
     git submodule update --init
+    # fake apt install
+    equivs-build ${PKGS_ROOT}/gamescope.control
+    dpkg -i gamescope_3.12.0-beta3_all.deb
 
     meson setup --buildtype=release build
     meson compile -C build
@@ -260,10 +262,11 @@ RUN <<_INSTALL_GAMESCOPE
     install /usr/local/bin/gamescope /usr/games/gamescope
     apt-get install -y libcap2-bin
     setcap 'cap_sys_nice=eip' /usr/games/gamescope
+    apt-get remove -y --purge libcap2-bin
 
     # Cleanup
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
-    apt-get remove -y --purge libcap2-bin $DEV_PACKAGES
+    apt-get autoremove -y --purge
     rm -rf \
       /var/lib/apt/lists/* \
       $GAMESCOPE_SRC

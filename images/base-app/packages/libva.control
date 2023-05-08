@@ -8,13 +8,13 @@ Section: libva
 Package: libva-dev
 Version: 2.18.0
 Provides: libva-drm2, libva2
+Depends: libc6
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>
 # Version: <enter version here; defaults to 1.0>
 # Maintainer: Your Name <yourname@example.com>
 # Pre-Depends: <comma-separated list of packages>
-# Depends: <comma-separated list of packages>
 # Recommends: <comma-separated list of packages>
 # Suggests: <comma-separated list of packages>
 # Replaces: <comma-separated list of packages>

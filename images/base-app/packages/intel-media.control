@@ -7,7 +7,8 @@ Standards-Version: 3.9.2
 Section: intel-media
 Package: intel-media-driver
 Version: 23.1.5
-Provides: intel-media-va-driver, intel-media-va-driver-non-free
+Provides: libigdgmm12, intel-media-va-driver, intel-media-va-driver-non-free, i965-va-driver, i965-va-driver-shaders
+Depends: libc6, libgcc-s1, libstdc++6
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>

@@ -7,7 +7,8 @@ Standards-Version: 3.9.2
 Section: mesa
 Package: mesa-vulkan-drivers
 Version: 23.0.3
-Provides: libegl1, libgles2-mesa, libgl1-mesa-dri, libglapi-mesa, mesa-utils
+Provides: mesa-va-drivers
+Depends: libc6, libdrm-amdgpu1, libdrm2, libelf1, libexpat1, libgcc-s1, libgcc-s1, libllvm15, libstdc++6, libvulkan1, libwayland-client0, libx11-xcb1, libxcb-dri3-0, libxcb-present0, libxcb-randr0, libxcb-shm0, libxcb-sync1, libxcb-xfixes0, libxcb1, libxshmfence1, libzstd1, python3, zlib1g
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>
