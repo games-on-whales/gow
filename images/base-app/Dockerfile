@@ -52,12 +52,15 @@ RUN <<_INSTALL_GPU_DRIVERS
         debhelper gnupg devscripts mmv equivs \
         nasm subversion dh-autoreconf \
         libvulkan-dev libpciaccess-dev libwayland-dev libwayland-egl-backend-dev libzstd-dev \
-        python3 python3-pip \
-        zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev glslang-tools"
+        python3-pip"
+    RUNTIME_DEPS=" \
+     python3 \
+     zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev glslang-tools \
+     libwayland-client0 libwayland-server0 wayland-protocols
+     libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1"
     PY_PACKAGES="ninja meson cmake mako"
     apt-get update -y
-    apt-get install -y --no-install-recommends $DEV_PACKAGES \
-      libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1
+    apt-get install -y --no-install-recommends $DEV_PACKAGES $RUNTIME_DEPS
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
     # LIBDRM
@@ -115,9 +118,6 @@ RUN <<_INSTALL_GPU_DRIVERS
     equivs-build ${PKGS_ROOT}/intel-media.control
     dpkg -i intel-media-driver_${INTEL_MEDIA_VERSION}_all.deb
 
-    # libwayland is needed by vainfo, mesa (and later on by Gstreamer)
-    apt-get install -y libwayland-client0 libwayland-server0 wayland-protocols
-
     # Libglvnd
     cd ${SOURCE_PATH}
     git clone -b v1.6.0 --depth=1 https://github.com/NVIDIA/libglvnd.git
@@ -174,12 +174,14 @@ RUN <<_INSTALL_GPU_DRIVERS
         -Dmicrosoft-clc=disabled
     meson configure mesa_build
     ninja -C mesa_build install
+    install /usr/lib/x86_64-linux-gnu/dri/*.so /usr/lib/dri
     # fake apt install
     equivs-build ${PKGS_ROOT}/mesa.control
     dpkg -i mesa-vulkan-drivers_${MESA_VERSION}_all.deb
 
     # Final cleanup stage
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
+    apt-get remove -y --purge $DEV_PACKAGES
     apt-get autoremove -y --purge
     # We can now safely delete the repo + builds
     rm -rf  \
@@ -203,14 +205,15 @@ RUN <<_INSTALL_GAMESCOPE
 
     # Dependencies
     DEV_PACKAGES="\
-    git build-essential gcc pkg-config python3 python3-pip equivs \
-    libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
-    libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
-    libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
-    libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev xserver-common"
+        git build-essential gcc pkg-config python3 python3-pip equivs libcap2-bin \
+        libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
+        libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
+        libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
+        libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev"
+    RUNTIME_DEPS="xserver-common libliftoff0 libwlroots10"
     PY_PACKAGES="ninja meson cmake"
     apt-get update -y
-    apt-get install -y --no-install-recommends $DEV_PACKAGES
+    apt-get install -y --no-install-recommends $DEV_PACKAGES $RUNTIME_DEPS
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
 
@@ -252,7 +255,7 @@ RUN <<_INSTALL_GAMESCOPE
     git submodule update --init
     # fake apt install
     equivs-build ${PKGS_ROOT}/gamescope.control
-    dpkg -i gamescope_3.12.0-beta3_all.deb
+    dpkg -i gamescope-core_3.12.0-beta3_all.deb
 
     meson setup --buildtype=release build
     meson compile -C build
@@ -260,12 +263,11 @@ RUN <<_INSTALL_GAMESCOPE
 
     # Add setcap as seen in: https://github.com/Plagman/gamescope/issues/497#issuecomment-1127110769
     install /usr/local/bin/gamescope /usr/games/gamescope
-    apt-get install -y libcap2-bin
     setcap 'cap_sys_nice=eip' /usr/games/gamescope
-    apt-get remove -y --purge libcap2-bin
 
     # Cleanup
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
+    apt-get remove -y --purge $DEV_PACKAGES
     apt-get autoremove -y --purge
     rm -rf \
       /var/lib/apt/lists/* \
