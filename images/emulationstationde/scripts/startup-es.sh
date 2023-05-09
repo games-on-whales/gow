@@ -9,4 +9,4 @@ gow_log "Configure xhost for all hosts - needed for appimages which uses QT"
 xhost +
 
 gow_log "Launching EmulationStation-DE"
-exec /usr/bin/emulationstation --no-update-check
+exec /Applications/esde.AppImage --no-update-check

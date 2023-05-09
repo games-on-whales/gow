@@ -1,13 +1,13 @@
 ARG BASE_APP_IMAGE
 
 # hadolint ignore=DL3006
-FROM ghcr.io/games-on-whales/base-app:wolf-changes
+FROM ghcr.io/games-on-whales/base-app:sha-adc0a26
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install prereqs
 RUN \
-    echo "**** Install Prereqs and latest Mesa ****" && \
+    echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
 		apt-get update && \
 		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev fuse libfuse2 qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 && \
 		add-apt-repository ppa:kisak/kisak-mesa && \
@@ -17,16 +17,12 @@ RUN \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 
-# Install ES-DE
+# Downloading ES-DE AppImage
 RUN \
-    echo "**** Install ESDE ****" && \
-	    apt-get update && \
-        wget -O /tmp/esde.deb https://gitlab.com/es-de/emulationstation-de/-/package_files/76389040/download && \
-        apt install -y /tmp/esde.deb && \
-		rm /tmp/esde.deb && \
-    # Cleanup \
-		apt-get autoremove -y && \
-		rm -rf /var/lib/apt/lists/*
+    echo "**** Downloading ESDE AppImage ****" && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+        wget -O esde.AppImage https://gitlab.com/es-de/emulationstation-de/-/package_files/76389058/download && \
 
 # Install RetroArch
 RUN \
@@ -40,36 +36,30 @@ RUN \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 		
-# Install PCSX2
+# Downloading PCSX2 AppImage
 RUN \
-    echo "**** Install PCSX2 ****" && \
-		add-apt-repository -y ppa:pcsx2-team/pcsx2-daily && \
-		apt-get update && \
-		apt-get install -y pcsx2-unstable && \
-    # Cleanup \
-		apt-get autoremove -y && \
-		rm -rf /var/lib/apt/lists/*
+    echo "**** Downloading PCSX2 AppImage ****" && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4478/pcsx2-v1.7.4478-linux-AppImage-64bit-Qt.AppImage && \
 
-# Install XEMU
+# Downloading XEMU AppImage
 RUN \
-    echo "**** Install XEMU ****" && \
-		add-apt-repository -y ppa:mborgerson/xemu && \
-		apt-get update && \
-		apt-get install -y xemu && \
-    # Cleanup \
-		apt-get autoremove -y && \
-		rm -rf /var/lib/apt/lists/*
+    echo "**** Downloading XEMU AppImage ****" && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.88/xemu-v0.7.88-x86_64.AppImage && \
 	
 # Downloading RPCS3 AppImage 
 RUN \
-    echo "**** Downloading RPCS3 ****" && \
+    echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
         wget -O rpcs3-emu.AppImage https://rpcs3.net/latest-appimage
 
 # Downloading YUZU AppImage       
 RUN \
-    echo "**** Downloading YUZU ****" && \
+    echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1404/yuzu-mainline-20230414-e0895a858.AppImage
@@ -82,7 +72,7 @@ RUN \
 		dpkg --add-architecture i386 && \
 		add-apt-repository multiverse && \
 		apt-get update && \
-		apt-get install -y --no-install-recommends steam libvulkan1 libvulkan1:i386 mesa-vulkan-drivers mesa-vulkan-drivers:i386 && \
+		apt-get install -y --no-install-recommends steam && \
 	# Cleanup \
 	    apt-get remove -y software-properties-common && \
 		apt-get autoremove -y && \
@@ -111,10 +101,8 @@ RUN \
     echo "**** Preparing /Applications for symlinking ****" && \
         mkdir -p /Applications && \
         mv /tmp/*.AppImage /Applications && \
-        chmod 777 /Applications/rpcs3-emu.AppImage && \
-        chmod 777 /Applications/yuzu-emu.AppImage && \
-        chmod a+x /Applications/yuzu-emu.AppImage && \
-        chmod a+x /Applications/rpcs3-emu.AppImage
+		chmod -v -R 777 /Applications/ && \
+		chmod -v -R a+x /Applications/
 		
 RUN \
     echo "**** Preparing /media for EmulationStation ****" && \
