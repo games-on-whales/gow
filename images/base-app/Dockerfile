@@ -3,27 +3,12 @@ ARG BASE_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 
-ARG DEBIAN_FRONTEND=noninteractive
-# x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
-# pulseaudio-utils: some apps can't play sound unless this package is installed
-ARG REQUIRED_PACKAGES="\
-    x11-utils \
-    pulseaudio-utils \
-    "
-
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    $REQUIRED_PACKAGES && \
-    rm -rf /var/lib/apt/lists/*
-
 ARG MESA_VERSION=23.0.3
 ENV MESA_VERSION=$MESA_VERSION
 ARG INTEL_MEDIA_VERSION=23.1.5
 ENV INTEL_MEDIA_VERSION=$INTEL_MEDIA_VERSION
 ARG LIBVA_VERSION=2.18.0
 ENV LIBVA_VERSION=$LIBVA_VERSION
-ARG LIBDRM_VERSION=2.4.115
-ENV LIBDRM_VERSION=$LIBDRM_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV BUILD_ARCHITECTURE=amd64
@@ -49,13 +34,13 @@ RUN <<_INSTALL_GPU_DRIVERS
     DEV_PACKAGES=" \
         apt-transport-https curl wget git bison flex \
         build-essential gcc ninja-build pkg-config \
-        debhelper gnupg devscripts mmv equivs \
-        nasm subversion dh-autoreconf \
+        debhelper gnupg devscripts mmv equivs nasm subversion dh-autoreconf \
         libvulkan-dev libpciaccess-dev libwayland-dev libwayland-egl-backend-dev libzstd-dev \
+        libxext-dev libxfixes-dev libx11-xcb-dev libxcb-dri3-dev libgl-dev libdrm-dev libigdgmm-dev libglvnd-dev \
+        zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev \
         python3-pip"
     RUNTIME_DEPS=" \
-     python3 \
-     zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev glslang-tools \
+     python3 glslang-tools \
      libwayland-client0 libwayland-server0 wayland-protocols
      libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1"
     PY_PACKAGES="ninja meson cmake mako"
@@ -63,26 +48,7 @@ RUN <<_INSTALL_GPU_DRIVERS
     apt-get install -y --no-install-recommends $DEV_PACKAGES $RUNTIME_DEPS
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
-    # LIBDRM
-    cd ${SOURCE_PATH}
-    mkdir libdrm
-    cd libdrm
-    libdrm_link="https://dri.freedesktop.org/libdrm/libdrm-${LIBDRM_VERSION}.tar.xz"
-    wget ${libdrm_link} -O libdrm.tar.xz
-    tar xaf libdrm.tar.xz
-    meson setup libdrm-${LIBDRM_VERSION} drm_build \
-        --prefix=/usr/ \
-        --buildtype=release \
-        -Dudev=false -Dtests=false -Dinstall-test-programs=false \
-        -Damdgpu=enabled -Dradeon=enabled -Dintel=enabled \
-        -Dvalgrind=disabled -Dfreedreno=disabled -Dvc4=disabled -Dvmwgfx=disabled -Dnouveau=disabled -Dman-pages=disabled
-    meson configure drm_build
-    ninja -C drm_build install
-    # fake apt install
-    equivs-build ${PKGS_ROOT}/libdrm.control
-    dpkg -i libdrm-dev_${LIBDRM_VERSION}_all.deb
-
-    # GMMLIB (provides libigdgmm12)
+    # GMMLIB (provides libigdgmm12 required by intel-media)
     cd ${SOURCE_PATH}
     git clone -b intel-gmmlib-22.3.5 --depth=1 https://github.com/intel/gmmlib.git
     cd gmmlib
@@ -91,46 +57,44 @@ RUN <<_INSTALL_GPU_DRIVERS
     make -j$(nproc) && make install
     cd ${SOURCE_PATH}
 
-    # LIBVA (Required by mesa)
+    # LIBVA (Required by mesa and intel-media)
     cd ${SOURCE_PATH}
     git clone -b ${LIBVA_VERSION} --depth=1 https://github.com/intel/libva.git
     cd libva
-    ./autogen.sh
-    ./configure --prefix=/usr/ \
+    ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+    ./configure \
         --enable-drm \
-        --disable-glx --disable-x11 --disable-docs
-    make -j$(nproc) && make install
+        --enable-glx \
+        --enable-x11 \
+        --enable-wayland \
+        --disable-docs
+    make -j$(nproc)
+    make install
     # fake apt install
     equivs-build ${PKGS_ROOT}/libva.control
     dpkg -i libva-dev_${LIBVA_VERSION}_all.deb
 
     # Intel MEDIA-DRIVER
+    # See the instructions at: https://github.com/intel/media-driver/wiki/How-to-build-and-use-media-driver
     cd ${SOURCE_PATH}
     git clone -b intel-media-${INTEL_MEDIA_VERSION} --depth=1 https://github.com/intel/media-driver.git
     cd media-driver
-    mkdir build && cd build
+    mkdir build
+    cd build
     cmake -DCMAKE_INSTALL_PREFIX=/usr/ \
+          -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu \
           -DENABLE_KERNELS=ON \
           -DENABLE_NONFREE_KERNELS=ON \
           ..
-    make -j$(nproc) && make install
+    make -j$(nproc)
+    make install
+    install /usr/local/lib/dri/iHD_drv_video.so /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
     # fake apt install
     equivs-build ${PKGS_ROOT}/intel-media.control
     dpkg -i intel-media-driver_${INTEL_MEDIA_VERSION}_all.deb
 
-    # Libglvnd
-    cd ${SOURCE_PATH}
-    git clone -b v1.6.0 --depth=1 https://github.com/NVIDIA/libglvnd.git
-    cd libglvnd
-    meson setup --buildtype=release build
-    meson compile -C build
-    meson install -C build
-    # fake apt install
-    equivs-build ${PKGS_ROOT}/libglvnd.control
-    dpkg -i libglvnd-core-dev_1.6.0_all.deb
-
     # MESA
-    # Minimal libs for AMD
+    # Minimal libs for AMD and Intel
     cd ${SOURCE_PATH}
     git clone -b mesa-${MESA_VERSION} --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
     # disable the broken hevc packed header
@@ -174,7 +138,6 @@ RUN <<_INSTALL_GPU_DRIVERS
         -Dmicrosoft-clc=disabled
     meson configure mesa_build
     ninja -C mesa_build install
-    install /usr/lib/x86_64-linux-gnu/dri/*.so /usr/lib/dri
     # fake apt install
     equivs-build ${PKGS_ROOT}/mesa.control
     dpkg -i mesa-vulkan-drivers_${MESA_VERSION}_all.deb
@@ -276,6 +239,18 @@ _INSTALL_GAMESCOPE
 
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
+
+# x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
+# pulseaudio-utils: some apps can't play sound unless this package is installed
+ARG REQUIRED_PACKAGES="\
+    x11-utils \
+    pulseaudio-utils \
+    "
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    $REQUIRED_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}

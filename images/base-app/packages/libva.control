@@ -4,11 +4,11 @@
 Priority: optional
 Standards-Version: 3.9.2
 
-Section: libva
+Section: libva2
 Package: libva-dev
 Version: 2.18.0
-Provides: libva-drm2, libva2
-Depends: libc6
+Provides: libva2, libva-drm2, libva-glx2, libva-x11-2, libva-wayland2
+Depends: libc6, libdrm2, libwayland-dev, libx11-6, libgl1
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>

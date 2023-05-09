@@ -6,8 +6,8 @@ FROM ${BASE_APP_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     retroarch \
-    wget p7zip-full libusb-1.0-0 libglu1-mesa libaio1 libaio-dev
-"
+    wget p7zip-full libusb-1.0-0 libglu1-mesa libaio1 libaio-dev \
+    "
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
@@ -18,7 +18,7 @@ RUN apt-get update && \
     # \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
-    apt-get autoremove -y && \
+    apt-get autoremove --purge -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
