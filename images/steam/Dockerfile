@@ -35,7 +35,7 @@ RUN apt-get update -y && \
     # Install steam (Steam is 32-bit only) \
     dpkg --add-architecture i386 && \
     apt-get update -y && \
-    rm /usr/share/drirc.d/00-mesa-defaults.conf \
+    rm /usr/share/drirc.d/00-mesa-defaults.conf && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # Cleanup \
     apt-get autoremove -y && \

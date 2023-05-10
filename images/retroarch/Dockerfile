@@ -6,7 +6,6 @@ FROM ${BASE_APP_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     retroarch \
-    libretro* \
     wget p7zip-full libusb-1.0-0 libaio1 libaio-dev \
     "
 
