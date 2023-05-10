@@ -7,9 +7,6 @@ FROM ${BASE_APP_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     libpci3 \
-    libegl1 \
-    libvulkan1 \
-    mesa-vulkan-drivers \
     firefox \
 "
 

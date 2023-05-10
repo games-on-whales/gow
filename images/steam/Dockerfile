@@ -28,13 +28,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     steam \
     mesa-vulkan-drivers:i386 \
-    libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 \
+    libdbus-1-3 libgtk-3-0 libsdl2-2.0-0 \
 "
 
 RUN apt-get update -y && \
     # Install steam (Steam is 32-bit only) \
     dpkg --add-architecture i386 && \
     apt-get update -y && \
+    rm /usr/share/drirc.d/00-mesa-defaults.conf \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # Cleanup \
     apt-get autoremove -y && \

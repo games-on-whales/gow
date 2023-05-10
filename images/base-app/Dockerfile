@@ -36,16 +36,14 @@ RUN <<_INSTALL_GPU_DRIVERS
         build-essential gcc ninja-build pkg-config \
         debhelper gnupg devscripts mmv equivs nasm subversion dh-autoreconf \
         libvulkan-dev libpciaccess-dev libwayland-dev libwayland-egl-backend-dev libzstd-dev \
-        libxext-dev libxfixes-dev libx11-xcb-dev libxcb-dri3-dev libgl-dev libdrm-dev libigdgmm-dev libglvnd-dev \
+        libxext-dev libxfixes-dev libx11-xcb-dev libxcb-dri3-dev libgl-dev libdrm-dev libglvnd-dev \
         zlib1g-dev llvm-15-dev libudev-dev libelf-dev libexpat1-dev \
-        python3-pip"
-    RUNTIME_DEPS=" \
-     python3 glslang-tools \
-     libwayland-client0 libwayland-server0 wayland-protocols
-     libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1"
+        python3-pip python3 glslang-tools \
+        libwayland-client0 libwayland-server0 wayland-protocols \
+        libx11-xcb1 libxcb-dri3-0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb1 libxshmfence1"
     PY_PACKAGES="ninja meson cmake mako"
     apt-get update -y
-    apt-get install -y --no-install-recommends $DEV_PACKAGES $RUNTIME_DEPS
+    apt-get install -y --no-install-recommends $DEV_PACKAGES
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
     # GMMLIB (provides libigdgmm12 required by intel-media)
@@ -72,7 +70,7 @@ RUN <<_INSTALL_GPU_DRIVERS
     make install
     # fake apt install
     equivs-build ${PKGS_ROOT}/libva.control
-    dpkg -i libva-dev_${LIBVA_VERSION}_all.deb
+    dpkg -i libva-gow_${LIBVA_VERSION}_all.deb
 
     # Intel MEDIA-DRIVER
     # See the instructions at: https://github.com/intel/media-driver/wiki/How-to-build-and-use-media-driver
@@ -91,7 +89,7 @@ RUN <<_INSTALL_GPU_DRIVERS
     install /usr/local/lib/dri/iHD_drv_video.so /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
     # fake apt install
     equivs-build ${PKGS_ROOT}/intel-media.control
-    dpkg -i intel-media-driver_${INTEL_MEDIA_VERSION}_all.deb
+    dpkg -i intel-drivers-gow_${INTEL_MEDIA_VERSION}_all.deb
 
     # MESA
     # Minimal libs for AMD and Intel
@@ -140,11 +138,11 @@ RUN <<_INSTALL_GPU_DRIVERS
     ninja -C mesa_build install
     # fake apt install
     equivs-build ${PKGS_ROOT}/mesa.control
-    dpkg -i mesa-vulkan-drivers_${MESA_VERSION}_all.deb
+    dpkg -i mesa-drivers-gow_${MESA_VERSION}_all.deb
 
     # Final cleanup stage
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
-    apt-get remove -y --purge $DEV_PACKAGES
+    apt-mark auto $DEV_PACKAGES
     apt-get autoremove -y --purge
     # We can now safely delete the repo + builds
     rm -rf  \
@@ -172,11 +170,11 @@ RUN <<_INSTALL_GAMESCOPE
         libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
-        libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev"
-    RUNTIME_DEPS="xserver-common libliftoff0 libwlroots10"
+        libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev \
+        xserver-common libliftoff0 libwlroots10"
     PY_PACKAGES="ninja meson cmake"
     apt-get update -y
-    apt-get install -y --no-install-recommends $DEV_PACKAGES $RUNTIME_DEPS
+    apt-get install -y --no-install-recommends $DEV_PACKAGES
     python3 -m pip install --no-cache-dir $PY_PACKAGES
 
 
@@ -209,7 +207,7 @@ RUN <<_INSTALL_GAMESCOPE
     meson install -C build
     # fake apt install
     equivs-build ${PKGS_ROOT}/xwayland.control
-    dpkg -i xwayland_23.1.1_all.deb
+    dpkg -i xwayland-gow_23.1.1_all.deb
 
     cd $GAMESCOPE_SRC
     git clone https://github.com/ValveSoftware/gamescope.git
@@ -218,7 +216,7 @@ RUN <<_INSTALL_GAMESCOPE
     git submodule update --init
     # fake apt install
     equivs-build ${PKGS_ROOT}/gamescope.control
-    dpkg -i gamescope-core_3.12.0-beta3_all.deb
+    dpkg -i gamescope-gow_3.12.0-beta3_all.deb
 
     meson setup --buildtype=release build
     meson compile -C build
@@ -230,7 +228,7 @@ RUN <<_INSTALL_GAMESCOPE
 
     # Cleanup
     python3 -m pip uninstall -y --no-cache-dir $PY_PACKAGES
-    apt-get remove -y --purge $DEV_PACKAGES
+    apt-mark auto $DEV_PACKAGES
     apt-get autoremove -y --purge
     rm -rf \
       /var/lib/apt/lists/* \

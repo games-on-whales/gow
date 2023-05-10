@@ -4,11 +4,12 @@
 Priority: optional
 Standards-Version: 3.9.2
 
-Section: libva2
-Package: libva-dev
+Section: misc
+Package: libva-gow
 Version: 2.18.0
-Provides: libva2, libva-drm2, libva-glx2, libva-x11-2, libva-wayland2
-Depends: libc6, libdrm2, libwayland-dev, libx11-6, libgl1
+Provides: va-driver-all, libva2, libva-drm2, libva-glx2, libva-x11-2, libva-wayland2
+Replaces: libva-dev, libva2
+Depends: libc6, libdrm2, libwayland-client0, libx11-6, libgl1, libxext6, libxfixes3
 Description: Manually built from git
 
 # Homepage: <enter URL here; no default>

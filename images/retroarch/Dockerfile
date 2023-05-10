@@ -6,7 +6,8 @@ FROM ${BASE_APP_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     retroarch \
-    wget p7zip-full libusb-1.0-0 libglu1-mesa libaio1 libaio-dev \
+    libretro* \
+    wget p7zip-full libusb-1.0-0 libaio1 libaio-dev \
     "
 
 RUN apt-get update && \

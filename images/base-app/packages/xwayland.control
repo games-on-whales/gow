@@ -4,9 +4,9 @@
 Priority: optional
 Standards-Version: 3.9.2
 
-Section: xwayland
-Package: xwayland
-Version: 23.1.1
+Section: misc
+Package: xwayland-gow
+Version: 2:23.1.1
 Provides: xwayland
 Depends: libc6, libdrm2, libepoxy0, libgbm1, libgcrypt20, libgl1, libpixman-1-0, libtirpc3, libwayland-client0, libxau6, libxcvt0, libxdmcp6, libxfont2, libxshmfence1, xserver-common
 Description: Manually built from git
