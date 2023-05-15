@@ -7,16 +7,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     wget p7zip-full \
     retroarch \
-    libretro* \
+    libretro-core-info libretro-frontend \
+    libusb-1.0-0 libglu1-mesa libaio1 libaio-dev \
 "
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
-    # \
+    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    # \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
     apt-get autoremove -y && \
