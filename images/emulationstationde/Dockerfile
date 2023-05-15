@@ -22,8 +22,8 @@ RUN \
     echo "**** Downloading ESDE AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O esde.AppImage https://gitlab.com/es-de/emulationstation-de/-/package_files/76389058/download && \
-
+        wget -O esde.AppImage https://gitlab.com/es-de/emulationstation-de/-/package_files/76389058/download
+		
 # Install RetroArch
 RUN \
     echo "**** Install RetroArch ****" && \
@@ -41,14 +41,14 @@ RUN \
     echo "**** Downloading PCSX2 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4478/pcsx2-v1.7.4478-linux-AppImage-64bit-Qt.AppImage && \
+		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4478/pcsx2-v1.7.4478-linux-AppImage-64bit-Qt.AppImage
 
 # Downloading XEMU AppImage
 RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.88/xemu-v0.7.88-x86_64.AppImage && \
+		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.88/xemu-v0.7.88-x86_64.AppImage
 	
 # Downloading RPCS3 AppImage 
 RUN \
@@ -62,7 +62,7 @@ RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1404/yuzu-mainline-20230414-e0895a858.AppImage
+        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1433/yuzu-mainline-20230514-756203c81.AppImage
 
 # Install Steam
 RUN \
