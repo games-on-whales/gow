@@ -10,12 +10,19 @@ FROM ${BASE_APP_IMAGE} AS sunshine
 ARG TARGETARCH TARGETVARIANT
 
 ARG REQUIRED_PACKAGES="\
+    libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
+    libvulkan1 \
     libvdpau1 libnuma1 \
+    libva-drm2 libva-x11-2 va-driver-all \
     libavahi-client3 \
     libcap2-bin \
     "
 
-ARG REQUIRED_PACKAGES_amd64=""
+ARG REQUIRED_PACKAGES_amd64="\
+    i965-va-driver-shaders \
+    intel-media-va-driver-non-free \
+    libdrm-intel1 \
+"
 
 ARG REQUIRED_PACKAGES_arm64="\
 "

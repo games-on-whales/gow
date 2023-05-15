@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM ubuntu:22.10
+FROM ubuntu:23.04
 
 # Configure default user and set env
 # The users UID and GID will be set on container startup

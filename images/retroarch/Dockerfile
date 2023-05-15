@@ -5,12 +5,13 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
+    wget p7zip-full \
     retroarch \
-    wget p7zip-full libusb-1.0-0 libaio1 libaio-dev \
-    "
+    libretro* \
+"
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
+    apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
     # \
     # Install retroarch \
     add-apt-repository ppa:libretro/stable && \
@@ -18,7 +19,7 @@ RUN apt-get update && \
     # \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
-    apt-get autoremove --purge -y && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
