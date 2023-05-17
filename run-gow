@@ -359,6 +359,11 @@ xorg_driver[arch]=$(cat - <<END
 - /usr/lib/nvidia/xorg/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
 END
 )
+xorg_driver[endeavouros]=$(cat - <<END
+- /usr/lib/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
+- /usr/lib/nvidia/xorg/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
+END
+)
 xorg_driver[debian]=$(cat - <<END
 - /usr/lib/xorg/modules/drivers/nvidia_drv.so:/nvidia/xorg/nvidia_drv.so:ro
 - /usr/lib/xorg/modules/extensions/libglxserver_nvidia.so:/nvidia/xorg/libglxserver_nvidia.so:ro
