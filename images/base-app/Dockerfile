@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV BUILD_ARCHITECTURE=amd64
 ENV DEB_BUILD_OPTIONS=noddebs
 
+ARG PKGS_ROOT=/opt/gow
 COPY --chmod=777 packages $PKGS_ROOT
 
 # x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
