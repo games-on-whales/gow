@@ -29,6 +29,7 @@ RUN apt-get update -y && \
 #################################
 # GAMESCOPE
 ####
+# shellcheck disable=SC2086,DL3015,DL3013,DL3003
 RUN <<_INSTALL_GAMESCOPE
     #!/bin/bash
     set -e
