@@ -1,7 +1,7 @@
 ARG BASE_APP_IMAGE
 
 # hadolint ignore=DL3006
-FROM ghcr.io/games-on-whales/base-app:sha-adc0a26
+FROM ghcr.io/games-on-whales/base-app:wolf-changes
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -41,14 +41,14 @@ RUN \
     echo "**** Downloading PCSX2 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4478/pcsx2-v1.7.4478-linux-AppImage-64bit-Qt.AppImage
+		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4558/pcsx2-v1.7.4558-linux-AppImage-64bit-Qt.AppImage
 
 # Downloading XEMU AppImage
 RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.88/xemu-v0.7.88-x86_64.AppImage
+		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
 	
 # Downloading RPCS3 AppImage 
 RUN \
@@ -62,7 +62,7 @@ RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1433/yuzu-mainline-20230514-756203c81.AppImage
+        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
 
 # Install Steam
 RUN \
