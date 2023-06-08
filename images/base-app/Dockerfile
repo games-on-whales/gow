@@ -101,6 +101,7 @@ RUN <<_INSTALL_GAMESCOPE
       $GAMESCOPE_SRC
 _INSTALL_GAMESCOPE
 
+COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 
