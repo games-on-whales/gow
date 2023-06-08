@@ -120,6 +120,9 @@ COPY configs/ /cfg/
 COPY --chmod=777 scripts/custom_scripts/ /cfg/custom_scripts/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-es.sh
+RUN \
+    echo "**** Chown on gamescope ****" && \
+        chown retro:retro /usr/games/gamescope
 
 ENV XDG_RUNTIME_DIR=/tmp/sockets
 

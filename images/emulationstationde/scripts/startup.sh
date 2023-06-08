@@ -92,8 +92,10 @@ ln -sf /Applications $HOME
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
 
-# gow_log "Starting up Gamescope"
-# chown ${UNAME}:${UNAME} /usr/games/gamescope
+gow_log "Starting up Gamescope"
+ls -l /usr/games/gamescope
+file /usr/games/gamescope
+#chown ${UNAME}:${UNAME} /usr/games/gamescope
 
 if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
