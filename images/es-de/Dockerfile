@@ -4,6 +4,8 @@ ARG BASE_APP_IMAGE
 FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
+# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # Install prereqs
 RUN \
