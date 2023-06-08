@@ -63,6 +63,10 @@ gow_log "Copying custom config - YUZU QT settings, if not edited"
 mkdir -p $YUZU_CFG_DIR2
 cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 
+gow_log "Copying default config - EmulationStation settings, if not edited"
+mkdir -p $ES_CFG_DIR
+cp -u /cfg/es/es_settings.xml $ES_CFG_DIR/es_settings.xml
+
 gow_log "Change media directory for EmulationStation to /media"
 sed -i 's/<string name="MediaDirectory" value="" \/>/<string name="MediaDirectory" value="\/media" \/>/g' $ES_CFG_DIR/es_settings.xml
 
@@ -88,8 +92,8 @@ ln -sf /Applications $HOME
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
 
-gow_log "Starting up Gamescope"
-chown ${UNAME}:${UNAME} /usr/games/gamescope
+# gow_log "Starting up Gamescope"
+# chown ${UNAME}:${UNAME} /usr/games/gamescope
 
 if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
