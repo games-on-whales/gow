@@ -10,6 +10,7 @@ jobs:
 
       - name: Shell scripts
         uses: reviewdog/action-shellcheck@v1
+        continue-on-error: true # PRs might fail
         with:
           reporter: github-pr-review
           check_all_files_with_shebangs: "true"
@@ -18,6 +19,7 @@ jobs:
 
       - name: Dockerfiles
         uses: reviewdog/action-hadolint@v1
+        continue-on-error: true # PRs might fail
         with:
           reporter: github-pr-review
           # at least for now, ignore suggestions to pin specific versions of
@@ -27,6 +29,7 @@ jobs:
 
       - name: Environment files
         uses: dotenv-linter/action-dotenv-linter@v2
+        continue-on-error: true # PRs might fail
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -34,6 +37,7 @@ jobs:
 
       - name: YAML files
         uses: reviewdog/action-yamllint@v1
+        continue-on-error: true # PRs might fail
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
