@@ -45,28 +45,6 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./steam.sh</path>
-		<name>steam</name>
-        <desc>Launch Steam</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>Valve</developer>
-		<publisher>Valve</publisher>
-		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
-	</game>
-	<game>
-		<path>./Emulators/winecfg.sh</path>
-		<name>winecfg</name>
-        <desc>Launch winecfg</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>Wine Team</developer>
-		<publisher>QuaiGoner</publisher>
-		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
-	</game>
-	<game>
 		<path>./Emulators/xemu.sh</path>
 		<name>xemu</name>
         <desc>Launch XEMU</desc>

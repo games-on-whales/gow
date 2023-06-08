@@ -91,18 +91,3 @@ ln -sf /Applications $HOME
 
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
-
-gow_log "Starting up Gamescope"
-ls -l /usr/games/gamescope
-file /usr/games/gamescope
-#chown ${UNAME}:${UNAME} /usr/games/gamescope
-
-if [ -n "$RUN_GAMESCOPE" ]; then
-  GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
-  GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
-  GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
-  GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
-  /usr/games/gamescope ${GAMESCOPE_MODE} -W ${GAMESCOPE_WIDTH} -H ${GAMESCOPE_HEIGHT} -r ${GAMESCOPE_REFRESH} -- /opt/gow/startup-es.sh
-else
- exec /usr/bin/emulationstation
-fi
