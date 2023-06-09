@@ -2,7 +2,7 @@
 set -e
 source /opt/gow/bash-lib/utils.sh
 
-gow_log "Launching EmulationStation-DE"
+gow_log "Launching EmulationStation-Desktop Edition"
 
 if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
