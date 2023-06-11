@@ -17,7 +17,7 @@ on:
         required: true
       platforms:
         description: "Which platforms should this image be built for?"
-        default: "linux/amd64,linux/arm64"
+        default: "linux/amd64"
         type: string
         required: false
     outputs:

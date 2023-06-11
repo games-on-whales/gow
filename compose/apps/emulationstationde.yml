@@ -1,0 +1,51 @@
+#########################
+# emulationstationde.yml
+#########################
+#
+# This container runs EmulationStastion-DE with several preinstalled emulators
+
+services:
+  ####################
+  emulationstationde:
+    build:
+     context: ./images/emulationstationde
+     args:
+       BASE_IMAGE: ${BUILD_BASE_IMAGE}
+       BASE_APP_IMAGE: ${BUILD_BASE_APP_IMAGE}
+    runtime: ${DOCKER_RUNTIME}
+    privileged: true
+    network_mode: ${UDEVD_NETWORK}
+    volumes:
+      # Followings are needed in order to get joystick support
+      - /dev/input:/dev/input:ro
+      - udev:/run/udev/:ro
+      # Xorg socket in order to get the screen
+      - ${XORG_SOCKET}:/tmp/.X11-unix
+      # Pulse socket, audio
+      - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
+      # Home directory: retroarch games, downloads, cores etc
+      - ${LOCAL_STATE}/:/home:rw
+      # Emulationstation default roms directory
+      - ${ROMS_DIRECTORY}/:/ROMs:ro
+      # Directrory with bioses
+      - ${BIOS_DIRECTORY}:/bioses:ro
+      # Emulationstation media directory
+      - ${MEDIA_DIRECTORY}:/media:rw
+      # some emulators need more than 64 MB of shared memory - see https://github.com/libretro/dolphin/issues/222
+      # TODO: why shm_size doesn't work ??????
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: ${SHM_SIZE}
+    ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359
+    env_file:
+      - config/common.env
+      - config/xorg.env
+      # run-gow: gpu_env
+
+    environment:
+      # Which devices does GoW need to be able to use? The docker user will be
+      # added to the groups that own these devices, to help with permissions
+      # issues
+      # These values are the defaults, but you can add others if needed
+      GOW_REQUIRED_DEVICES: /dev/uinput /dev/input/event* /dev/dri/* /dev/snd/*

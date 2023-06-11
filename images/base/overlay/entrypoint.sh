@@ -17,8 +17,9 @@ if [ "$(id -u)" = "0" ]; then
 fi
 
 # If a command was passed, run that instead of the usual init startup script
+# shellcheck disable=SC2198
 if [ -n "${@:-}" ]; then
-    exec "$@"
+    /bin/bash -c "$@"
     exit $?
 fi
 
