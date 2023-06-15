@@ -3,7 +3,7 @@ ARG BASE_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.12.0-beta9"
+ARG GAMESCOPE_VERSION="experiments"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -77,7 +77,7 @@ RUN <<_INSTALL_GAMESCOPE
     dpkg -i xwayland-gow_23.1.1_all.deb
 
     cd $GAMESCOPE_SRC
-    git clone https://github.com/ValveSoftware/gamescope.git
+    git clone https://github.com/drakulix/gamescope.git
     cd gamescope
     git checkout $GAMESCOPE_VERSION
     git submodule update --init
