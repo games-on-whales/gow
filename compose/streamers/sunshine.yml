@@ -34,7 +34,7 @@ services:
       # Pulse socket, audio
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: sunshine state + configs
-      - ${local_state}/:/home/retro/
+      - ${LOCAL_STATE}/:/home/retro/
       # OPTIONAL: host dbus used by avahi in order to publish Sunshine for auto network discovery
       - ${DBUS}:/run/dbus:ro
     ipc: ${SHARED_IPC}  # Needed for MIT-SHM, removing this should cause a performance hit see https://github.com/jessfraz/dockerfiles/issues/359

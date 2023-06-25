@@ -11,7 +11,7 @@ containers.  Because this same directory is (typically) mapped into each
 container, it can also be a way to share data between multiple containers.
 
 Before you launch GoW for the first time, create a new directory and update the
-`local_state` variable in your <<User environment>> to match.
+`LOCAL_STATE` variable in your <<User environment>> to match.
 
 TIP: On unRAID, the `local_state` folder you just created will likely be owned
 by `root`, and it may not be writable from the containers launched by GoW,

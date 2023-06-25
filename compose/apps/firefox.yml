@@ -19,7 +19,7 @@ services:
       - ${XORG_SOCKET}:/tmp/.X11-unix
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: downloads, etc
-      - ${local_state}/:/home/retro/
+      - ${LOCAL_STATE}/:/home/retro/
 
     env_file:
       - config/common.env

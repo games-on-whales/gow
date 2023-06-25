@@ -15,7 +15,7 @@ services:
       - ${XORG_SOCKET}:/tmp/.X11-unix
       - ${PULSE_SOCKET_HOST}:/tmp/pulse/
       - ${DBUS}:/run/dbus:ro
-      - ${local_state}/.config/wolf:/wolf/cfg
+      - ${LOCAL_STATE}/.config/wolf:/wolf/cfg
     devices:
       - /dev/dri:/dev/dri
     env_file:

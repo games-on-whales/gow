@@ -25,7 +25,7 @@ services:
       # Pulse socket, audio
       - ${PULSE_SOCKET_HOST}:${PULSE_SOCKET_GUEST}
       # Home directory: client, games, downloads, etc
-      - ${local_state}/:/home/retro/
+      - ${LOCAL_STATE}/:/home/retro/
       # The following is needed by the webview otherwise you'll get Less than
       # 64MB of free space in temporary directory
       # (https://github.com/microsoft/vscode/issues/111729#issuecomment-737399692)
