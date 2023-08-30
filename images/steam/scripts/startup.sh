@@ -10,6 +10,8 @@ mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
 
 STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-oldbigpicture -bigpicture"}
 
+dbus-daemon --session --fork
+
 if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
   GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
