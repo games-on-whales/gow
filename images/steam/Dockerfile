@@ -32,6 +32,7 @@ ARG REQUIRED_PACKAGES=" \
     mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
     libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 \
     dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
+    mangoapp ibus \
 "
 
 RUN apt-get update -y && \
