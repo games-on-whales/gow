@@ -11,8 +11,6 @@ mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
 # Use the new big picture mode by default
 STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-bigpicture"}
 
-dbus-daemon --session --fork
-
 # Some game fixes taken from the Steam Deck
 export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 
@@ -118,7 +116,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
 
   # Start Steam
   # shellcheck disable=SC2086
-  /usr/games/steam ${STEAM_STARTUP_FLAGS}
+  dbus-run-session -- /usr/games/steam ${STEAM_STARTUP_FLAGS}
 else
   # shellcheck disable=SC2086
   exec /usr/games/steam ${STEAM_STARTUP_FLAGS}
