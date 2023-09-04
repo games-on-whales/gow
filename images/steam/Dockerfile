@@ -31,6 +31,8 @@ ARG REQUIRED_PACKAGES=" \
     libvulkan1 libvulkan1:i386 \
     mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
     libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 \
+    dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
+    mangoapp ibus \
 "
 
 RUN apt-get update -y && \
@@ -46,8 +48,15 @@ RUN apt-get update -y && \
     apt-get remove -y software-properties-common && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
+# fix NetworkManager not picking up devices
+RUN touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
+COPY --chmod=777 steamos-update /usr/bin/steamos-update
+COPY --chmod=777 steamos-update /usr/bin/steamos-polkit-helpers/steamos-update
+COPY --chmod=777 jupiter-biosupdate /usr/bin/jupiter-biosupdate
+COPY --chmod=777 jupiter-biosupdate /usr/bin/steamos-polkit-helpers/jupiter-biosupdate
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
