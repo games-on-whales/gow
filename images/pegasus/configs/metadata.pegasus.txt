@@ -1,0 +1,41 @@
+collection: Applications
+launch: {file.path}
+files:
+  /usr/bin/retroarch
+  /usr/games/dolphin-emu
+  /bin/pcsx2.sh
+  /bin/download_pegasus_themes.sh
+  /bin/Install_RPCS3_Firmware.sh
+
+
+game: RetroArch
+release: 2023-09-22
+file: /usr/bin/retroarch
+description: RetroArch Emulator
+assets.box_front: /cfg/app/images/box_front_retroarch.png
+assets.background: /cfg/app/images/background_retroarch.png
+assets.screenshot: /cfg/app/images/screenshot_retroarch.gif
+assets.logo: /cfg/app/images/logo_retroarch.png
+
+game: PCSX2
+release: 2023-09-22
+file: /bin/pcsx2.sh
+description: PCSX2 - Playstation 2 Emulator
+assets.background: /cfg/app/images/background_pcsx2.jpg
+assets.box_front: /cfg/app/images/box_front_pcsx2.png
+assets.logo: /cfg/app/images/logo_pcsx2.png
+
+game: Download Pegasus Themes
+release: 2023-09-22
+file: /bin/download_pegasus_themes.sh
+description: Download various Pegasus Themes
+
+game: RPCS3 Install Firmware
+release: 2023-09-22
+file: /bin/Install_RPCS3_Firmware.sh
+description: Install RPCS3 firmware from bios folder. Bios folder should be mounted to /home/retro/bioses/. The bios file should be "PS3UPDAT.PUP"
+
+game: Dolphin Emulator
+release: 2023-09-22
+file: /usr/games/dolphin-emu
+description: Dolphin Emulator
