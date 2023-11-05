@@ -2,10 +2,10 @@ collection: Applications
 launch: {file.path}
 files:
   /usr/bin/retroarch
-  /usr/games/dolphin-emu
   /bin/pcsx2.sh
   /bin/download_pegasus_themes.sh
   /bin/Install_RPCS3_Firmware.sh
+  /usr/dolphin.sh
 
 
 game: RetroArch
@@ -37,5 +37,5 @@ description: Install RPCS3 firmware from bios folder. Bios folder should be moun
 
 game: Dolphin Emulator
 release: 2023-09-22
-file: /usr/games/dolphin-emu
+file: /bin/dolphin.sh
 description: Dolphin Emulator

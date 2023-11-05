@@ -90,12 +90,13 @@ RUN \
         cd /tmp && \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
 
-# Install Dolphin-emu \
+# Install Dolphin-emu
+# TODO: This is some randomly found AppImage. Need to find something more official
 RUN \
     echo "**** Installing Dolphin Emulator ****" && \
-        add-apt-repository universe && \
-        apt-get update && \
-        apt-get install -y --no-install-recommends dolphin-emu
+        mkdir -p /tmp && \
+        cd /tmp && \
+        wget -O dolphin-emu.AppImage https://github.com/lucasmz1/Dolphin_emu_Appimage/releases/download/continuous-stable/Dolphin_Emulator-x86_64.AppImage
 
 RUN \
     echo "**** Preparing /Applications for symlinking ****" && \
@@ -112,6 +113,9 @@ RUN apt-get remove -y software-properties-common gpg-agent && \
 # Copy config files
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+
+# Copy Dolphin files
+COPY configs/GCPadNew.ini /cfg/dolphin/GCPadNew.ini
 
 # Copy Pegasus related files
 COPY scripts/launchers/*.sh /bin/
