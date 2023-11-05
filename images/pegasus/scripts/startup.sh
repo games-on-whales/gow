@@ -3,6 +3,11 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+gow_log "Configure Dolphin"
+DOLPHIN_CFG=$HOME/.config/dolphin-emu
+mkdir -p "$DOLPHIN_CFG"
+cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
+
 gow_log "Configure Retroarch"
 
 CFG_DIR=$HOME/.config/retroarch
