@@ -7,6 +7,7 @@ gow_log "Configure Dolphin"
 DOLPHIN_CFG=$HOME/.config/dolphin-emu
 mkdir -p "$DOLPHIN_CFG"
 cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
+cp -u /cfg/dolphin/Dolphin.ini "$DOLPHIN_CFG/Dolphin.ini"
 
 gow_log "Configure Retroarch"
 
@@ -20,6 +21,9 @@ cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 # Copy pre-installed cores from the retroarch ppa
 # shellcheck disable=SC2046
 # cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"
+
+gow_log "Symlinking Bioses from /Bioses"
+ln -sf /bioses $HOME
 
 # if there are no assets, manually download them
 if [ ! -d "$CFG_DIR/assets" ]; then

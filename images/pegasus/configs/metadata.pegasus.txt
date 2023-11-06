@@ -6,6 +6,9 @@ files:
   /bin/download_pegasus_themes.sh
   /bin/Install_RPCS3_Firmware.sh
   /usr/dolphin.sh
+  /usr/xemu.sh
+  /usr/yuzu.sh
+  /usr/rpcs3.sh
 
 
 game: RetroArch
@@ -39,3 +42,18 @@ game: Dolphin Emulator
 release: 2023-09-22
 file: /bin/dolphin.sh
 description: Dolphin Emulator
+
+game: RPCS3 Emulator
+release: 2023-09-22
+file: /bin/rpcs3.sh
+description: Playstation 3 Emulator
+
+game: Xemu Emulator
+release: 2023-09-22
+file: /bin/xemu.sh
+description: Xbox Emulator
+
+game: Yuzu Emulator
+release: 2023-09-22
+file: /bin/yuzu.sh
+description: Switich Emulator
