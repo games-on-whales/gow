@@ -40,7 +40,7 @@ RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
+		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.116/xemu-v0.7.116-x86_64.AppImage
 
 # Downloading RPCS3 AppImage
 RUN \
@@ -116,18 +116,12 @@ RUN apt-get remove -y software-properties-common gpg-agent && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy config files
-COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
-
-# Copy Dolphin files
-COPY configs/GCPadNew.ini /cfg/dolphin/GCPadNew.ini
-COPY configs/Dolphin.ini /cfg/dolphin/Dolphin.ini
 
 # Copy Pegasus related files
 COPY scripts/launchers/*.sh /bin/
 COPY scripts/tools/*.sh /bin/
-COPY configs/images/* /cfg/app/images/
-COPY configs/metadata.pegasus.txt /cfg/app/metadata.pegasus.txt
+COPY configs /cfg
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

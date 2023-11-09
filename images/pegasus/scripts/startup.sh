@@ -16,12 +16,21 @@ CFG_DIR=$HOME/.config/retroarch
 # Copying config in case it's the first time we mount from the host
 mkdir -p "$CFG_DIR/cores/"
 
-cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
+cp -u /cfg/retroarch/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
 # Copy pre-installed cores from the retroarch ppa
 # shellcheck disable=SC2046
 # cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"
 
+# Configure Xemu
+gow_log "Configure Xemu"
+XEMU_CFG_DIR=$HOME/.local/share/xemu
+gow_log "Copying custom config - XEMU settings, if not edited"
+mkdir -p $XEMU_CFG_DIR/xemu/
+cp -u /cfg/xemu/xemu.toml $XEMU_CFG_DIR/xemu/xemu.toml
+if [ -f "/bioses/xbox_hdd.qcow2" ]; then
+    cp -u /bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
+fi
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
 
