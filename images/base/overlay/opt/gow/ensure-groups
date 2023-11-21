@@ -7,11 +7,6 @@ source /opt/gow/bash-lib/utils.sh
 declare -A group_map
 
 for dev in "$@"; do
-    # Only process $dev if it's a character device
-    if [ ! -c "$dev" ]; then
-        continue
-    fi
-
     dev_group=$(stat -c "%G" "$dev")
     dev_gid=$(stat -c "%g" "$dev")
 
