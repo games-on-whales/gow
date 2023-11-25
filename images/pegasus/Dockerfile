@@ -29,18 +29,20 @@ RUN \
 		rm -rf /var/lib/apt/lists/*
 
 # Downloading PCSX2 AppImage
+ARG PCS2_APP_IMAGE_URL=https://github.com/PCSX2/pcsx2/releases/download/v1.7.5232/pcsx2-v1.7.5232-linux-appimage-x64-Qt.AppImage
 RUN \
     echo "**** Downloading PCSX2 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.5181/pcsx2-v1.7.5181-linux-appimage-x64-Qt.AppImage
+		wget -O pcsx2-emu-Qt.AppImage "${PCS2_APP_IMAGE_URL}"
 
 # Downloading XEMU AppImage
+ARG XEMU_APP_IMAGE_URL=https://github.com/xemu-project/xemu/releases/download/v0.7.117/xemu-v0.7.117-x86_64.AppImage
 RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.116/xemu-v0.7.116-x86_64.AppImage
+		wget -O xemu-emu.AppImage "${XEMU_APP_IMAGE_URL}"
 
 # Downloading RPCS3 AppImage
 RUN \
