@@ -3,6 +3,11 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+gow_log "Configure PCSX2"
+PCSX2_CFG=$HOME/.config/PCSX2
+mkdir -p "$PCSX2_CFG"
+cp -u /cfg/PCSX2/PCSX2.ini "${PCSX2_CFG}/inis/PCSX2.ini"
+
 gow_log "Configure Dolphin"
 DOLPHIN_CFG=$HOME/.config/dolphin-emu
 mkdir -p "$DOLPHIN_CFG"
@@ -10,7 +15,6 @@ cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
 cp -u /cfg/dolphin/Dolphin.ini "$DOLPHIN_CFG/Dolphin.ini"
 
 gow_log "Configure Retroarch"
-
 CFG_DIR=$HOME/.config/retroarch
 
 # Copying config in case it's the first time we mount from the host
