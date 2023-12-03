@@ -18,7 +18,9 @@ declare -A EMULATOR_COMMAND=( \
 ["psx"]="retroarch --fullscreen -L ~/.config/retroarch/cores/pcsx_rearmed_libretro.so \"${ROM}\"" \
 ["ps2"]="/Applications/pcsx2-emu-Qt.AppImage --appimage-extract-and-run \"${ROM}\"" \
 ["sega32x"]="retroarch --fullscreen -L ~/.config/retroarch/cores/picodrive_libretro.so \"${ROM}\"" \
-["snes"]="retroarch --fullscreen -L ~/.config/retroarch/cores/bsnes_hd_beta_libretro.so \"${ROM}\"" \
+["snes"]="retroarch --fullscreen -L ~/.config/retroarch/cores/snes9x_libretro.so \"${ROM}\"" \
+["snes_widescreen"]="retroarch --fullscreen -L ~/.config/retroarch/cores/bsnes_hd_beta_libretro.so \"${ROM}\"" \
+["virtualboy"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_vb_libretro.so \"${ROM}\"" \
 ["wii"]="/Applications/dolphin-emu.AppImage --appimage-extract-and-run --batch --exec=\"${ROM}\"" \
 ["xbox"]="/Applications/xemu-emu.AppImage --appimage-extract-and-run -full-screen -dvd_path \"${ROM}\"" \
 )
