@@ -26,6 +26,71 @@ RUN apt-get update -y && \
     $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
+###########
+# NVIDIA
+###
+# Expose NVIDIA libraries and paths
+ENV PATH /usr/local/nvidia/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+# Make all NVIDIA GPUs visible by default
+ENV NVIDIA_VISIBLE_DEVICES all
+# All NVIDIA driver capabilities should preferably be used, check `NVIDIA_DRIVER_CAPABILITIES` inside the container if things do not work
+ENV NVIDIA_DRIVER_CAPABILITIES all
+# Disable VSYNC for NVIDIA GPUs
+ENV __GL_SYNC_TO_VBLANK 0
+
+COPY <<-EOT /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+{
+    "file_format_version" : "1.0.0",
+    "ICD" : {
+        "library_path" : "libEGL_nvidia.so.0"
+    }
+}
+EOT
+
+COPY <<-EOT /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+{
+    "file_format_version" : "1.0.0",
+    "ICD" : {
+        "library_path" : "libEGL_nvidia.so.0"
+    }
+}
+EOT
+
+COPY <<-EOT /etc/vulkan/icd.d/nvidia_icd.json
+{
+    "file_format_version" : "1.0.0",
+    "ICD": {
+        "library_path": "libGLX_nvidia.so.0",
+        "api_version" : "1.3.205"
+    }
+}
+EOT
+
+COPY <<-EOT /etc/OpenCL/vendors/nvidia.icd
+libnvidia-opencl.so.1
+EOT
+
+COPY <<-EOT /usr/share/egl/egl_external_platform.d/15_nvidia_gbm.json
+{
+        "file_format_version" : "1.0.0",
+        "ICD" : {
+                "library_path" : "libnvidia-egl-gbm.so.1"
+        }
+}
+EOT
+
+COPY <<-EOT /usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json
+{
+    "file_format_version" : "1.0.0",
+    "ICD" : {
+        "library_path" : "libnvidia-egl-wayland.so.1"
+    }
+}
+EOT
+
+###########
+
 #################################
 # GAMESCOPE
 ####
