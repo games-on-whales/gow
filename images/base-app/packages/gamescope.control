@@ -6,8 +6,8 @@ Standards-Version: 3.9.2
 
 Section: misc
 Package: gamescope-gow
-Version: 3.12.0-beta3
-Depends: libatomic1, libc6, libcap2, libdrm2, libgcc-s1, libliftoff0, libpipewire-0.3-0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-server0, libwlroots10, libx11-6, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland
+Version: 3.13.16
+Depends: libatomic1, libc6, libcap2, libdrm2, libgcc-s1, libliftoff0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-server0, libwlroots10, libx11-6, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland
 Replaces: gamescope, gamescope-core
 Description: Manually built from git
 

@@ -3,7 +3,7 @@ ARG BASE_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.12.0-beta9"
+ARG GAMESCOPE_VERSION="3.13.16"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -26,71 +26,6 @@ RUN apt-get update -y && \
     $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
-###########
-# NVIDIA
-###
-# Expose NVIDIA libraries and paths
-ENV PATH /usr/local/nvidia/bin:${PATH}
-ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
-# Make all NVIDIA GPUs visible by default
-ENV NVIDIA_VISIBLE_DEVICES all
-# All NVIDIA driver capabilities should preferably be used, check `NVIDIA_DRIVER_CAPABILITIES` inside the container if things do not work
-ENV NVIDIA_DRIVER_CAPABILITIES all
-# Disable VSYNC for NVIDIA GPUs
-ENV __GL_SYNC_TO_VBLANK 0
-
-COPY <<-EOT /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-{
-    "file_format_version" : "1.0.0",
-    "ICD" : {
-        "library_path" : "libEGL_nvidia.so.0"
-    }
-}
-EOT
-
-COPY <<-EOT /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-{
-    "file_format_version" : "1.0.0",
-    "ICD" : {
-        "library_path" : "libEGL_nvidia.so.0"
-    }
-}
-EOT
-
-COPY <<-EOT /etc/vulkan/icd.d/nvidia_icd.json
-{
-    "file_format_version" : "1.0.0",
-    "ICD": {
-        "library_path": "libGLX_nvidia.so.0",
-        "api_version" : "1.3.205"
-    }
-}
-EOT
-
-COPY <<-EOT /etc/OpenCL/vendors/nvidia.icd
-libnvidia-opencl.so.1
-EOT
-
-COPY <<-EOT /usr/share/egl/egl_external_platform.d/15_nvidia_gbm.json
-{
-        "file_format_version" : "1.0.0",
-        "ICD" : {
-                "library_path" : "libnvidia-egl-gbm.so.1"
-        }
-}
-EOT
-
-COPY <<-EOT /usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json
-{
-    "file_format_version" : "1.0.0",
-    "ICD" : {
-        "library_path" : "libnvidia-egl-wayland.so.1"
-    }
-}
-EOT
-
-###########
-
 #################################
 # GAMESCOPE
 ####
@@ -102,11 +37,11 @@ RUN <<_INSTALL_GAMESCOPE
     # Dependencies
     DEV_PACKAGES="\
         git build-essential gcc pkg-config ninja-build meson cmake equivs libcap2-bin \
-        libpipewire-0.3-dev libvulkan-dev libwayland-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
+        libvulkan-dev libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
         libxcb-icccm4-dev libxcb-res0-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev \
-        xserver-common libliftoff0 libwlroots10 mesa-common-dev libbenchmark-dev"
+        xserver-common libliftoff0 libwlroots10 mesa-common-dev libbenchmark-dev libexpat1-dev libxml2-dev libxcb-ewmh-dev"
     apt-get update -y
     apt-get install -y --no-install-recommends $DEV_PACKAGES
 
@@ -121,13 +56,27 @@ RUN <<_INSTALL_GAMESCOPE
     make
     make install
 
-    # Installing from APT will pull an old version, gamescope requires >=1.27
+    # Installing from APT will pull an old version, gamescope requires >=1.32
     cd $GAMESCOPE_SRC
-    git clone -b 1.31 --depth=1 https://gitlab.freedesktop.org/wayland/wayland-protocols.git
+    git clone -b 1.32 --depth=1 https://gitlab.freedesktop.org/wayland/wayland-protocols.git
     cd wayland-protocols
     meson setup --buildtype=release build
     meson compile -C build
     meson install -C build
+
+    # Installing from APT will pull an old version, gamescope requires wayland-server>=1.22
+    cd $GAMESCOPE_SRC
+    git clone -b 1.22.0 --depth=1 https://gitlab.freedesktop.org/wayland/wayland.git
+    cd wayland
+    meson setup --buildtype=release -Ddtd_validation=false -Ddocumentation=false -Dtests=false build
+    meson compile -C build
+    meson install -C build
+
+    # Vulkan headers
+    git clone -b v1.3.272 --depth=1 https://github.com/KhronosGroup/Vulkan-Headers.git
+    cd Vulkan-Headers/
+    cmake -S . -B build/
+    cmake --install build
 
     # Installing xwayland
     cd $GAMESCOPE_SRC
@@ -148,9 +97,9 @@ RUN <<_INSTALL_GAMESCOPE
     git submodule update --init
     # fake apt install
     equivs-build ${PKGS_ROOT}/gamescope.control
-    dpkg -i gamescope-gow_3.12.0-beta3_all.deb
+    dpkg -i gamescope-gow_3.13.16_all.deb
 
-    meson setup --buildtype=release build
+    meson setup --buildtype=release -Dpipewire=disabled -Denable_openvr_support=false build
     meson compile -C build
     meson install -C build --skip-subprojects
 
