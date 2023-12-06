@@ -7,7 +7,7 @@ source /opt/gow/bash-lib/utils.sh
 declare -A group_map
 
 for dev in "$@"; do
-    if [-f $dev]; then
+    if [ -e "$dev"]; then
         dev_group=$(stat -c "%G" "$dev")
         dev_gid=$(stat -c "%g" "$dev")
 
