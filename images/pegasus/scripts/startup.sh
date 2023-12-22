@@ -3,17 +3,26 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+#########################################
+# Configure PCSX2
+#########################################
 gow_log "Configure PCSX2"
 PCSX2_CFG=$HOME/.config/PCSX2
 mkdir -p "$PCSX2_CFG"
 cp -u /cfg/PCSX2/PCSX2.ini "${PCSX2_CFG}/inis/PCSX2.ini"
 
+#########################################
+# Configure Dolphin
+#########################################
 gow_log "Configure Dolphin"
 DOLPHIN_CFG=$HOME/.config/dolphin-emu
 mkdir -p "$DOLPHIN_CFG"
 cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
 cp -u /cfg/dolphin/Dolphin.ini "$DOLPHIN_CFG/Dolphin.ini"
 
+#########################################
+# Configure Retroarch
+#########################################
 gow_log "Configure Retroarch"
 CFG_DIR=$HOME/.config/retroarch
 
@@ -26,7 +35,25 @@ cp -u /cfg/retroarch/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 # shellcheck disable=SC2046
 # cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"
 
+#########################################
+# Configure Yuzu
+#########################################
+gow_log "Copying keys for YUZU if it is present in bioses or newer"
+YUZU_CFG_DIR=$HOME/.local/share/yuzu
+YUZU_CFG_DIR2=$HOME/.config/yuzu
+if test -f /bioses/prod.keys; then
+    gow_log "YUZU keys are present, copy them to YUZU folder"
+	mkdir -p $YUZU_CFG_DIR/keys/
+    cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
+fi
+
+gow_log "Copying custom config - YUZU QT settings, if not edited"
+mkdir -p $YUZU_CFG_DIR2
+cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
+
+#########################################
 # Configure Xemu
+#########################################
 gow_log "Configure Xemu"
 XEMU_CFG_DIR=$HOME/.local/share/xemu
 gow_log "Copying custom config - XEMU settings, if not edited"
@@ -46,10 +73,10 @@ if [ ! -d "$CFG_DIR/assets" ]; then
 fi
 
 if [ -n "$RUN_GAMESCOPE" ]; then
-  GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
-  GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
-  GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
-  GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
+  export GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
+  export GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
+  export GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
+  export GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
   /usr/games/gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- pegasus-fe
 else
  exec pegasus-fe

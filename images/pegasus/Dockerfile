@@ -56,7 +56,7 @@ RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
+        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
 
 # Install Dolphin-emu
 # ARG DOLPHIN_APP_IMAGE_URL=https://github.com/project-slippi/Ishiiruka/releases/download/v3.3.1/Slippi_Online-x86_64.AppImage
