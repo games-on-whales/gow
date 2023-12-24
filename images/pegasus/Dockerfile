@@ -45,18 +45,21 @@ RUN \
 		wget -O xemu-emu.AppImage "${XEMU_APP_IMAGE_URL}"
 
 # Downloading RPCS3 AppImage
+# ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-98b764223285b2b1d474ece51027b936819adf46/rpcs3-v0.0.29-15813-98b76422_linux64.AppImage
+ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O rpcs3-emu.AppImage https://rpcs3.net/latest-appimage
+        wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
 
 # Downloading YUZU AppImage
+ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
 RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
+        wget -O yuzu-emu.AppImage "${YUZU_APP_IMAGE_URL}"
 
 # Install Dolphin-emu
 # ARG DOLPHIN_APP_IMAGE_URL=https://github.com/project-slippi/Ishiiruka/releases/download/v3.3.1/Slippi_Online-x86_64.AppImage
