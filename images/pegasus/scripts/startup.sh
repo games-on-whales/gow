@@ -3,33 +3,44 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+gow_log "Symlinking Bioses from /Bioses"
+ln -sf /bioses $HOME
+
 #########################################
 # Configure PCSX2
 #########################################
-gow_log "Configure PCSX2"
 PCSX2_CFG=$HOME/.config/PCSX2
-mkdir -p "$PCSX2_CFG"
+gow_log "PCSX2 - Configure"
+mkdir -p "$PCSX2_CFG/inis/"
 cp -u /cfg/PCSX2/PCSX2.ini "${PCSX2_CFG}/inis/PCSX2.ini"
 
 #########################################
 # Configure Dolphin
 #########################################
-gow_log "Configure Dolphin"
 DOLPHIN_CFG=$HOME/.config/dolphin-emu
 mkdir -p "$DOLPHIN_CFG"
-cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
+gow_log "Dolphin - Copying config, if not edited"
 cp -u /cfg/dolphin/Dolphin.ini "$DOLPHIN_CFG/Dolphin.ini"
+gow_log "Dolphin - Copying controller config, if not edited"
+cp -u /cfg/dolphin/GCPadNew.ini "$DOLPHIN_CFG/GCPadNew.ini"
 
 #########################################
 # Configure Retroarch
 #########################################
-gow_log "Configure Retroarch"
-CFG_DIR=$HOME/.config/retroarch
+RETROARCH_CFG_DIR=$HOME/.config/retroarch
 
 # Copying config in case it's the first time we mount from the host
-mkdir -p "$CFG_DIR/cores/"
+gow_log "Retroarch - Copying config, if not edited"
+mkdir -p "$RETROARCH_CFG_DIR/cores/"
+cp -u /cfg/retroarch/retroarch.cfg "$RETROARCH_CFG_DIR/retroarch.cfg"
 
-cp -u /cfg/retroarch/retroarch.cfg "$CFG_DIR/retroarch.cfg"
+gow_log "Retroarch - Checking RA Assets presence, if none - install them"
+if [ ! -d "$RETROARCH_CFG_DIR/assets" ]; then
+    gow_log "Retroarch - No assets found, starting install"
+    wget -q -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
+    7z x /tmp/assets.zip -bso0 -bse0 -bsp1 -o"$RETROARCH_CFG_DIR/assets"
+    rm /tmp/assets.zip
+fi
 
 # Copy pre-installed cores from the retroarch ppa
 # shellcheck disable=SC2046
