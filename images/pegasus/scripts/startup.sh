@@ -49,13 +49,18 @@ fi
 #########################################
 # Configure Yuzu
 #########################################
-gow_log "Copying keys for YUZU if it is present in bioses or newer"
 YUZU_CFG_DIR=$HOME/.local/share/yuzu
 YUZU_CFG_DIR2=$HOME/.config/yuzu
+gow_log "YUZU - Copying pred/title keys for YUZU"
 if test -f /bioses/prod.keys; then
-    gow_log "YUZU keys are present, copy them to YUZU folder"
+    gow_log "YUZU - /bioses/prod.keys present, copy to YUZU folder"
 	mkdir -p $YUZU_CFG_DIR/keys/
     cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
+fi
+if test -f /bioses/prod.keys; then
+    gow_log "YUZU - /bioses/title.keys present, copy to YUZU folder"
+	mkdir -p $YUZU_CFG_DIR/keys/
+    cp -u $HOME/bioses/title.keys $YUZU_CFG_DIR/keys/title.keys
 fi
 
 gow_log "Copying custom config - YUZU QT settings, if not edited"
@@ -63,27 +68,32 @@ mkdir -p $YUZU_CFG_DIR2
 cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 
 #########################################
-# Configure Xemu
+# Configure RPCS3
 #########################################
-gow_log "Configure Xemu"
+RPCS3_CFG_DIR=$HOME/.config/rpcs3
+gow_log "RPCS3 - Copying controller bindings for Wolf, if not edited"
+mkdir -p $RPCS3_CFG_DIR/input_configs/global/
+
+cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
+
+gow_log "RPCS3 - Copying custom config (disable Auto-Update pop-up), if not edited"
+mkdir -p $RPCS3_CFG_DIR/GuiConfigs/
+cp -u /cfg/rpcs3/CurrentSettings.ini $RPCS3_CFG_DIR/GuiConfigs/CurrentSettings.ini
+
+#########################################
+# Configure XEMU
+#########################################
 XEMU_CFG_DIR=$HOME/.local/share/xemu
-gow_log "Copying custom config - XEMU settings, if not edited"
+gow_log "XEMU - Copying custom config - settings, if not edited"
 mkdir -p $XEMU_CFG_DIR/xemu/
 cp -u /cfg/xemu/xemu.toml $XEMU_CFG_DIR/xemu/xemu.toml
+gow_log "XEMU - Copying basic hard drive (/bioses/xbox_hdd.gcow2), if present and not edited"
 if [ -f "/bioses/xbox_hdd.qcow2" ]; then
     cp -u /bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
-gow_log "Symlinking Bioses from /Bioses"
-ln -sf /bioses $HOME
-
-# if there are no assets, manually download them
-if [ ! -d "$CFG_DIR/assets" ]; then
-    wget -q --show-progress -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
-    7z x /tmp/assets.zip -bso0 -bse0 -bsp1 -o"$CFG_DIR/assets"
-    rm /tmp/assets.zip
-fi
 
 if [ -n "$RUN_GAMESCOPE" ]; then
+  echo "Gamescope - Starting Pegasus"
   export GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
   export GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
   export GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
