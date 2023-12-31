@@ -23,6 +23,17 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
+		<path>./Emulators/cemu.sh</path>
+		<name>cemu</name>
+        <desc>Launch cemu</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Cemu Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
 		<path>./Emulators/retroarch.sh</path>
 		<name>retroarch</name>
         <desc>Launch RetroArch</desc>
