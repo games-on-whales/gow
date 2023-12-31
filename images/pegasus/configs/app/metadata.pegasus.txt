@@ -20,18 +20,11 @@ game: RetroArch
 release: 2023-09-22
 file: /usr/bin/retroarch
 description: RetroArch is a frontend for emulators, game engines and media players. It enables you to run classic games on a wide range of computers and consoles through its slick graphical interface. Settings are also unified so configuration is done once and for all. In addition to this, you are able to run original game discs (CDs) from RetroArch.
-assets.box_front: /cfg/app/images/box_front_retroarch.png
-assets.background: /cfg/app/images/background_retroarch.png
-assets.screenshot: /cfg/app/images/screenshot_retroarch.gif
-assets.logo: /cfg/app/images/logo_retroarch.png
 
 game: PCSX2
 release: 2023-09-22
 file: /bin/pcsx2.sh
 description: PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory.
-assets.background: /cfg/app/images/background_pcsx2.jpg
-assets.box_front: /cfg/app/images/box_front_pcsx2.png
-assets.logo: /cfg/app/images/logo_pcsx2.png
 
 game: Download Pegasus Themes
 release: 2023-09-22
