@@ -7,6 +7,15 @@ gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
 
 #########################################
+# Configure Pegasus
+#########################################
+PEGASUS_CFG=$HOME/.config/pegasus-frontend
+gow_log "Pegasus - Configure"
+mkdir -p "$PEGASUS_CFG"
+gow_log "Dolphin - Copying game_dirs.txt, if not edited"
+cp -u /cfg/app/game_dirs.txt "${PEGASUS_CFG}/game_dirs.txt"
+
+#########################################
 # Configure PCSX2
 #########################################
 PCSX2_CFG=$HOME/.config/PCSX2
