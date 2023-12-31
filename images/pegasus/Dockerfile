@@ -74,6 +74,14 @@ RUN \
         cd /tmp && \
         wget -O dolphin-emu.AppImage "${DOLPHIN_APP_IMAGE_URL}"
 
+# Install Cemu
+ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
+RUN \
+    echo "**** Downloading CEMU AppImage ****" && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+        wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
+
 # Pegasus requires libssl1.1, but ubuntu switched to libssl3. Need to manually install it.
 # TODO: Doing this could be a terrible idea
 RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb --output-document=libssl1.1.deb && \
@@ -107,9 +115,9 @@ RUN apt-get install -y --no-install-recommends libgstreamer1.0-dev \
     wget $PEGASUS_DOWNLOAD --output-document=pegasus-frontend.deb && \
     dpkg -i pegasus-frontend.deb
 
-
+# Move all the apps out of /tmp and to the /Applications folder
 RUN \
-    echo "**** Preparing /Applications for symlinking ****" && \
+    echo "**** Preparing Applications for symlinking ****" && \
         mkdir -p /Applications && \
         mv /tmp/*.AppImage /Applications && \
 		chmod -v -R 777 /Applications/ && \

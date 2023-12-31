@@ -1,6 +1,7 @@
 collection: Applications
 launch: {file.path}
 files:
+  /usr/cemu.sh
   /usr/bin/retroarch
   /bin/pcsx2.sh
   /bin/download_pegasus_themes.sh
@@ -10,11 +11,15 @@ files:
   /usr/yuzu.sh
   /usr/rpcs3.sh
 
+game: Cemu
+release: 2015-10-13
+file: /bin/cemu.sh
+description: Cemu is a free and open-source Wii U emulator, first released on October 13, 2015 for Microsoft Windows as a closed-source emulator developed by Exzap and Petergov. Experimental builds currently support Linux and macOS, in addition to the Windows environment available from launch.
 
 game: RetroArch
 release: 2023-09-22
 file: /usr/bin/retroarch
-description: RetroArch Emulator
+description: RetroArch is a frontend for emulators, game engines and media players. It enables you to run classic games on a wide range of computers and consoles through its slick graphical interface. Settings are also unified so configuration is done once and for all. In addition to this, you are able to run original game discs (CDs) from RetroArch.
 assets.box_front: /cfg/app/images/box_front_retroarch.png
 assets.background: /cfg/app/images/background_retroarch.png
 assets.screenshot: /cfg/app/images/screenshot_retroarch.gif
@@ -23,7 +28,7 @@ assets.logo: /cfg/app/images/logo_retroarch.png
 game: PCSX2
 release: 2023-09-22
 file: /bin/pcsx2.sh
-description: PCSX2 - Playstation 2 Emulator
+description: PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory.
 assets.background: /cfg/app/images/background_pcsx2.jpg
 assets.box_front: /cfg/app/images/box_front_pcsx2.png
 assets.logo: /cfg/app/images/logo_pcsx2.png
@@ -31,29 +36,29 @@ assets.logo: /cfg/app/images/logo_pcsx2.png
 game: Download Pegasus Themes
 release: 2023-09-22
 file: /bin/download_pegasus_themes.sh
-description: Download various Pegasus Themes
+description: Bash script to automatically download various Pegasus Themes.
 
 game: RPCS3 Install Firmware
 release: 2023-09-22
 file: /bin/Install_RPCS3_Firmware.sh
-description: Install RPCS3 firmware from bios folder. Bios folder should be mounted to /home/retro/bioses/. The bios file should be "PS3UPDAT.PUP"
+description: Install RPCS3 firmware from bios folder. Bios folder should be mounted to /bioses/. The bios file should be "PS3UPDAT.PUP"
 
 game: Dolphin Emulator
 release: 2023-09-22
 file: /bin/dolphin.sh
-description: Dolphin Emulator
+description: Dolphin is an open-source emulator for the Nintendo GameCube and Wii with support for Microsoft Windows, Linux, Mac OS X, and Android. Dolphin was the first emulator to boot GameCube and later Wii games, and now boasts compatibility with most titles for those game systems. With a huge community of developers and users around the world, Dolphin continues to gain compatibility, performance, and new features to this day.
 
 game: RPCS3 Emulator
 release: 2023-09-22
 file: /bin/rpcs3.sh
-description: Playstation 3 Emulator
+description: RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux, macOS and FreeBSD. The purpose of this project is to accurately emulate the PlayStation 3 in its entirety with the power of reverse engineering and community collaboration.
 
 game: Xemu Emulator
 release: 2023-09-22
 file: /bin/xemu.sh
-description: Xbox Emulator
+description: xemu is an active fork of the XQEMU project, which is based on the very popular and highly actively maintained QEMU full system emulator project. xemu is a low-level, full-system emulator which emulates the actual hardware of the Xbox.
 
 game: Yuzu Emulator
 release: 2023-09-22
 file: /bin/yuzu.sh
-description: Switich Emulator
+description: Yuzu (sometimes stylized in lowercase) is a free and open-source emulator of the Nintendo Switch, developed in C++. Yuzu was announced to be in development on January 14, 2018, 10 months after the release of the Nintendo Switch.

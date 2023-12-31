@@ -44,6 +44,7 @@ declare -A EMULATOR_COMMAND=( \
 ["switch"]="/Applications/yuzu-emu.AppImage --appimage-extract-and-run -f -g \"${ROM}\"" \
 ["virtualboy"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_vb_libretro.so \"${ROM}\"" \
 ["wii"]="/Applications/dolphin-emu.AppImage --appimage-extract-and-run --batch --exec=\"${ROM}\"" \
+["wiiu"]="/Applications/cemu-emu.AppImage --appimage-extract-and-run -f -g \"${ROM}\"" \
 ["wonderswan"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
 ["wonderswancolor"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
 ["xbox"]="/Applications/xemu-emu.AppImage --appimage-extract-and-run -full-screen -dvd_path \"${ROM}\"" \
