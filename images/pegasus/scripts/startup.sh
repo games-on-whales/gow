@@ -63,12 +63,12 @@ YUZU_CFG_DIR2=$HOME/.config/yuzu
 gow_log "YUZU - Copying pred/title keys for YUZU"
 if test -f /bioses/prod.keys; then
     gow_log "YUZU - /bioses/prod.keys present, copy to YUZU folder"
-	mkdir -p $YUZU_CFG_DIR/keys/
+	  mkdir -p $YUZU_CFG_DIR/keys/
     cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
 fi
 if test -f /bioses/prod.keys; then
     gow_log "YUZU - /bioses/title.keys present, copy to YUZU folder"
-	mkdir -p $YUZU_CFG_DIR/keys/
+	  mkdir -p $YUZU_CFG_DIR/keys/
     cp -u $HOME/bioses/title.keys $YUZU_CFG_DIR/keys/title.keys
 fi
 
@@ -82,7 +82,6 @@ cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 RPCS3_CFG_DIR=$HOME/.config/rpcs3
 gow_log "RPCS3 - Copying controller bindings for Wolf, if not edited"
 mkdir -p $RPCS3_CFG_DIR/input_configs/global/
-
 cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
 
 gow_log "RPCS3 - Copying custom config (disable Auto-Update pop-up), if not edited"
@@ -109,5 +108,5 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   export GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
   /usr/games/gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- pegasus-fe
 else
- exec pegasus-fe
+  exec pegasus-fe
 fi
