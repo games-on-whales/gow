@@ -63,6 +63,14 @@ RUN \
         cd /tmp && \
         wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
 
+# Install Cemu
+ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
+RUN \
+    echo "**** Downloading CEMU AppImage ****" && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+        wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
+
 RUN \
     echo "**** Preparing /Applications for symlinking ****" && \
         mkdir -p /Applications && \
