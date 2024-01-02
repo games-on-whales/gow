@@ -20,7 +20,6 @@ ARG REQUIRED_PACKAGES=" \
     xz-utils unzip avahi-utils dbus \
     mesa-utils mesa-utils-extra \
     vulkan-tools \
-    libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa \
     xserver-xorg-video-all \
     xserver-xorg-input-libinput \
     jwm libxft2 libxext6 breeze-cursor-theme \

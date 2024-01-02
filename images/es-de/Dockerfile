@@ -28,8 +28,6 @@ RUN \
     echo "**** Install RetroArch ****" && \
 		apt-get update && \
 		apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
-		add-apt-repository ppa:libretro/stable && \
-		apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
 		apt-get autoremove -y && \

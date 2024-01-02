@@ -2,7 +2,7 @@
 ARG BASE_APP_IMAGE
 
 ######################################
-FROM lizardbyte/sunshine:v0.18.1-ubuntu-22.04 AS sunshine-image
+FROM lizardbyte/sunshine:v0.21.0-ubuntu-22.04 AS sunshine-image
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine
@@ -10,7 +10,7 @@ FROM ${BASE_APP_IMAGE} AS sunshine
 ARG TARGETARCH TARGETVARIANT
 
 ARG REQUIRED_PACKAGES="\
-    libgbm1 libgles2-mesa libegl1 libgl1-mesa-dri \
+    libgbm1 \
     libvulkan1 \
     libvdpau1 libnuma1 \
     libva-drm2 libva-x11-2 va-driver-all \
