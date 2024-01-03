@@ -11,7 +11,22 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
 		apt-get update && \
-		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 && \
+		apt-get install -y \
+            ffmpeg \
+            gpg-agent \
+            libdbus-1-3 \
+            libegl1 \
+            libglu1-mesa-dev \
+            libgtk-3-0 \
+            libsdl2-2.0-0 \
+            libvulkan1 \
+            p7zip-full \
+            qt5-qmake \
+            qtbase5-dev \
+            software-properties-common \
+            wget \
+            x11-xserver-utils \
+            && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -20,7 +35,14 @@ RUN \
 RUN \
     echo "**** Install RetroArch ****" && \
 		apt-get update && \
-		apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1 libaio-dev && \
+		apt-get install -y --no-install-recommends \
+            gpg-agent \
+            libaio-dev \
+            libaio1 \
+            libglu1-mesa \
+            libusb-1.0-0 \
+            software-properties-common \
+            && \
 		add-apt-repository ppa:libretro/stable && \
 		apt-get update && \
 		apt-get install -y retroarch && \
@@ -69,7 +91,11 @@ ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/down
 RUN \
     echo "**** Installing Dolphin Emulator ****" && \
         apt-get update && \
-        apt-get install -y qtbase5-dev qtbase5-dev-tools qt6-base-dev qt6-base-dev-tools && \
+        apt-get install -y \
+            qtbase5-dev \
+            qtbase5-dev-tools \
+            qt6-base-dev \
+            qt6-base-dev-tools && \
         mkdir -p /tmp && \
         cd /tmp && \
         wget -O dolphin-emu.AppImage "${DOLPHIN_APP_IMAGE_URL}"
@@ -82,19 +108,20 @@ RUN \
         cd /tmp && \
         wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
 
-# Pegasus requires libssl1.1, but ubuntu switched to libssl3. Need to manually install it.
-# TODO: Doing this could be a terrible idea
+# Pegasus still requires libssl1.1, but ubuntu switched to libssl3. Need to manually install it.
+# TODO: Doing this could be a terrible idea (it does work)
 RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb --output-document=libssl1.1.deb && \
     dpkg -i libssl1.1.deb
 
 # Install pegasus
 ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/weekly_2023w20/pegasus-frontend_0.16.51_amd64.deb
-RUN apt-get install -y --no-install-recommends libgstreamer1.0-dev \
+RUN apt-get install -y --no-install-recommends \
     fontconfig \
     gstreamer1.0-alsa \
     gstreamer1.0-libav \
     gstreamer1.0-plugins-good \
     gstreamer1.0-gl \
+    libgstreamer1.0-dev \
     libsdl2-2.0-0 \
     libxcb-glx0 \
     libxcb-icccm4 \
@@ -114,6 +141,9 @@ RUN apt-get install -y --no-install-recommends libgstreamer1.0-dev \
     unzip && \
     wget $PEGASUS_DOWNLOAD --output-document=pegasus-frontend.deb && \
     dpkg -i pegasus-frontend.deb
+
+# Install sway
+RUN apt-get install -y sway xwayland
 
 # Move all the apps out of /tmp and to the /Applications folder
 RUN \
@@ -138,5 +168,5 @@ COPY configs /cfg
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
-# ARG IMAGE_SOURCE
-# LABEL org.opencontainers.image.source $IMAGE_SOURCE
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE

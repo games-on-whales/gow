@@ -10,5 +10,6 @@ port4 = '030000005e040000d102000000ab0000'
 [sys.files]
 bootrom_path = '/bioses/mcpx_1.0.bin'
 flashrom_path = '/bioses/Complex_4627.bin'
+eeprom_path = '/home/retro/.local/share/xemu/xemu/eeprom.bin'
 hdd_path = '/home/retro/.local/share/xemu/xemu/xbox_hdd.qcow2'
 
