@@ -1,8 +1,3 @@
 .DS_Store
 local_state/
 .idea/
-
-# Pegasus Image Ignores
-images/es-de/setup.sh
-images/pegasus/setup.sh
-images/nvidia-driver/setup.sh
