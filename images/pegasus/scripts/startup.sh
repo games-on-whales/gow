@@ -78,7 +78,7 @@ fi
 CEMU_CFG_DIR=$HOME/.config/Cemu
 
 gow_log "CEMU - Setting default sound device and run in fullscreen, if not edited"
-cp /cfg/cemu/settings.xml /cfg/cemu/settings_new.xml
+cp -u /cfg/cemu/settings.xml /cfg/cemu/settings_new.xml
 searchString="<TVDevice>replace_me</TVDevice>"
 replaceString="<TVDevice>${PULSE_SINK}</TVDevice>"
 sed -i -e "s|$searchString|$replaceString|g" /cfg/cemu/settings_new.xml
@@ -100,7 +100,7 @@ cp -u /cfg/rpcs3/CurrentSettings.ini $RPCS3_CFG_DIR/GuiConfigs/CurrentSettings.i
 
 gow_log "RPCS3 - Setting default sound device and run in fullscreen, if not edited"
 mkdir -p $RPCS3_CFG_DIR/
-cp /cfg/rpcs3/config.yml /cfg/rpcs3/config_new.yml
+cp -u /cfg/rpcs3/config.yml /cfg/rpcs3/config_new.yml
 searchString="Audio Device: \"@@@default@@@\""
 replaceString="Audio Device: \"${PULSE_SINK}\""
 sed -i -e "s|$searchString|$replaceString|g" /cfg/rpcs3/config_new.yml

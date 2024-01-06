@@ -10,8 +10,8 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 # Install prereqs
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
-		apt-get update && \
-		apt-get install -y \
+        apt-get update && \
+        apt-get install -y \
             ffmpeg \
             gpg-agent \
             libdbus-1-3 \
@@ -32,10 +32,11 @@ RUN \
 		rm -rf /var/lib/apt/lists/*
 
 # Install RetroArch
+# add-apt-repository ppa:libretro/stable && \
 RUN \
     echo "**** Install RetroArch ****" && \
-		apt-get update && \
-		apt-get install -y --no-install-recommends \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
             gpg-agent \
             libaio-dev \
             libaio1 \
@@ -43,7 +44,6 @@ RUN \
             libusb-1.0-0 \
             software-properties-common \
             && \
-		add-apt-repository ppa:libretro/stable && \
 		apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
