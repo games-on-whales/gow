@@ -72,10 +72,6 @@ if test -f /bioses/prod.keys; then
     cp -u $HOME/bioses/title.keys $YUZU_CFG_DIR/keys/title.keys
 fi
 
-gow_log "Copying custom config - YUZU QT settings, if not edited"
-mkdir -p $YUZU_CFG_DIR2
-cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
-
 #########################################
 # Configure CEMU
 #########################################
