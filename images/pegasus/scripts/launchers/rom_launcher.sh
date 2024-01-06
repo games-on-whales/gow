@@ -22,6 +22,7 @@ declare -A EMULATOR_COMMAND=( \
 ["genesis"]="retroarch --fullscreen -L ~/.config/retroarch/cores/picodrive_libretro.so \"${ROM}\"" \
 ["megacd"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["model2"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mame_libretro.so \"${ROM}\"" \
+["model3"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mame_libretro.so \"${ROM}\"" \
 ["n64"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mupen64plus_next_libretro.so \"${ROM}\"" \
 ["naomi"]="retroarch --fullscreen -L ~/.config/retroarch/cores/flycast_libretro.so \"${ROM}\"" \
 ["neogeo"]="retroarch --fullscreen -L ~/.config/retroarch/cores/fbneo_libretro.so \"${ROM}\"" \

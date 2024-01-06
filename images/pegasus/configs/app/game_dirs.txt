@@ -17,6 +17,7 @@
 /ROMs/genesis
 /ROMs/megacd
 /ROMs/model2
+/ROMs/model3
 /ROMs/n64
 /ROMs/naomi
 /ROMs/neogeo
