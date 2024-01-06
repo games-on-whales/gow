@@ -30,7 +30,7 @@ ARG REQUIRED_PACKAGES=" \
     steam \
     libvulkan1 libvulkan1:i386 \
     mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
-    libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 \
+    libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 libcurl4 \
     dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
     mangoapp ibus \
 "
