@@ -44,6 +44,9 @@ RUN apt-get update -y && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # \
+    # Fix steam updater UI font file \
+    ln -s /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/ttf-dejavu && \
+    # \
     # Cleanup \
     apt-get remove -y software-properties-common && \
     apt-get autoremove -y && \
