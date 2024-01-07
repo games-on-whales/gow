@@ -12,12 +12,13 @@ if [[ "${UNAME}" != "root" ]]; then
     gow_log "Setting default user uid=${PUID}(${UNAME}) gid=${PGID}(${UNAME})"
     if id -u "${PUID}" &>/dev/null; then
         # need to delete the old user $PUID then change $UNAME's UID
+        # default ubuntu image comes with user `ubuntu` and UID 1000
         oldname=$(id -nu "${PUID}")
         userdel -r "${oldname}"
     fi
 
-    usermod -u "${PUID}" "${UNAME}"
-    groupmod -o -g "${PGID}" "${UNAME}"
+    groupadd -f -g "${PGID}" ${UNAME}
+    useradd -m -d ${HOME} -u "${PUID}" -g "${PGID}" -s /bin/bash ${UNAME}
 
     gow_log "Setting umask to ${UMASK}"
     umask "${UMASK}"

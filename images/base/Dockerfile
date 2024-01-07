@@ -13,13 +13,6 @@ ENV \
 
 ARG TARGETARCH TARGETVARIANT
 
-RUN <<_CONF_USER
-set -e
-echo "**** Configure default user '${UNAME}' ****"
-useradd -m -d ${HOME} -s /bin/bash ${UNAME}
-echo
-_CONF_USER
-
 # Install default required packages
 ARG DEBIAN_FRONTEND=noninteractive
 ARG GOSU_VERSION=1.14
