@@ -2,6 +2,7 @@
 set -e
 
 source /opt/gow/bash-lib/utils.sh
+source /opt/gow/launch-comp.sh
 
 gow_log "Symlinking Bioses from /Bioses"
 ln -sf /bioses $HOME
@@ -76,18 +77,20 @@ fi
 # Configure CEMU
 #########################################
 CEMU_CFG_DIR=$HOME/.config/Cemu
+mkdir -p ${CEMU_CFG_DIR}/
 
 gow_log "CEMU - Setting default sound device and run in fullscreen, if not edited"
-cp -u /cfg/cemu/settings.xml /cfg/cemu/settings_new.xml
-searchString="<TVDevice>replace_me</TVDevice>"
-replaceString="<TVDevice>${PULSE_SINK}</TVDevice>"
-sed -i -e "s|$searchString|$replaceString|g" /cfg/cemu/settings_new.xml
-searchString="<PadDevice>replace_me</PadDevice>"
-replaceString="<PadDevice>${PULSE_SINK}</PadDevice>"
-sed -i -e "s|$searchString|$replaceString|g" /cfg/cemu/settings_new.xml
-# Set the date of the file back to the original date
-touch -r /cfg/cemu/settings.xml /cfg/cemu/settings_new.xml
-cp -u /cfg/cemu/settings_new.xml $CEMU_CFG_DIR/settings.xml
+if ! test -f $CEMU_CFG_DIR/settings.xml; then
+  gow_log "Pulse sink is: ${PULSE_SINK}"
+  cp /cfg/cemu/settings.xml /tmp/settings_new.xml
+  searchString="<TVDevice>replace_me</TVDevice>"
+  replaceString="<TVDevice>${PULSE_SINK}</TVDevice>"
+  sed -i -e "s|$searchString|$replaceString|g" /tmp/settings_new.xml
+  searchString="<PadDevice>replace_me</PadDevice>"
+  replaceString="<PadDevice>${PULSE_SINK}</PadDevice>"
+  sed -i -e "s|$searchString|$replaceString|g" /tmp/settings_new.xml
+  cp /tmp/settings_new.xml $CEMU_CFG_DIR/settings.xml
+fi
 
 #########################################
 # Configure RPCS3
@@ -100,13 +103,15 @@ cp -u /cfg/rpcs3/CurrentSettings.ini $RPCS3_CFG_DIR/GuiConfigs/CurrentSettings.i
 
 gow_log "RPCS3 - Setting default sound device and run in fullscreen, if not edited"
 mkdir -p $RPCS3_CFG_DIR/
-cp -u /cfg/rpcs3/config.yml /cfg/rpcs3/config_new.yml
-searchString="Audio Device: \"@@@default@@@\""
-replaceString="Audio Device: \"${PULSE_SINK}\""
-sed -i -e "s|$searchString|$replaceString|g" /cfg/rpcs3/config_new.yml
-# Set the date of the file back to the original date
-touch -r /cfg/rpcs3/config.yml /cfg/rpcs3/config_new.yml
-cp -u /cfg/rpcs3/config_new.yml $RPCS3_CFG_DIR/config.yml
+if ! test -f $RPCS3_CFG_DIR/config.yml; then
+  echo "File does not exist."
+  cp /cfg/rpcs3/config.yml /tmp/config_new.yml
+  searchString="Audio Device: \"@@@default@@@\""
+  replaceString="Audio Device: \"${PULSE_SINK}\""
+  sed -i -e "s|$searchString|$replaceString|g" /tmp/config_new.yml
+  # Set the date of the file back to the original date
+  cp /tmp/config_new.yml $RPCS3_CFG_DIR/config.yml
+fi
 
 #########################################
 # Configure XEMU
@@ -120,17 +125,5 @@ if [ -f "/bioses/xbox_hdd.qcow2" ]; then
     cp -u /bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
 
-if [ -n "$RUN_GAMESCOPE" ]; then
-  echo "Gamescope - Starting Pegasus"
-  export GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
-  export GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
-  export GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
-  export GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
-  /usr/games/gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- pegasus-fe
-else
-  echo "Sway - Starting Pegasus"
-  export XDG_SESSION_TYPE=wayland
-  mkdir -p $HOME/.config/sway/
-  cp /cfg/sway/config $HOME/.config/sway/config
-  exec sway --unsupported-gpu
-fi
+# Launch the app
+launcher pegasus-fe
