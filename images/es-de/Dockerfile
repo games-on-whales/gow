@@ -47,12 +47,13 @@ RUN \
         cd /tmp && \
 		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
 	
-# Downloading RPCS3 AppImage 
+# Downloading RPCS3 AppImage
+ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O rpcs3-emu.AppImage https://rpcs3.net/latest-appimage
+        wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
 
 # Downloading YUZU AppImage       
 RUN \

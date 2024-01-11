@@ -44,7 +44,6 @@ RUN \
             libusb-1.0-0 \
             software-properties-common \
             && \
-		apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
 		apt-get autoremove -y && \
@@ -76,7 +75,8 @@ RUN \
         wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
 
 # Downloading YUZU AppImage
-ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
+# ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
+ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1675/yuzu-mainline-20240107-ce8c1867d.AppImage
 RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
@@ -141,9 +141,6 @@ RUN apt-get install -y --no-install-recommends \
     unzip && \
     wget $PEGASUS_DOWNLOAD --output-document=pegasus-frontend.deb && \
     dpkg -i pegasus-frontend.deb
-
-# Install sway
-RUN apt-get install -y sway xwayland
 
 # Move all the apps out of /tmp and to the /Applications folder
 RUN \

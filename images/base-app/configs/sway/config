@@ -87,5 +87,5 @@ mode "resize" {
 
 include /etc/sway/config.d/*
 
-# Startup Pegasus Frontend
-workspace main; exec pegasus-fe
+# Need to autostart something after this line, for example:
+# workspace main; exec pegasus-fe
