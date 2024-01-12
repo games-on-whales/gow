@@ -11,7 +11,7 @@ function launcher() {
     export GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
     /usr/games/gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- ${APP_TO_LAUNCH}
   else
-    echo "Sway - Starting Pegasus"
+    echo "Sway - Starting Application: ${APP_TO_LAUNCH}"
     export XDG_SESSION_TYPE=wayland
     mkdir -p $HOME/.config/sway/
     cp /cfg/sway/config $HOME/.config/sway/config
