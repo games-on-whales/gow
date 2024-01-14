@@ -37,7 +37,7 @@ ARG REQUIRED_PACKAGES=" \
 "
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends software-properties-common && \
+    apt-get install -y python3-six software-properties-common && \
     # \
     # Install steam (Steam is 32-bit only) \
     dpkg --add-architecture i386 && \
@@ -49,7 +49,7 @@ RUN apt-get update -y && \
     ln -s /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/ttf-dejavu && \
     # \
     # Cleanup \
-    apt-get remove -y software-properties-common && \
+    apt-get remove -y python3-six software-properties-common && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 # fix NetworkManager not picking up devices
