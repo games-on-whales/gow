@@ -44,6 +44,8 @@ RUN \
             libusb-1.0-0 \
             software-properties-common \
             && \
+        add-apt-repository ppa:libretro/testing && \
+        apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
 		apt-get autoremove -y && \
