@@ -12,22 +12,33 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/pcsx2.sh</path>
-		<name>pcsx2</name>
-        <desc>Launch pcsx2</desc>
+		<path>./Emulators/cemu.sh</path>
+		<name>cemu</name>
+        <desc>Launch cemu</desc>
 		<releasedate>20230429T000000</releasedate>
-		<developer>PCSX2 Team</developer>
+		<developer>Cemu Team</developer>
 		<publisher>QuaiGoner</publisher>
 		<genre>Launcher</genre>
 		<playcount>1</playcount>
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/cemu.sh</path>
-		<name>cemu</name>
-        <desc>Launch cemu</desc>
+		<path>./Emulators/dolphin.sh</path>
+		<name>dolphin</name>
+        <desc>Launch dolphin</desc>
 		<releasedate>20230429T000000</releasedate>
-		<developer>Cemu Team</developer>
+		<developer>Dolphin Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/pcsx2.sh</path>
+		<name>pcsx2</name>
+        <desc>Launch pcsx2</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>PCSX2 Team</developer>
 		<publisher>QuaiGoner</publisher>
 		<genre>Launcher</genre>
 		<playcount>1</playcount>

@@ -21,6 +21,7 @@ RUN \
             libsdl2-2.0-0 \
             libvulkan1 \
             p7zip-full \
+            python3-six \
             qt5-qmake \
             qtbase5-dev \
             software-properties-common \
@@ -33,6 +34,8 @@ RUN \
 
 # Install RetroArch
 # add-apt-repository ppa:libretro/stable && \
+#            libretro-core-info \
+#            libretro-frontend \
 RUN \
     echo "**** Install RetroArch ****" && \
         apt-get update && \
@@ -48,6 +51,7 @@ RUN \
         apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
+        apt-get remove -y python3-six && \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 
@@ -91,7 +95,7 @@ RUN \
 ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/download/continuous/Dolphin_Emulator-x86_64.AppImage
 # TODO: This is some randomly found AppImage. Need to find something more official
 RUN \
-    echo "**** Installing Dolphin Emulator ****" && \
+    echo "**** Downloading Dolphin AppImage ****" && \
         apt-get update && \
         apt-get install -y \
             qtbase5-dev \
