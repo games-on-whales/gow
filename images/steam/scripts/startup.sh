@@ -56,9 +56,9 @@ export GTK_IM_MODULE=Steam
 
 if [ -n "$RUN_GAMESCOPE" ]; then
   # Enable support for xwayland isolation per-game in Steam
-  # Note: This breaks without these additional flags
-  export STEAM_MULTIPLE_XWAYLANDS=1
-  STEAM_STARTUP_FLAGS="${STEAM_STARTUP_FLAGS} -steamos3 -steamdeck -steampal"
+  # Note: This breaks without the additional steamdeck flags
+  #export STEAM_MULTIPLE_XWAYLANDS=1
+  #STEAM_STARTUP_FLAGS="${STEAM_STARTUP_FLAGS} -steamos3 -steamdeck -steampal"
 
   # We no longer need to set GAMESCOPE_EXTERNAL_OVERLAY from steam, mangoapp now does it itself
   export STEAM_DISABLE_MANGOAPP_ATOM_WORKAROUND=1
@@ -97,12 +97,13 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
 
   # shellcheck disable=SC2086
-  /usr/games/gamescope ${GAMESCOPE_MODE} --steam --xwayland-count 2 -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  /usr/games/gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
 	export DISPLAY="$response_x_display"
 	export GAMESCOPE_WAYLAND_DISPLAY="$response_wl_display"
+	unset WAYLAND_DISPLAY
 	# We're done!
   else
 	echo "gamescope failed"
