@@ -73,7 +73,7 @@ RUN \
 
 # Downloading RPCS3 AppImage
 # ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-98b764223285b2b1d474ece51027b936819adf46/rpcs3-v0.0.29-15813-98b76422_linux64.AppImage
-ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
+ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-9c354ee269779c5b473b39d313cbe1305040d138/rpcs3-v0.0.30-15970-9c354ee2_linux64.AppImage
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
@@ -82,7 +82,8 @@ RUN \
 
 # Downloading YUZU AppImage
 # ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
-ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1675/yuzu-mainline-20240107-ce8c1867d.AppImage
+# ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1675/yuzu-mainline-20240107-ce8c1867d.AppImage
+ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1687/yuzu-mainline-20240119-5aab1b86c.AppImage
 RUN \
     echo "**** Downloading YUZU AppImage ****" && \
         mkdir -p /tmp && \
@@ -120,7 +121,8 @@ RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1
     dpkg -i libssl1.1.deb
 
 # Install pegasus
-ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/weekly_2023w20/pegasus-frontend_0.16.51_amd64.deb
+# ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/weekly_2023w20/pegasus-frontend_0.16.51_amd64.deb
+ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/continuous/pegasus-frontend_0.16.75_amd64.deb
 RUN apt-get install -y --no-install-recommends \
     fontconfig \
     gstreamer1.0-alsa \
