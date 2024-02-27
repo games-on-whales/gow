@@ -9,12 +9,13 @@ ENV \
     UMASK=000 \
     UNAME="retro" \
     HOME="/home/retro" \
-    TZ="Europe/London"
+    TZ="Europe/London" \
+    DEBIAN_FRONTEND=noninteractive \
+    NEEDRESTART_SUSPEND=1
 
 ARG TARGETARCH TARGETVARIANT
 
 # Install default required packages
-ARG DEBIAN_FRONTEND=noninteractive
 ARG GOSU_VERSION=1.14
 
 RUN <<_INSTALL_PACKAGES

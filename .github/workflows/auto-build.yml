@@ -6,8 +6,8 @@ on:
     types:
       - opened
       - reopened
-  schedule:
-    - cron: "0 0 * * *" # nightly
+#  schedule:
+#    - cron: "0 0 * * *" # nightly
 
 jobs:
   base:
