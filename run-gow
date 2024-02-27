@@ -365,6 +365,20 @@ xorg_driver[debian]=$(cat - <<END
 END
 )
 
+# Get a line suitable for inserting into an `volumes:` list in a docker
+# compose file that will load whatever extra paths is necessary.
+get_xorg_driver() {
+    local os_type_re="$(os_type)"
+    if [ "${os_type_re}" = "ubuntu" ] &&
+      [ -f /usr/lib/xorg/modules/drivers/nvidia_drv.so ] && 
+      [ -f /usr/lib/xorg/modules/extensions/libglxserver_nvidia.so ]; then
+        echo "${xorg_driver["debian"]}"
+    else
+        echo "${xorg_driver[${os_type_re}]}"
+    fi
+    echo "- ./config/nvidia-primary-gpu.conf:/usr/share/X11/xorg.conf.d/01-primary-gpu.conf:ro"
+}
+
 # Iterate through the given file and insert environment files and volume mounts
 # as needed for the desired setup (headless, gpu type, etc)
 transform_file() {
@@ -377,7 +391,7 @@ transform_file() {
         if [[ $line =~ $gpu_env_re ]]; then
             pad_lines "$(get_gpu_env)" "${BASH_REMATCH[1]}"
         elif [ "$gpu_type" = "nvidia" ] && [[ $line =~ $xorg_driver_re ]]; then
-            pad_lines "${xorg_driver[$(os_type)]}" "${BASH_REMATCH[1]}"
+            pad_lines "$(get_xorg_driver)" "${BASH_REMATCH[1]}"
         else
             echo "$line"
         fi
