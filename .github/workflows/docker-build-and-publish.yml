@@ -133,14 +133,14 @@ jobs:
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != '' # secrets not available in PRs
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: abeltramo
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
         if: steps.prep.outputs.has_github_token != '' # secrets not available in PRs
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
