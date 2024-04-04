@@ -11,12 +11,9 @@ ARG REQUIRED_PACKAGES=" \
     libusb-1.0-0 libglu1-mesa libaio1t64 libaio-dev"
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
     # Install retroarch \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # Cleanup \
-    apt-get remove -y software-properties-common gpg-agent && \
-    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
