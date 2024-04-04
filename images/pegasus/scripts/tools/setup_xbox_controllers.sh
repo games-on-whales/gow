@@ -28,11 +28,3 @@ RPCS3_CFG_DIR=$HOME/.config/rpcs3
 gow_log "RPCS3 - Copying controller bindings for Wolf, if not edited"
 mkdir -p $RPCS3_CFG_DIR/input_configs/global/
 cp -u /cfg/rpcs3/Default.yml $RPCS3_CFG_DIR/input_configs/global/Default.yml
-
-#########################################
-# Yuzu
-#########################################
-YUZU_CFG_DIR=$HOME/.config/yuzu
-gow_log "Copying custom config - YUZU QT settings, if not edited"
-mkdir -p $YUZU_CFG_DIR
-cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR/qt-config.ini

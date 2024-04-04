@@ -47,7 +47,7 @@ RUN \
             libusb-1.0-0 \
             software-properties-common \
             && \
-        add-apt-repository ppa:libretro/testing && \
+        add-apt-repository ppa:libretro/stable && \
         apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
@@ -79,16 +79,6 @@ RUN \
         mkdir -p /tmp && \
         cd /tmp && \
         wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
-
-# Downloading YUZU AppImage
-# ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1657/yuzu-mainline-20231220-3cff46c98.AppImage
-# ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1675/yuzu-mainline-20240107-ce8c1867d.AppImage
-ARG YUZU_APP_IMAGE_URL=https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1687/yuzu-mainline-20240119-5aab1b86c.AppImage
-RUN \
-    echo "**** Downloading YUZU AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-        wget -O yuzu-emu.AppImage "${YUZU_APP_IMAGE_URL}"
 
 # Install Dolphin-emu
 # ARG DOLPHIN_APP_IMAGE_URL=https://github.com/project-slippi/Ishiiruka/releases/download/v3.3.1/Slippi_Online-x86_64.AppImage

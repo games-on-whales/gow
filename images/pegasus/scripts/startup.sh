@@ -57,23 +57,6 @@ fi
 # cp -u /usr/lib/$(uname -m)-linux-gnu/libretro/* "$CFG_DIR/cores/"
 
 #########################################
-# Configure Yuzu
-#########################################
-YUZU_CFG_DIR=$HOME/.local/share/yuzu
-
-gow_log "YUZU - Copying pred/title keys for YUZU"
-if test -f /bioses/prod.keys; then
-    gow_log "YUZU - /bioses/prod.keys present, copy to YUZU folder"
-	  mkdir -p $YUZU_CFG_DIR/keys/
-    cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
-fi
-if test -f /bioses/prod.keys; then
-    gow_log "YUZU - /bioses/title.keys present, copy to YUZU folder"
-	  mkdir -p $YUZU_CFG_DIR/keys/
-    cp -u $HOME/bioses/title.keys $YUZU_CFG_DIR/keys/title.keys
-fi
-
-#########################################
 # Configure CEMU
 #########################################
 CEMU_CFG_DIR=$HOME/.config/Cemu

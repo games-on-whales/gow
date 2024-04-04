@@ -7,7 +7,6 @@ files:
   /bin/download_pegasus_themes.sh
   /usr/dolphin.sh
   /usr/xemu.sh
-  /usr/yuzu.sh
   /usr/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
   /bin/setup_xbox_controllers.sh
@@ -41,11 +40,6 @@ game: Emulators - Xemu Emulator
 release: 2023-09-22
 file: /bin/xemu.sh
 description: xemu is an active fork of the XQEMU project, which is based on the very popular and highly actively maintained QEMU full system emulator project. xemu is a low-level, full-system emulator which emulates the actual hardware of the Xbox.
-
-game: Emulators - Yuzu Emulator
-release: 2023-09-22
-file: /bin/yuzu.sh
-description: Yuzu (sometimes stylized in lowercase) is a free and open-source emulator of the Nintendo Switch, developed in C++. Yuzu was announced to be in development on January 14, 2018, 10 months after the release of the Nintendo Switch.
 
 game: Tools - Download Pegasus Themes
 release: 2023-09-22

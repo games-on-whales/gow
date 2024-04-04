@@ -66,13 +66,6 @@ RUN \
         cd /tmp && \
         wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
 
-# Downloading YUZU AppImage       
-RUN \
-    echo "**** Downloading YUZU AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
-
 # Install Cemu
 ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
 RUN \

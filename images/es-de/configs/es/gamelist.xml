@@ -77,15 +77,4 @@
 		<playcount>1</playcount>
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
-	<game>
-		<path>./Emulators/yuzu.sh</path>
-		<name>yuzu</name>
-        <desc>Launch YUZU</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>YUZU Team</developer>
-		<publisher>QuaiGoner</publisher>
-		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
-	</game>
 </gameList>
