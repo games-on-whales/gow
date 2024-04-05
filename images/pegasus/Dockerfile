@@ -111,8 +111,8 @@ RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1
     dpkg -i libssl1.1.deb
 
 # Install pegasus
-# ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/weekly_2023w20/pegasus-frontend_0.16.51_amd64.deb
-ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/continuous/pegasus-frontend_0.16.75_amd64.deb
+ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/weekly_2023w20/pegasus-frontend_0.16.51_amd64.deb
+# ARG PEGASUS_DOWNLOAD=https://github.com/mmatyas/pegasus-frontend/releases/download/continuous/pegasus-frontend_0.16.77_amd64.deb
 RUN apt-get install -y --no-install-recommends \
     fontconfig \
     gstreamer1.0-alsa \
