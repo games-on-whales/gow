@@ -17,6 +17,7 @@ RUN \
             libdbus-1-3 \
             libegl1 \
             libglu1-mesa-dev \
+            libgstreamer-gl1.0-0 \
             libgtk-3-0 \
             libsdl2-2.0-0 \
             libvulkan1 \
