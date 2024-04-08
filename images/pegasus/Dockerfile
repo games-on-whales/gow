@@ -98,6 +98,7 @@ RUN <<_DOWNLOAD_APP_IMAGES
   mkdir -p "${APP_IMAGES_FOLDER}"
 
   wget -O "${APP_IMAGES_FOLDER}"/pcsx2-emu-Qt.AppImage "${PCS2_APP_IMAGE_URL}"
+  wget -O "${APP_IMAGES_FOLDER}"/rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
   wget -O "${APP_IMAGES_FOLDER}"/xemu-emu.AppImage "${XEMU_APP_IMAGE_URL}"
   wget -O "${APP_IMAGES_FOLDER}"/cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
   wget -O "${APP_IMAGES_FOLDER}"/dolphin-emu.AppImage "${DOLPHIN_APP_IMAGE_URL}"
