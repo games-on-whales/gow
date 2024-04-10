@@ -9,7 +9,7 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # Install prereqs
 RUN \
-    echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
+    echo "**** Install Prereqs ****" && \
         apt-get update && \
         apt-get install -y \
             ffmpeg \
@@ -24,6 +24,8 @@ RUN \
             p7zip-full \
             python3-six \
             qt5-qmake \
+            qtwayland5 \
+            qt6-wayland \
             qtbase5-dev \
             software-properties-common \
             wget \

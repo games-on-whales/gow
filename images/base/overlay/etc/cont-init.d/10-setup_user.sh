@@ -27,7 +27,7 @@ if [[ "${UNAME}" != "root" ]]; then
     chown "${PUID}:${PGID}" "${HOME}"
 
     gow_log "Ensure XDG_RUNTIME_DIR is writable"
-    chown -R "${PUID}:${PGID}" "${XDG_RUNTIME_DIR}"
+    chown "${PUID}:${PGID}" "${XDG_RUNTIME_DIR}"
 else
     gow_log "Container running as root. Nothing to do."
 fi
