@@ -8,7 +8,7 @@ ARG REQUIRED_PACKAGES=" \
     wget p7zip-full \
     retroarch \
     libretro-core-info libretro-frontend \
-    libusb-1.0-0 libglu1-mesa libaio1 libaio-dev"
+    libusb-1.0-0 libglu1-mesa libaio1t64 libaio-dev"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends software-properties-common gpg-agent && \

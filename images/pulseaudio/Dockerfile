@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ARG REQUIRED_PACKAGES=" \
     alsa-utils \
-    libasound2 \
+    libasound2t64 \
     libasound2-plugins \
     pulseaudio \
     "

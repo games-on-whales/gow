@@ -34,18 +34,11 @@ RUN <<_FIX_LIBC6
 set -e
 dpkg --add-architecture i386
 apt-get update -y
-apt-get install -y --no-install-recommends curl
-
-curl -o /tmp/libc6.deb http://security.ubuntu.com/ubuntu/pool/main/g/glibc/libc6_2.38-1ubuntu6.1_amd64.deb
-dpkg --force-all -i /tmp/libc6.deb
-curl -o /tmp/libc6.deb http://security.ubuntu.com/ubuntu/pool/main/g/glibc/libc6_2.38-1ubuntu6.1_i386.deb
-dpkg --force-all -i /tmp/libc6.deb
-apt-get --fix-broken -y install
+apt-get install -y --no-install-recommends libc6:amd64 libc6:i386
 
 # Cleanup
 apt-get remove -y curl
-apt-get autoremove -y
-rm -rf /tmp/libc6.deb /var/lib/apt/lists/*
+rm /var/lib/apt/lists/*
 _FIX_LIBC6
 
 ARG REQUIRED_PACKAGES=" \
