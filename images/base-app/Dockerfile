@@ -19,6 +19,7 @@ ARG REQUIRED_PACKAGES="\
     x11-utils \
     pulseaudio-utils \
     mesa-vulkan-drivers libgbm1 libgles2 libegl1 libgl1-mesa-dri \
+    fonts-noto-cjk \
     "
 
 RUN apt-get update -y && \
