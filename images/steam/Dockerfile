@@ -37,8 +37,7 @@ apt-get update -y
 apt-get install -y --no-install-recommends libc6:amd64 libc6:i386
 
 # Cleanup
-apt-get remove -y curl
-rm /var/lib/apt/lists/*
+rm -rf /var/lib/apt/lists/*
 _FIX_LIBC6
 
 ARG REQUIRED_PACKAGES=" \
