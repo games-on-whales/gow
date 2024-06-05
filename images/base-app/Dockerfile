@@ -42,7 +42,7 @@ RUN <<_INSTALL_GAMESCOPE
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
         libxcb-icccm4-dev libxcb-res0-dev libxcb-ewmh-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev \
-        xserver-common libliftoff0 libwlroots11 mesa-common-dev libbenchmark-dev xwayland libdisplay-info1"
+        xserver-common libliftoff0 libwlroots12t64 mesa-common-dev libbenchmark-dev xwayland libdisplay-info1"
     apt-get update -y
     apt-get install -y --no-install-recommends $DEV_PACKAGES
 
