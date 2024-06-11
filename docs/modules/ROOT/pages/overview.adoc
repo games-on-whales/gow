@@ -1,5 +1,7 @@
 = Overview
 
+WARNING: Historically, this was the first attempt that we've made at running games in Docker. https://github.com/games-on-whales/wolf[Wolf] has now completely replaced the simple bash script present in this repo.
+
 *Games on Whales (GOW)* lets you stream games (and other graphical
 applications) running in Docker containers with hardware acceleration and low
 latency.

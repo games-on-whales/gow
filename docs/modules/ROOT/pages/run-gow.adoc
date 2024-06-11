@@ -1,5 +1,7 @@
 = `run-gow`
 
+WARNING: Historically, this was the first attempt that we've made at running games in Docker. https://github.com/games-on-whales/wolf[Wolf] has now completely replaced the simple bash script present in this repo.
+
 Games on Whales ties together several different components, with support for
 many host OSes and hardware configurations.  In order to make it easier to
 manage all that, and even make most of it automatic, we've provided a Bash

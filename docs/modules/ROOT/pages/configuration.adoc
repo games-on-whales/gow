@@ -11,7 +11,7 @@ containers.  Because this same directory is (typically) mapped into each
 container, it can also be a way to share data between multiple containers.
 
 Before you launch GoW for the first time, create a new directory and update the
-`LOCAL_STATE` variable in your <<User environment>> to match.
+`LOCAL_STATE` variable in your `User environment` to match.
 
 TIP: On unRAID, the `local_state` folder you just created will likely be owned
 by `root`, and it may not be writable from the containers launched by GoW,
@@ -22,8 +22,8 @@ anyone can write to it.
 == Time zone
 
 In order to make the time zone inside your container match your actual local
-time zone, you'll need to update the `TIME_ZONE` variable in your <<User
-environment>>.  If you're not sure what to set it to, check out
+time zone, you'll need to update the `TIME_ZONE` variable in your `User
+environment`.  If you're not sure what to set it to, check out
 https://en.wikipedia.org/wiki/List_of_tz_database_time_zones[this list] of `tz`
 database time zones.
 
