@@ -9,7 +9,7 @@ gow_log "Starting Steam with DISPLAY=${DISPLAY}"
 mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
 
 # Use the new big picture mode by default
-STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-bigpicture"}
+STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-bigpicture -steamos3"}
 
 # Some game fixes taken from the Steam Deck
 export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0

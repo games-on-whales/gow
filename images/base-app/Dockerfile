@@ -3,7 +3,7 @@ ARG BASE_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.12.5"
+ARG GAMESCOPE_VERSION="3.14.2"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,7 +11,6 @@ ENV BUILD_ARCHITECTURE=amd64
 ENV DEB_BUILD_OPTIONS=noddebs
 
 ARG PKGS_ROOT=/opt/gow
-COPY --chmod=777 packages $PKGS_ROOT
 
 # x11-utils: contains xdpyinfo, which we use to know whether Xorg has started yet
 # pulseaudio-utils: some apps can't play sound unless this package is installed
@@ -30,6 +29,19 @@ RUN apt-get update -y && \
 #################################
 # GAMESCOPE
 ####
+
+COPY <<-EOT $PKGS_ROOT/gamescope.control
+Priority: optional
+Standards-Version: 3.9.2
+
+Section: misc
+Package: gamescope-gow
+Version: ${GAMESCOPE_VERSION}
+Depends: libc6, libcap2, libdisplay-info1, libdrm2, libliftoff0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-client0, libwayland-server0, libwlroots12t64, libx11-6, libx11-xcb1, libx11-xcb1, libxcb1, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxmu6, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland, libcap2-bin
+Replaces: gamescope, gamescope-core
+Description: Manually built from git
+EOT
+
 # shellcheck disable=SC2086,DL3015,DL3013,DL3003
 RUN <<_INSTALL_GAMESCOPE
     #!/bin/bash
@@ -37,7 +49,7 @@ RUN <<_INSTALL_GAMESCOPE
 
     # Dependencies
     DEV_PACKAGES="\
-        git build-essential gcc pkg-config ninja-build meson cmake equivs libcap2-bin \
+        git curl build-essential gcc pkg-config ninja-build meson cmake equivs libcap2-bin \
         libvulkan-dev libwayland-dev wayland-protocols libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
@@ -64,7 +76,7 @@ RUN <<_INSTALL_GAMESCOPE
     git submodule update --init
     # fake apt install
     equivs-build ${PKGS_ROOT}/gamescope.control
-    dpkg -i gamescope-gow_3.12.5_all.deb
+    dpkg -i gamescope-gow_${GAMESCOPE_VERSION}_all.deb
 
     meson setup --buildtype=release -Dpipewire=disabled -Denable_openvr_support=false build
     meson compile -C build
