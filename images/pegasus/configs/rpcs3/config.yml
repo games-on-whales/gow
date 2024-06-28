@@ -1,0 +1,33 @@
+Audio:
+  Renderer: Cubeb
+  Audio Provider: CellAudio
+  RSXAudio Avport: HDMI 0
+  Dump to file: false
+  Convert to 16 bit: true
+  Audio Format: Stereo
+  Audio Formats: 0
+  Audio Device: "@@@default@@@"
+  Master Volume: 100
+  Enable Buffering: false
+  Desired Audio Buffer Duration: 100
+  Enable Time Stretching: false
+  Disable Sampling Skip: false
+  Time Stretching Threshold: 75
+  Microphone Type: "Null"
+  Microphone Devices: "@@@@@@@@@@@@"
+  Music Handler: Qt
+Miscellaneous:
+  Automatically start games after boot: true
+  Exit RPCS3 when process finishes: false
+  Pause emulation on RPCS3 focus loss: false
+  Start games in fullscreen mode: true
+  Prevent display sleep while running games: true
+  Show trophy popups: true
+  Show shader compilation hint: true
+  Show PPU compilation hint: true
+  Use native user interface: true
+  GDB Server: 127.0.0.1:2345
+  Silence All Logs: false
+  Window Title Format: "FPS: %F | %R | %V | %T [%t]"
+  Pause Emulation During Home Menu: false
+Log: {}

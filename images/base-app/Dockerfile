@@ -94,9 +94,19 @@ RUN <<_INSTALL_GAMESCOPE
       $GAMESCOPE_SRC
 _INSTALL_GAMESCOPE
 
+#################################
+# Install Sway
+#################################
+RUN apt-get update -y && \
+    apt-get install -y sway waybar fonts-font-awesome xwayland && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY configs /cfg
+
 COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
-COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
+COPY --chmod=777 scripts/launch-comp.sh /opt/gow/launch-comp.sh
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
+COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}

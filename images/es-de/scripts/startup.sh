@@ -7,8 +7,6 @@ gow_log "Starting Application preparation"
 
 RA_CFG_DIR=$HOME/.config/retroarch
 RPCS3_CFG_DIR=$HOME/.config/rpcs3
-YUZU_CFG_DIR=$HOME/.local/share/yuzu
-YUZU_CFG_DIR2=$HOME/.config/yuzu
 XEMU_CFG_DIR=$HOME/.local/share/xemu
 PCSX2_CFG_DIR=$HOME/.config/PCSX2
 ES_CFG_DIR=$HOME/.emulationstation
@@ -51,17 +49,6 @@ if test -f $HOME/bioses/xbox_hdd.qcow2; then
 	mkdir -p $XEMU_CFG_DIR/xemu/
     cp -u $HOME/bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
-
-gow_log "Copying keys for YUZU if it is present in bioses or newer"
-if test -f $HOME/bioses/prod.keys; then
-    gow_log "YUZU keys are present, copy them to YUZU folder"
-	mkdir -p $YUZU_CFG_DIR/keys/
-    cp -u $HOME/bioses/prod.keys $YUZU_CFG_DIR/keys/prod.keys
-fi
-
-gow_log "Copying custom config - YUZU QT settings, if not edited"
-mkdir -p $YUZU_CFG_DIR2
-cp -u /cfg/yuzu/qt-config.ini $YUZU_CFG_DIR2/qt-config.ini
 
 gow_log "Copying default config - EmulationStation settings, if not edited"
 mkdir -p $ES_CFG_DIR

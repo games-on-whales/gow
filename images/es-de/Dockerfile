@@ -11,7 +11,7 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
 		apt-get update && \
-		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 mesa-vulkan-drivers libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 && \
+		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 python3-six && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -26,10 +26,20 @@ RUN \
 # Install RetroArch
 RUN \
     echo "**** Install RetroArch ****" && \
-		apt-get update && \
-		apt-get install -y --no-install-recommends software-properties-common gpg-agent libusb-1.0-0 libglu1-mesa libaio1t64 libaio-dev && \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            gpg-agent \
+            libaio-dev \
+            libglu1-mesa \
+            libusb-1.0-0 \
+            software-properties-common \
+            libaio1t64 \
+            && \
+        add-apt-repository ppa:libretro/testing && \
+        apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
+        apt-get remove -y python3-six && \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 		
@@ -47,19 +57,36 @@ RUN \
         cd /tmp && \
 		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
 	
-# Downloading RPCS3 AppImage 
+# Downloading RPCS3 AppImage
+ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O rpcs3-emu.AppImage https://rpcs3.net/latest-appimage
+        wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
 
-# Downloading YUZU AppImage       
+# Install Cemu
+ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
 RUN \
-    echo "**** Downloading YUZU AppImage ****" && \
+    echo "**** Downloading CEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O yuzu-emu.AppImage https://github.com/yuzu-emu/yuzu-mainline/releases/download/mainline-0-1460/yuzu-mainline-20230605-069d7e6be.AppImage
+        wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
+
+# Install Dolphin-emu
+ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/download/continuous/Dolphin_Emulator-x86_64.AppImage
+# TODO: This is some randomly found AppImage. Need to find something more official
+RUN \
+    echo "**** Installing Dolphin Emulator ****" && \
+        apt-get update && \
+        apt-get install -y \
+            qtbase5-dev \
+            qtbase5-dev-tools \
+            qt6-base-dev \
+            qt6-base-dev-tools && \
+        mkdir -p /tmp && \
+        cd /tmp && \
+        wget -O dolphin-emu.AppImage "${DOLPHIN_APP_IMAGE_URL}"
 
 RUN \
     echo "**** Preparing /Applications for symlinking ****" && \

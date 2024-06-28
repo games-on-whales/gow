@@ -12,6 +12,28 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
+		<path>./Emulators/cemu.sh</path>
+		<name>cemu</name>
+        <desc>Launch cemu</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Cemu Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>./Emulators/dolphin.sh</path>
+		<name>dolphin</name>
+        <desc>Launch dolphin</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Dolphin Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
 		<path>./Emulators/pcsx2.sh</path>
 		<name>pcsx2</name>
         <desc>Launch pcsx2</desc>
@@ -50,17 +72,6 @@
         <desc>Launch XEMU</desc>
 		<releasedate>20230429T000000</releasedate>
 		<developer>XEMU Team</developer>
-		<publisher>QuaiGoner</publisher>
-		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
-	</game>
-	<game>
-		<path>./Emulators/yuzu.sh</path>
-		<name>yuzu</name>
-        <desc>Launch YUZU</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>YUZU Team</developer>
 		<publisher>QuaiGoner</publisher>
 		<genre>Launcher</genre>
 		<playcount>1</playcount>
