@@ -24,8 +24,6 @@ RUN \
             p7zip-full \
             python3-six \
             qt5-qmake \
-            qtwayland5 \
-            qt6-wayland \
             qtbase5-dev \
             software-properties-common \
             wget \
@@ -42,7 +40,7 @@ RUN \
         apt-get install -y --no-install-recommends \
             gpg-agent \
             libaio-dev \
-            libaio1 \
+            libaio1t64 \
             libglu1-mesa \
             libusb-1.0-0 \
             software-properties-common \
@@ -123,9 +121,10 @@ _DOWNLOAD_APP_IMAGES
 
 # Copy config files
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+COPY --chmod=777 scripts/pegasus.sh /bin/pegasus.sh
 
 # Copy Pegasus related files
-COPY scripts/launchers/*.sh /bin/
+COPY --chmod=777 scripts/launchers/*.sh /bin/
 COPY scripts/tools/*.sh /bin/
 COPY configs /cfg
 

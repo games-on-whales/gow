@@ -30,7 +30,6 @@ RUN \
         apt-get install -y --no-install-recommends \
             gpg-agent \
             libaio-dev \
-            libaio1 \
             libglu1-mesa \
             libusb-1.0-0 \
             software-properties-common \

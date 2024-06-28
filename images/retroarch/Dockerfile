@@ -4,16 +4,16 @@ ARG BASE_APP_IMAGE
 FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG REQUIRED_PACKAGES=" \
-    wget p7zip-full \
-    retroarch \
-    libretro-core-info libretro-frontend \
-    libusb-1.0-0 libglu1-mesa libaio1t64 libaio-dev"
 
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
+    add-apt-repository ppa:libretro/stable && \
+    apt-get update && \
     # Install retroarch \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    apt-get install -y retroarch && \
     # Cleanup \
+    apt-get remove -y software-properties-common gpg-agent && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg

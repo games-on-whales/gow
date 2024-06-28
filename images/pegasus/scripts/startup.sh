@@ -108,5 +108,4 @@ if [ -f "/bioses/xbox_hdd.qcow2" ]; then
     cp -u /bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
 
-# Launch the app
-launcher pegasus-fe
+launcher /bin/pegasus.sh

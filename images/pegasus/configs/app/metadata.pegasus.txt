@@ -9,7 +9,6 @@ files:
   /usr/xemu.sh
   /usr/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
-  /bin/setup_xbox_controllers.sh
 
 game: Emulators - Cemu
 release: 2015-10-13
@@ -50,8 +49,3 @@ game: Tools - RPCS3 Install Firmware
 release: 2023-09-22
 file: /bin/Install_RPCS3_Firmware.sh
 description: Install RPCS3 firmware from bios folder. Bios folder should be mounted to /bioses/. The bios file should be "PS3UPDAT.PUP"
-
-game: Tools - Setup Xbox Controllers
-release: 2023-09-22
-file: /bin/setup_xbox_controllers.sh
-description: This will set up Xbox controllers as the default controllers for all emulators
