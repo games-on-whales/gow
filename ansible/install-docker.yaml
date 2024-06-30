@@ -1,0 +1,46 @@
+---
+- name: Install docker
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install docker
+      # https://docs.docker.com/engine/install/ubuntu/
+      block:
+      - name: Download convinience script
+        shell:  echo $PWD && curl -fsSL https://get.docker.com -o get-docker.sh
+
+      - name: Run convinience script
+        become: true
+        shell: sh get-docker.sh
+      
+      - name: Delete convinience script
+        file:
+          path: get-docker.sh
+          state: absent
+
+      - name: Adding existing user "{{ ansible_user }}" to group docker
+        become: true
+        user:
+          name: "{{ ansible_user }}"
+          groups: docker
+          append: yes
+      
+      # maybe not needed
+      - name: "Edit grub file to allow cgroup to set memory"
+        become: true  
+        lineinfile: 
+          path: "/etc/default/grub"
+          regexp: '^GRUB_CMDLINE_LINUX=(.*)$' 
+          line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
+          backrefs: yes
+        ignore_errors: true
+
+      # maybe not needed
+      - name: Update grub
+        become: true
+        shell: update-grub
+        ignore_errors: true
+
+      - name: Reset ssh connection to allow user changes to affect ansible user
+        meta:
+          reset_connection
