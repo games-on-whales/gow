@@ -48,4 +48,11 @@ then
     cp "/opt/gow/lutris-system.yml" "${HOME}/.config/lutris/system.yml"
 fi
 
+# configuration file, telling lutris to ignore missing wine
+if [ ! -f "${HOME}/.config/lutris/lutris.conf" ]
+then
+    gow_log "[start-create-dirs] Creating lutris config file."
+    cp "/opt/gow/lutris-lutris.conf" "${HOME}/.config/lutris/lutris.conf"
+fi
+
 gow_log "[start-create-dirs] End"
