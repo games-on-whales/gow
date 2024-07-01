@@ -1,0 +1,347 @@
+= Lutris
+
+The `gameonwhales/lutris` image can be used to run a veriety of applications.
+Lutris refers to its self a "preservation platform", and provides scripts for
+installing many pieces of software on linux, from many different platforms. 
+
+The software you want to run may already have an entry on the
+https://lutris.net/[Lutris website], in which case, you can either install the
+software from the Lutris UI directly or extend the image to create a bespoke
+image.
+
+
+== Internal Layout
+
+On first run, the startup scripts for this image will configure Lutris to store
+game installation files and installation meta data in the `/var/lutris` directory.
+By mounting a volume at this directory, multiple instances of the image will
+share videogame installations. Most applications will save user specific data
+in the home directory, which remains exclusively visible to the individual user. 
+
+Lutris is a desktop application that launches other windows, and as such, it
+requires a window manager to run. It and it's derivitives should be launched with
+`USE_SWAY=1`, to enable the Sway Window Manager.
+
+
+== Folder Format
+
+The following documents the file-format for images in GOW in general, as well as
+a couple of perculiars specific to the Lutris Image.
+
+The Lutris image consists of the following files;
+```
+images
+ +- lutris
+     +- Dockerfile
+     +- scripts
+     |   +- startup.sh
+     |   +- startup-10-create-dirs.sh
+     +- configs
+         +- lutris-system.yml
+         +- lutris-lutris.yml
+```
+
+At a basic level, all images based on the base image will feature a Dockerfile
+and `startup.sh` script. The Dockerfile will stage the `startup.sh` script at
+`/opt/gow/startup.sh`, overwriting the version provided by the base-app script.
+The Dockerfile will also copy all the assets for the container (usually to 
+`/opt/gow/`), and install any additional dependencies.
+
+The `startup.sh` script will at the start of every container launch. It must
+first prepare the home directory, which will be empty on first-run, and then
+launch the application. The Lutris image also features a `/opt/gow/startup.d`
+directory. Scripts placed in this directory will be sourced by the `startup.sh`
+script prior to launching Lutris.
+
+`startup-10-create-dirs.sh` is copied by the Dockerfile to `/opt/gow/startup.d`.
+It configures Lutris to install games in `/var/lutris/Games` by default, and
+allow multiple instances of the Lutris container to share installation files.
+
+== Building the Lutris Image
+
+These instructions are applicable to any image based on the GoW base image, and
+are useful if you want to make changes to the image. When making changes to
+images upon which other images are based, it is naturally required to build all
+dependent images to propergate the changes.
+
+=== Step 1. Build the base image
+
+```
+$ docker build -t gow/base images/base
+```
+
+
+=== Step 2. Build the base-app image
+
+```
+$ docker build -t gow/base-app --build-arg BASE_IMAGE=gow/base images/base-app
+```
+
+
+=== Step 3. Build the lutris image
+
+```
+$ docker build -t gow/lutris --build-arg BASE_APP_IMAGE=gow/base-app images/lutris
+```
+
+=== Step 4. Configure Wolf to use the container
+
+Place the following in `/etc/wolf/cfg/config.toml`
+```
+[[apps]]
+title = "Lutris"
+start_virtual_compositor = true
+
+[apps.runner]
+type = "docker"
+name = "WolfLutris"
+image = "gow/lutris"
+mounts = ["lutris-games:/var/lutris/:rw"]
+env = ["RUN_SWAY=1","GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"]
+devices = []
+ports = []
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw"]
+  }
+}
+\
+"""
+```
+
+== Extending the Lutris Image
+
+Lutris supports launching games directly, skipping its UI, by passing the correct
+command line arguments to the lutris binary. Lutris uses this feature to add
+launchers to menus and desktop shortcuts. We can use it to create a custom
+container image which uses Lutris' installation scripts, but features a single
+program. 
+
+Consider the following structure:
+
+```
+images
+ +- lutris-app
+     +- Dockerfile
+     +- scripts
+         +- startup-20-configure-lutris.sh
+```
+
+The `Dockerfile` would copy `startup-20-configure-lutris.sh` to
+`/opt/gow/startup.d/20-configure-lutris.sh`, which in turn would be picked up by
+the Lutris image's `startup.sh` script, and would adjust Lutris' commandline args
+to run the application.
+
+
+=== A Practical Example
+
+Super Tux is a Linux native game which is distributed via AppImage. It also happens
+to have a Lutris install script. To create a Super Tux image based on the Lutris
+image, replicate the above structure with the following file contents;
+
+==== Dockerfile
+```
+ARG BASE_APP_IMAGE
+
+FROM ${BASE_APP_IMAGE}
+
+COPY --chmod=777 scripts/startup-20-launch-supertux.sh /opt/gow/startup.d/20-launch-supertux.sh
+
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE
+```
+
+==== scripts/startup-20-launch-supertux.sh
+```
+#!/bin/bash -e
+
+gow_log "[start-launch-supertux] Begin"
+
+if $LUTRIS -lo 2>/dev/null | grep "supertux"
+then
+    gow_log "[start-launch-supertux] Super Tux is already installed! Launching."
+    LUTRIS_ARGS=("lutris:rungame/supertux")
+else
+    gow_log "[start-launch-supertux] Super Tux is not installed! Installing."
+    LUTRIS_ARGS=("lutris:supertux")
+fi
+
+gow_log "[start-launch-supertux] End"
+```
+
+==== Build the image
+Build the image based on the Lutris image with the following command;
+```
+$ docker build -t lutris-supertux --build-arg BASE_APP_IMAGE=lutris images/lutris-supertux
+```
+
+==== config.toml
+Finally, add the appropreate entry to `/etc/wolf/cfg/config.toml` to add it to wolf.
+
+```
+[[apps]]
+title = "Super Tux"
+start_virtual_compositor = true
+
+[apps.runner]
+type = "docker"
+name = "WolfSupertux"
+image = "lutris-supertux"
+mounts = ["lutris-games:/var/lutris/:rw"]
+env = ["APPIMAGE_EXTRACT_AND_RUN=1","RUN_SWAY=1","GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"]
+devices = []
+ports = []
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw"]
+  }
+}
+\
+"""
+```
+
+This will work. But when you run the image in wolf, you will find the game opens
+by default in windowed mode. Also, because Super Tux runs from an Appimage in
+docker, it requires the APPIMAGE_EXTRACT_AND_RUN environment variable to be set.
+
+
+=== Use a custom install script.
+
+These things can be configured in Lutris, and we can achieve the changes we
+desire by providing a customised version of Lutris' installation script.
+
+All we need to do is add the customised script to the scripts directory,
+have the Dockerfile copy it into the image, and change the startup script
+to install from the provided script.
+
+==== Structure
+```
+images
+ +- lutris-app
+     +- Dockerfile
+     +- scripts
+         +- startup-20-configure-lutris.sh
+         +- supertux-appimage.yaml
+```
+
+==== supertux-appimage.yaml
+
+This customised installation script sets `APPIMAGE_EXTRACT_AND_RUN` as an
+environment variable, and passes `--fullscreen` as a commandline argument.
+
+```
+description: ''
+game_slug: supertux
+gogslug: ''
+humblestoreid: ''
+installer_slug: supertux-appimage
+name: SuperTux
+notes: 'Arch-based systems might need to install the following dependencies: "physfs
+  glew1.10 libcurl-gnutls"'
+runner: linux
+script:
+  files:
+  - appimg: https://github.com/SuperTux/supertux/releases/download/v0.6.3/SuperTux-v0.6.3.glibc2.29-x86_64.AppImage
+  game:
+    exe: SuperTux-v0.6.3.glibc2.29-x86_64.AppImage
+    args: --fullscreen
+  installer:
+  - chmodx: appimg
+  - move:
+      dst: $GAMEDIR
+      src: appimg
+  system:
+    env:
+      APPIMAGELAUNCHER_DISABLE: true
+      APPIMAGE_EXTRACT_AND_RUN: true
+slug: supertux-appimage
+steamid: null
+version: AppImage
+year: 2003
+```
+
+==== startup-20-configure-lutris.sh
+
+The startup script is mostly the same as the previous version, except the
+installation command now points to the custom install script.
+
+```
+#!/bin/bash -e
+
+gow_log "[start-launch-supertux] Begin"
+
+if $LUTRIS -lo 2>/dev/null | grep "supertux"
+then
+    gow_log "[start-launch-supertux] Super Tux is already installed! Launching."
+    LUTRIS_ARGS=("lutris:rungame/supertux")
+else
+    gow_log "[start-launch-supertux] Super Tux is not installed! Installing."
+    LUTRIS_ARGS=("-i" "/opt/gow/supertux-appimage.yaml")
+fi
+
+gow_log "[start-launch-supertux] End"
+```
+
+==== Dockerfile
+
+The Dockerfile needs to be modified to copy the installation script to the
+right place.
+
+```
+ARG BASE_APP_IMAGE
+
+# hadolint ignore=DL3006
+FROM ${BASE_APP_IMAGE}
+
+COPY --chmod=777 scripts/startup-20-launch-supertux.sh /opt/gow/startup.d/20-launch-supertux.sh
+COPY scripts/supertux-appimage.yaml /opt/gow/supertux-appimage.yaml
+
+ARG IMAGE_SOURCE
+LABEL org.opencontainers.image.source $IMAGE_SOURCE
+```
+
+
+==== Build the image
+The build command is exactly the same as it was in the previous example.
+```
+$ docker build -t lutris-supertux --build-arg BASE_APP_IMAGE=lutris images/lutris-supertux
+```
+
+==== config.toml
+Finally, the appropreate entry in `/etc/wolf/cfg/config.toml` can be changed
+to remove the now superfluous environment variable.
+
+```
+[[apps]]
+title = "Super Tux"
+start_virtual_compositor = true
+
+[apps.runner]
+type = "docker"
+name = "WolfSupertux"
+image = "lutris-supertux"
+mounts = ["lutris-games:/var/lutris/:rw"]
+env = ["RUN_SWAY=1","GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"]
+devices = []
+ports = []
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw"]
+  }
+}
+\
+"""
+```
+
