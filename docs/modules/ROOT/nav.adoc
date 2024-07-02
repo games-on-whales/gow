@@ -6,6 +6,9 @@
 *** xref:how-to-use.adoc[How can I use GOW?]
 *** xref:roadmap.adoc[Roadmap]
 
+** Images
+*** xref:lutris.adoc[]
+
 ** Getting Started
 *** xref:requirements.adoc[Prerequisites]
 **** xref:monitor.adoc[Monitor requirements]
