@@ -36,7 +36,8 @@ jobs:
           - { name: retroarch,  platforms: "linux/amd64" }
           - { name: firefox,    platforms: "linux/amd64" }
           - { name: steam,      platforms: "linux/amd64" }
-          - { name: pegasus,      platforms: "linux/amd64" }
+          - { name: pegasus,    platforms: "linux/amd64" }
+          - { name: lutris,     platforms: "linux/amd64" }
         #- { name: es-de,      platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
