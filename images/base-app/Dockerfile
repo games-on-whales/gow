@@ -18,6 +18,7 @@ ARG REQUIRED_PACKAGES="\
     x11-utils \
     pulseaudio-utils \
     mesa-vulkan-drivers libgbm1 libgles2 libegl1 libgl1-mesa-dri \
+    libnvidia-egl-wayland1 libnvidia-egl-gbm1 \
     fonts-noto-cjk \
     "
 

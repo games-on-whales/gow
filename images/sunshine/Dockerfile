@@ -58,4 +58,4 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 EXPOSE 47984-47990/tcp 48010 48010/udp 47998-48000/udp
 
 ARG IMAGE_SOURCE
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
+LABEL org.opencontainers.image.source=$IMAGE_SOURCE

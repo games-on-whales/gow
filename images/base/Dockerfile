@@ -11,7 +11,9 @@ ENV \
     HOME="/home/retro" \
     TZ="Europe/London" \
     DEBIAN_FRONTEND=noninteractive \
-    NEEDRESTART_SUSPEND=1
+    NEEDRESTART_SUSPEND=1 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=all
 
 ARG TARGETARCH TARGETVARIANT
 
@@ -56,4 +58,4 @@ COPY overlay /
 ENTRYPOINT ["/entrypoint.sh"]
 
 ARG IMAGE_SOURCE
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
+LABEL org.opencontainers.image.source=$IMAGE_SOURCE

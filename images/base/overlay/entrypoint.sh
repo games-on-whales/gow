@@ -10,7 +10,7 @@ if [ "$(id -u)" = "0" ]; then
     for init_script in /etc/cont-init.d/*.sh ; do
         gow_log
         gow_log "[ ${init_script}: executing... ]"
-        sed -i 's/\r$//' "${init_script}"
+        #sed -i 's/\r$//' "${init_script}" # Remove Windows line endings
         # shellcheck source=/dev/null
         source "${init_script}"
     done

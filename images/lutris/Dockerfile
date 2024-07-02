@@ -40,4 +40,4 @@ COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
 ARG IMAGE_SOURCE
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
+LABEL org.opencontainers.image.source=$IMAGE_SOURCE

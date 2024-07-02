@@ -113,4 +113,4 @@ COPY --chmod=777 scripts/startup.sh /etc/cont-init.d/setup-de.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-app.sh
 
 ARG IMAGE_SOURCE
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
+LABEL org.opencontainers.image.source=$IMAGE_SOURCE

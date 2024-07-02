@@ -37,4 +37,4 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 EXPOSE 4713
 
 ARG IMAGE_SOURCE
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
+LABEL org.opencontainers.image.source=$IMAGE_SOURCE
