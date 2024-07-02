@@ -113,6 +113,14 @@ base_create_json = """
 """
 ```
 
+Note that this configuration creates a docker named-volume called `lutris-games`
+and mounts it at `/var/lutris`. Since this is where the games will be installed,
+this may need a lot of storage space. By default, docker will store volumes in
+`/var/lib/docker/volumes`. In the above example, you can change `lutris-games` to
+any arbitrary path on the host you like, and the games data will be saved there
+instead.
+
+
 == Extending the Lutris Image
 
 Lutris supports launching games directly, skipping its UI, by passing the correct
@@ -345,3 +353,37 @@ base_create_json = """
 """
 ```
 
+==== config.toml
+
+Because the install script is now correctly setting the environment, we no
+longer have to set `APPIMAGE_EXTRACT_AND_RUN` in `config.toml`.
+
+```
+[[apps]]
+title = "Super Tux"
+start_virtual_compositor = true
+
+[apps.runner]
+type = "docker"
+name = "WolfSupertux"
+image = "lutris-supertux"
+mounts = ["lutris-games:/var/lutris/:rw"]
+env = ["RUN_SWAY=1","GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"]
+devices = []
+ports = []
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw"]
+  }
+}
+\
+"""
+```
+
+Now, when you select the "Super Tux" entry in Moonlight, Super Tux will
+install from the yaml script we've defined, and the game will run in
+fullscreen mode by default.
