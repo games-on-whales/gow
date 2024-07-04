@@ -118,6 +118,14 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   # Start Steam
   # shellcheck disable=SC2086
   dbus-run-session -- /usr/games/steam ${STEAM_STARTUP_FLAGS}
+
+elif [ -n "$RUN_SWAY" ]; then
+  # Start IBus to enable showing the steam on-screen keyboard
+  /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
+
+  # Start Steam
+  source /opt/gow/launch-comp.sh
+  launcher /usr/games/steam ${STEAM_STARTUP_FLAGS}
 else
   # shellcheck disable=SC2086
   exec /usr/games/steam ${STEAM_STARTUP_FLAGS}

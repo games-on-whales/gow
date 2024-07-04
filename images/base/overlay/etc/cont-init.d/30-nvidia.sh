@@ -61,16 +61,16 @@ if [ -L /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
     }' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
   fi
 
-  if [ ! -f /etc/vulkan/icd.d/nvidia_icd.json ]; then
-    gow_log "Creating json nvidia_icd.json file"
-    mkdir -p /etc/vulkan/icd.d/
-    echo '{
-      "file_format_version" : "1.0.0",
-      "ICD": {
-        "library_path": "libGLX_nvidia.so.0",
-        "api_version" : "1.3.205"
-      }
-    }' > /etc/vulkan/icd.d/nvidia_icd.json
+  if [ ! -f /usr/share/vulkan/icd.d/nvidia_icd.json ]; then
+      gow_log "Creating json nvidia_icd.json file"
+      mkdir -p /etc/vulkan/icd.d/
+      echo '{
+        "file_format_version" : "1.0.0",
+        "ICD": {
+          "library_path": "libGLX_nvidia.so.0",
+          "api_version" : "1.3.242"
+        }
+      }' > /etc/vulkan/icd.d/nvidia_icd.json
   fi
 
   if [ ! -f /usr/share/egl/egl_external_platform.d/15_nvidia_gbm.json ]; then
@@ -79,7 +79,7 @@ if [ -L /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
     echo '{
       "file_format_version" : "1.0.0",
       "ICD": {
-        "library_path": "ibnvidia-egl-gbm.so.1"
+        "library_path": "libnvidia-egl-gbm.so.1"
       }
     }' > /usr/share/egl/egl_external_platform.d/15_nvidia_gbm.json
   fi
