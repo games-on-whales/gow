@@ -99,7 +99,8 @@ _INSTALL_GAMESCOPE
 # Install Sway
 #################################
 RUN apt-get update -y && \
-    apt-get install -y sway waybar fonts-font-awesome xwayland && \
+    apt-get install -y sway xwayland kitty nano \
+             waybar fonts-font-awesome  xdg-desktop-portal xdg-desktop-portal-gtk psmisc && \
     rm -rf /var/lib/apt/lists/*
 
 COPY configs /cfg

@@ -38,7 +38,7 @@ include /etc/sway/config-vars.d/*
 # Basics:
 #
     # Start a terminal
-    # bindsym $mod+Return exec $term
+    bindsym $mod+Return exec kitty
 
     # Kill focused window
     # Cemu doesn't have a close button on some of its menus (sway doesn't support those button types yet)
@@ -86,6 +86,21 @@ mode "resize" {
 # bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*
+
+# Font, borders, and gaps
+    gaps inner 4
+    gaps outer -4
+    gaps top -2
+    gaps bottom 0
+    default_border pixel 2
+    default_floating_border pixel 2
+
+# Colours
+    client.background n/a #434c5e n/a
+    client.focused #4C566A #434c5e #eceff4 #434c5e #434c5e
+    client.focused_inactive #3b4252 #3b4252 #eceff4 #3b4252 #3b4252
+    client.unfocused #3b4252 #3b4252 #eceff4 #3b4252 #3b4252
+    client.urgent #4C566A #434c5e #eceff4 #434c5e #434c5e
 
 bar swaybar_command waybar
 

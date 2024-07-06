@@ -3,7 +3,7 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
-gow_log "Starting Steam with DISPLAY=${DISPLAY}"
+gow_log "Steam startup.sh"
 
 # Recursively creating Steam necessary folders (https://github.com/ValveSoftware/steam-for-linux/issues/6492)
 mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
