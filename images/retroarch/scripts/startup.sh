@@ -18,9 +18,18 @@ cp -u /cfg/retroarch.cfg "$CFG_DIR/retroarch.cfg"
 
 # if there are no assets, manually download them
 if [ ! -d "$CFG_DIR/assets" ]; then
+    gow_log "Missing assets, downloading..."
     wget -q --show-progress -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
     7z x /tmp/assets.zip -bso0 -bse0 -bsp1 -o"$CFG_DIR/assets"
     rm /tmp/assets.zip
+fi
+
+# Add the base autoconfig profile so that it'll pickup joypads automatically
+if [ ! -d "$CFG_DIR/autoconfig" ]; then
+    gow_log "Missing autoconfig, downloading..."
+    wget -q --show-progress -P /tmp https://buildbot.libretro.com/assets/frontend/autoconfig.zip
+    7z x /tmp/autoconfig.zip -bso0 -bse0 -bsp1 -o"$CFG_DIR/autoconfig"
+    rm /tmp/autoconfig.zip
 fi
 
 source /opt/gow/launch-comp.sh
