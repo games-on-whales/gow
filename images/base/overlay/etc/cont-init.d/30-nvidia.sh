@@ -35,15 +35,13 @@ if [ -d /usr/nvidia ]; then
     mkdir -p /usr/lib/x86_64-linux-gnu/gbm/
     cp /usr/nvidia/lib/gbm/* /usr/lib/x86_64-linux-gnu/gbm/
   fi
-fi
-
 # Check if there's libnvidia-allocator.so.1
-if [ -L /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
+elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
   gow_log "Nvidia driver detected, assuming it's using the nvidia driver volume"
   ldconfig
 
   # Create a symlink to the nvidia-drm_gbm.so (if not present)
-  if [ ! -L /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so ]; then
+  if [ ! -e /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so ]; then
     gow_log "Creating symlink to nvidia-drm_gbm.so"
     mkdir -p /usr/lib/x86_64-linux-gnu/gbm
     ln -sv ../libnvidia-allocator.so.1 /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so
