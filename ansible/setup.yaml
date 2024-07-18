@@ -1,0 +1,20 @@
+---
+- name: Setup GOW
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Set facts
+      set_fact:
+        dir_home: "/home/{{ ansible_user }}"
+        dir_repos_gow: "/home/{{ ansible_user }}/repos/gow"
+        dir_repos: "/home/{{ ansible_user }}/repos"
+
+- import_playbook: install-docker.yaml
+  when: install.docker
+
+- import_playbook: headless-application.yaml
+  vars:
+    file_location_src_edid: "configs/edid-1920-1080.txt"
+    user_env_time_zone: "{{ time_zone }}"
+    sunshine_conf_origin_web_ui_allowed: "{{ sunshine.web_ui.access_level }}"
+    sunshine_local_state_cleanup: "{{ sunshine.local_state.cleanup }}"

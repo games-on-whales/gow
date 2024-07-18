@@ -1,0 +1,15 @@
+- name: "Restart and enable systemd service {{ service_name }} with become: {{ become }}"
+  become: "{{ become }}"
+  block:
+    - name: Reload to see new unit file
+      shell: systemctl daemon-reload
+
+    - name: "Stop the service {{ service_name }} (ignoring errors)"
+      shell: "systemctl stop {{ service_name }}"
+      ignore_errors: True
+
+    - name: "Start the service {{ service_name }}"
+      shell: "systemctl start {{ service_name }} &"
+
+    - name: "Enable the service {{ service_name }}"
+      shell: "systemctl enable {{ service_name }}"

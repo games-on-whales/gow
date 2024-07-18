@@ -1,0 +1,22 @@
+---
+- name: Enable firewall
+  become: True
+  ufw:
+    state: enabled
+
+- name: Allow port
+  become: true
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+  with_items:
+    - "{{ ports }}"
+  register: allow_port_ufw_output
+  ignore_errors: True
+
+- name: Allow port on ufw module's failure to do so
+  become: true
+  shell: "ufw allow {{ item.item }}"
+  when: item.failed
+  with_items:
+    - "{{ allow_port_ufw_output.results }}"
