@@ -21,6 +21,7 @@ ARG REQUIRED_PACKAGES=" \
     libsdl2-2.0-0:i386 \
     libdbus-1-3:i386 \
     libsqlite3-0:i386 \
+    wine-stable \
     "
 
 RUN dpkg --add-architecture i386 && \
