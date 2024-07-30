@@ -15,6 +15,7 @@
 /ROMs/gbc
 /ROMs/gc
 /ROMs/genesis
+/ROMs/mastersystem
 /ROMs/megacd
 /ROMs/model2
 /ROMs/model3
