@@ -20,6 +20,7 @@ declare -A EMULATOR_COMMAND=( \
 ["gba"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mgba_libretro.so \"${ROM}\"" \
 ["gc"]="/Applications/dolphin-emu.AppImage --appimage-extract-and-run --batch --exec=\"${ROM}\"" \
 ["genesis"]="retroarch --fullscreen -L ~/.config/retroarch/cores/picodrive_libretro.so \"${ROM}\"" \
+["mastersystem"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["megacd"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["model2"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mame_libretro.so \"${ROM}\"" \
 ["model3"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mame_libretro.so \"${ROM}\"" \
