@@ -68,7 +68,7 @@ elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
           "library_path": "libGLX_nvidia.so.0",
           "api_version" : "1.3.242"
         }
-      }' > /etc/vulkan/icd.d/nvidia_icd.json
+      }' > /usr/share/vulkan/icd.d/nvidia_icd.json
   fi
 
   if [ ! -f /usr/share/egl/egl_external_platform.d/15_nvidia_gbm.json ]; then
