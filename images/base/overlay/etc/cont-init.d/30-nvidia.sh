@@ -61,7 +61,7 @@ elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
 
   if [ ! -f /usr/share/vulkan/icd.d/nvidia_icd.json ]; then
       gow_log "Creating json nvidia_icd.json file"
-      mkdir -p /etc/vulkan/icd.d/
+      mkdir -p /usr/share/vulkan/icd.d/
       echo '{
         "file_format_version" : "1.0.0",
         "ICD": {
