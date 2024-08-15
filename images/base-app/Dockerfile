@@ -1,6 +1,34 @@
 ARG BASE_IMAGE
+#################################
+FROM ${BASE_IMAGE} as sdl-jstest-builder
 
-# hadolint ignore=DL3006
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /
+
+RUN <<_BUILD_SDL_JSTEST
+    set -e 
+
+    apt-get update -y
+    apt install -y --no-install-recommends \
+      build-essential \
+      cmake \
+      libsdl2-dev \
+      libncurses5-dev \
+      git 
+
+    git clone https://github.com/games-on-whales/sdl-jstest
+    cd sdl-jstest
+    git submodule init
+    git submodule update
+    mkdir build
+    cd build
+    cmake .. -DBUILD_SDL_JSTEST=OFF -DBUILD_SDL2_JSTEST=ON
+    make
+
+_BUILD_SDL_JSTEST
+
+#################################
 FROM ${BASE_IMAGE}
 
 ARG GAMESCOPE_VERSION="3.14.2"
@@ -109,6 +137,11 @@ COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
 COPY --chmod=777 scripts/launch-comp.sh /opt/gow/launch-comp.sh
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends libsdl2-2.0-0 libncurses6 && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2-jstest
 
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
