@@ -49,6 +49,7 @@ ARG REQUIRED_PACKAGES=" \
     dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
     mangoapp ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils lsof pciutils lsb-release mesa-utils \
     libfontconfig1:i386 libfontconfig1:amd64 libfreetype6 libfreetype6:i386 \
+    locales \
 "
 
 RUN apt-get update -y && \
@@ -75,6 +76,10 @@ RUN rm /usr/bin/zenity && ln -s /usr/bin/true /usr/bin/zenity
 
 # refresh system font cache. For font warnings on startup see: https://github.com/ValveSoftware/steam-runtime/issues/482
 RUN fc-cache -f -v
+
+# Some games with native Linux ports require en_US.UTF-8
+# to be generated regardless of user locale settings
+RUN locale-gen en_US.UTF-8
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
