@@ -48,12 +48,18 @@ ARG REQUIRED_PACKAGES="\
     mesa-vulkan-drivers libgbm1 libgles2 libegl1 libgl1-mesa-dri \
     libnvidia-egl-wayland1 libnvidia-egl-gbm1 \
     fonts-noto-cjk \
+    locales \
     "
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
+
+# Some games with native Linux ports require en_US.UTF-8
+# to be generated regardless of user locale settings
+# see: https://github.com/games-on-whales/gow/pull/185
+RUN locale-gen en_US.UTF-8
 
 #################################
 # GAMESCOPE
