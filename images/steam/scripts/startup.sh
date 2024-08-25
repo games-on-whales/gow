@@ -34,6 +34,7 @@ export WINEDLLOVERRIDES=dxgi=n
 # so we don't get mangoapp showing up before Steam initializes
 # on OOBE and stuff.
 mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
+echo "position=top-right" > "$MANGOHUD_CONFIGFILE"
 echo "no_display" > "$MANGOHUD_CONFIGFILE"
 
 # Prepare our initial VRS config file
@@ -122,6 +123,10 @@ if [ -n "$RUN_GAMESCOPE" ]; then
 elif [ -n "$RUN_SWAY" ]; then
   # Start IBus to enable showing the steam on-screen keyboard
   /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
+
+  # Enable MangoHud for all vulkan (including Proton) games
+  # unless the user has explicitly disabled it in config.
+  export MANGOHUD=${MANGOHUD:-1}
 
   # Start Steam
   source /opt/gow/launch-comp.sh
