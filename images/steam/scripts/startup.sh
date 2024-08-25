@@ -123,6 +123,9 @@ elif [ -n "$RUN_SWAY" ]; then
   # Start IBus to enable showing the steam on-screen keyboard
   /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
 
+  # Enable MangoHud unless it's been explicitly disabled
+  export MANGOHUD=${MANGOHUD:-1}
+
   # Start Steam
   source /opt/gow/launch-comp.sh
   launcher /usr/games/steam ${STEAM_STARTUP_FLAGS}

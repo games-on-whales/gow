@@ -47,7 +47,8 @@ ARG REQUIRED_PACKAGES=" \
     libgbm1:i386 libgles2:i386 libegl1:i386 libgl1-mesa-dri:i386 libgl1:i386 libglapi-mesa:i386 libglx0:i386 \
     libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 libcurl4 libcurl4:i386 \
     dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
-    mangoapp ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils lsof pciutils lsb-release mesa-utils \
+    mangoapp mangohud \
+    ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils lsof pciutils lsb-release mesa-utils \
     libfontconfig1:i386 libfontconfig1:amd64 libfreetype6 libfreetype6:i386 \
 "
 
