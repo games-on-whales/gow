@@ -2,7 +2,11 @@ name: Automated builds
 
 on:
   push:
-  pull_request: # They will only build the containers, not push them
+    paths:
+      - "images/**"
+  pull_request: # They will only build the containers, not push them to our registry
+    paths:
+      - "images/**"
     types:
       - opened
       - reopened
