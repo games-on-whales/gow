@@ -42,7 +42,7 @@ _FIX_LIBC6
 
 ARG REQUIRED_PACKAGES=" \
     steam \
-    sudo vim unzip\
+    sudo vim unzip tmux\
     libvulkan1 libvulkan1:i386 \
     mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
     libgbm1:i386 libgles2:i386 libegl1:i386 libgl1-mesa-dri:i386 libgl1:i386 libglapi-mesa:i386 libglx0:i386 \
