@@ -42,6 +42,7 @@ _FIX_LIBC6
 
 ARG REQUIRED_PACKAGES=" \
     steam \
+    sudo vim unzip\
     libvulkan1 libvulkan1:i386 \
     mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
     libgbm1:i386 libgles2:i386 libegl1:i386 libgl1-mesa-dri:i386 libgl1:i386 libglapi-mesa:i386 libglx0:i386 \
@@ -63,6 +64,10 @@ RUN apt-get update -y && \
     # Fix steam updater UI font file \
     ln -s /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/ttf-dejavu && \
     # \
+    # Install Google Chrome \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt install ./google-chrome-stable_current_amd64.deb -y --no-install-recommends && \
+    rm ./google-chrome-stable_current_amd64.deb && \
     # Cleanup \
     apt-get remove -y python3-six software-properties-common && \
     apt-get autoremove -y && \
@@ -76,6 +81,10 @@ RUN rm /usr/bin/zenity && ln -s /usr/bin/true /usr/bin/zenity
 # refresh system font cache. For font warnings on startup see: https://github.com/ValveSoftware/steam-runtime/issues/482
 RUN fc-cache -f -v
 
+# set root password
+RUN echo "root:retro" | chpasswd
+
+COPY --chmod=777 configs/waybar/config.jsonc /cfg/waybar/config.jsonc
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
 COPY --chmod=777 steamos-update /usr/bin/steamos-update
