@@ -8,6 +8,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
     libpci3 \
     firefox \
+    libavcodec-extra \
+    ubuntu-restricted-extras \
 "
 
 COPY <<_APT_PIN /etc/apt/preferences.d/mozilla-firefox
