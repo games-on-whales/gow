@@ -22,6 +22,8 @@ ARG REQUIRED_PACKAGES=" \
     libdbus-1-3:i386 \
     libsqlite3-0:i386 \
     wine-stable \
+    winetricks \
+    zenity \
     "
 
 RUN dpkg --add-architecture i386 && \
