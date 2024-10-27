@@ -1,10 +1,14 @@
 // -*- mode: jsonc -*-
 {
-  "layer": "top", // Waybar at top layer
-  "position": "top", // Waybar position (top|bottom|left|right)
-  "height": 30, // Waybar height (to be removed for auto height)
+  "layer": "top",
+  // Waybar at top layer
+  "position": "top",
+  // Waybar position (top|bottom|left|right)
+  "height": 30,
+  // Waybar height (to be removed for auto height)
   // "width": 1280, // Waybar width
-  "spacing": 4, // Gaps between modules (4px)
+  "spacing": 4,
+  // Gaps between modules (4px)
   // Choose the order of the modules
   "modules-left": [
     "sway/workspaces",
@@ -22,7 +26,7 @@
     "memory",
     "temperature",
     "sway/language",
-    "clock"
+    "custom/clock"
   ],
   "custom/kitty": {
     "format": "{} ",
@@ -35,7 +39,10 @@
   "sway/scratchpad": {
     "format": "{icon} {count}",
     "show-empty": false,
-    "format-icons": ["", ""],
+    "format-icons": [
+      "",
+      ""
+    ],
     "tooltip": true,
     "tooltip-format": "{app}: {title}"
   },
@@ -50,10 +57,13 @@
     // "icon-size": 21,
     "spacing": 10
   },
-  "clock": {
-    // "timezone": "America/New_York",
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-    "format-alt": "{:%Y-%m-%d}"
+  "custom/clock": {
+    // see: https://github.com/games-on-whales/wolf/issues/137
+    // and: https://github.com/Alexays/Waybar/issues/3575#issuecomment-2338813343
+    "format": "  {}",
+    "tooltip": false,
+    "interval": 60,
+    "exec": "date +'%d %a %H:%M'"
   },
   "cpu": {
     "format": "{usage}% ",
@@ -68,7 +78,11 @@
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C {icon}",
     "format": "{temperatureC}°C",
-    "format-icons": ["", "", ""]
+    "format-icons": [
+      "",
+      "",
+      ""
+    ]
   },
   "network": {
     // "interface": "wlp2*", // (Optional) To force the use of this interface
@@ -94,7 +108,11 @@
       "phone": "",
       "portable": "",
       "car": "",
-      "default": ["", "", ""]
+      "default": [
+        "",
+        "",
+        ""
+      ]
     }
   }
 }
