@@ -14,7 +14,8 @@ RUN apt-get update && \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+    ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
