@@ -10,7 +10,7 @@ RUN apt-get update && \
     add-apt-repository ppa:libretro/stable && \
     apt-get update && \
     # Install retroarch \
-    apt-get install -y retroarch p7zip-full && \
+    apt-get install -y retroarch p7zip-full libglu1 libaio1t64 && \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
     apt-get autoremove -y && \
