@@ -5,7 +5,9 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-#TODO: Build this madness in a different Dockerfile and just copy the binary
+# TODO: Build this madness in a multi-step Dockerfile and just copy the needed binary
+# Required packages are listed here:
+# - https://github.com/xbmc/xbmc/blob/master/docs/README.Ubuntu.md#32-get-build-dependencies-manually
 ARG REQUIRED_PACKAGES=" \
     debhelper autoconf autoconf automake \
     autopoint gettext autotools-dev cmake \
@@ -46,13 +48,22 @@ RUN apt-get update && \
     cd kodi-build && \
     cmake ../kodi -DCMAKE_INSTALL_PREFIX=/usr/local -DCORE_PLATFORM_NAME=wayland -DAPP_RENDER_SYSTEM=gl && \
     cmake --build . -- VERBOSE=1 -j$(getconf _NPROCESSORS_ONLN) && \
-    make install && \
+    make install
+
+# Build controller addon; !!! Add needed Addons HERE !!!
+RUN cd kodi && \
+    make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons PREFIX=/usr/local ADDONS="peripheral.joystick" && \
     #clean up
     cd .. && \
     rm -R kodi/ && \
-    rm -R kodi-build/
+    rm -R kodi-build/ && \
+    apt-get autoremove -y --purge
+
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
+COPY configs/controller.xml /opt/gow/controller.xml
+COPY configs/settings.xml /opt/gow/settings.xml
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
