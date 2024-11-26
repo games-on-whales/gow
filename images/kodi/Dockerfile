@@ -62,7 +62,8 @@ RUN cd kodi && \
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
-COPY configs/controller.xml /opt/gow/controller.xml
+COPY configs/Xbox_controller.xml /opt/gow/Xbox_controller.xml
+COPY configs/Switch_controller.xml /opt/gow/Switch_controller.xml
 COPY configs/settings.xml /opt/gow/settings.xml
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
