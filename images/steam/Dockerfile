@@ -5,7 +5,7 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:22.04 AS bwrap-builder
+FROM ubuntu:24.10 AS bwrap-builder
 
 ENV DEBIAN_FRONTEND=non-interactive
 WORKDIR /root
@@ -26,29 +26,15 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Recent libc6 versions are failing to install, so we install manually an old version
-# The issue seems to be common, telinit gets stuck after "Setting up libc6:i386"
-# This might be related https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1060387
-# Here's an example of a failed workflow: https://github.com/games-on-whales/gow/actions/runs/8057975030/job/22010078389
-RUN <<_FIX_LIBC6
-set -e
-dpkg --add-architecture i386
-apt-get update -y
-apt-get install -y --no-install-recommends libc6:amd64 libc6:i386
-
-# Cleanup
-rm -rf /var/lib/apt/lists/*
-_FIX_LIBC6
-
 ARG REQUIRED_PACKAGES=" \
     steam \
-    libvulkan1 libvulkan1:i386 \
-    mesa-vulkan-drivers mesa-vulkan-drivers:i386 \
-    libgbm1:i386 libgles2:i386 libegl1:i386 libgl1-mesa-dri:i386 libgl1:i386 libglapi-mesa:i386 libglx0:i386 \
-    libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 libcurl4 libcurl4:i386 \
     dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
-    mangoapp ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils lsof pciutils lsb-release mesa-utils \
+    mangoapp ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils pciutils lsb-release mesa-utils \
     libfontconfig1:i386 libfontconfig1:amd64 libfreetype6 libfreetype6:i386 \
+"
+
+ARG AVOID_PACKAGES=" \
+    nvidia-driver-libs- nvidia-vulkan-icd- \
 "
 
 RUN apt-get update -y && \
@@ -58,7 +44,7 @@ RUN apt-get update -y && \
     dpkg --add-architecture i386 && \
     add-apt-repository multiverse && \
     apt-get update -y && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+    apt-get install -y $REQUIRED_PACKAGES $AVOID_PACKAGES && \
     # \
     # Fix steam updater UI font file \
     ln -s /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/ttf-dejavu && \

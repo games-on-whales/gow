@@ -2,7 +2,7 @@
 ARG BASE_APP_IMAGE
 
 ######################################
-FROM lizardbyte/sunshine:v0.21.0-ubuntu-22.04 AS sunshine-image
+FROM ghcr.io/lizardbyte/sunshine:latest-ubuntu-24.04 AS sunshine-image
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE} AS sunshine

@@ -31,7 +31,7 @@ _BUILD_SDL_JSTEST
 #################################
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.14.2"
+ARG GAMESCOPE_VERSION="3.15.14"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -72,7 +72,7 @@ Standards-Version: 3.9.2
 Section: misc
 Package: gamescope-gow
 Version: ${GAMESCOPE_VERSION}
-Depends: libc6, libcap2, libdisplay-info1, libdrm2, libliftoff0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-client0, libwayland-server0, libwlroots12t64, libx11-6, libx11-xcb1, libx11-xcb1, libxcb1, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxmu6, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland, libcap2-bin
+Depends: libc6, libcap2, libdisplay-info2, libdrm2, libliftoff0, libsdl2-2.0-0, libstdc++6, libvulkan1, libwayland-client0, libwayland-server0, libwlroots12t64, libx11-6, libx11-xcb1, libx11-xcb1, libxcb1, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxkbcommon0, libxmu6, libxrender1, libxres1, libxtst6, libxxf86vm1, xwayland, libcap2-bin
 Replaces: gamescope, gamescope-core
 Description: Manually built from git
 EOT
@@ -89,7 +89,7 @@ RUN <<_INSTALL_GAMESCOPE
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
         libxcb-icccm4-dev libxcb-res0-dev libxcb-ewmh-dev libxcb-composite0-dev glslang-tools libsdl2-dev libepoxy-dev \
-        xserver-common libliftoff0 libwlroots12t64 mesa-common-dev libbenchmark-dev xwayland libdisplay-info1"
+        xserver-common libliftoff0 libwlroots12t64 mesa-common-dev libbenchmark-dev xwayland libdisplay-info2"
     apt-get update -y
     apt-get install -y --no-install-recommends $DEV_PACKAGES
 
