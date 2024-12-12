@@ -55,7 +55,8 @@ RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
+		curl https://api.github.com/repos/xemu-project/xemu/releases/latest | jq '.assets[].browser_download_u
+rl' | grep ".AppImage" | grep -v "dbg" | xargs wget -O xemu-emu.AppImage 
 	
 # Downloading RPCS3 AppImage
 # Get the latest binary and download curl-> json -> wget
