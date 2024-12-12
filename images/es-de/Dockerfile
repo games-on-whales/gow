@@ -11,7 +11,7 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
 		apt-get update && \
-		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 python3-six && \
+		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 python3-six curl jq && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -58,12 +58,12 @@ RUN \
 		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
 	
 # Downloading RPCS3 AppImage
-ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
+# Get the latest binary and download curl-> json -> wget
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
+ 	curl https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | jq ".assets[0].browser_download_url" | xargs wget -O rpcs3.AppImage
 
 # Install Cemu
 ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
