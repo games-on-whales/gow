@@ -7,6 +7,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
+#GitHub REST query versioning
+ARG GITHUB_REST_VERSION=2022-11-28
+
 # Install prereqs
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
@@ -55,8 +58,12 @@ RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		curl https://api.github.com/repos/xemu-project/xemu/releases/latest | jq '.assets[].browser_download_u
-rl' | grep ".AppImage" | grep -v "dbg" | xargs wget -O xemu-emu.AppImage 
+		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)" \
+        https://api.github.com/repos/xemu-project/xemu/releases/latest | \
+        jq '.assets[].browser_download_url' | \
+        grep ".AppImage" | \
+        grep -v "dbg" | \
+        xargs wget -O xemu-emu.AppImage 
 	
 # Downloading RPCS3 AppImage
 # Get the latest binary and download curl-> json -> wget
@@ -64,7 +71,10 @@ RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
- 	curl https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | jq ".assets[0].browser_download_url" | xargs wget -O rpcs3.AppImage
+ 	curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | \
+    jq ".assets[0].browser_download_url" | \
+    xargs wget -O rpcs3-emu.AppImage
 
 # Install Cemu
 ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
