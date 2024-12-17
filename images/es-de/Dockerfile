@@ -51,14 +51,18 @@ RUN \
     echo "**** Downloading PCSX2 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4558/pcsx2-v1.7.4558-linux-AppImage-64bit-Qt.AppImage
+		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/PCSX2/pcsx2/releases/latest | \
+        jq '.assets[].browser_download_url' | \
+        grep ".AppImage" | \
+        xargs wget -O pcsx2-emu-Qt.AppImage 
 
 # Downloading XEMU AppImage
 RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)" \
+		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/xemu-project/xemu/releases/latest | \
         jq '.assets[].browser_download_url' | \
         grep ".AppImage" | \
