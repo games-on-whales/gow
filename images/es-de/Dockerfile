@@ -7,11 +7,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
+#GitHub REST query versioning
+ARG GITHUB_REST_VERSION=2022-11-28
+
 # Install prereqs
 RUN \
     echo "**** Install Prereqs (Mesa/Vulkan/Fuse/QT/Misc) ****" && \
 		apt-get update && \
-		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 python3-six && \
+		apt-get install -y software-properties-common gpg-agent wget p7zip-full libvulkan1 libglu1-mesa-dev qtbase5-dev qt5-qmake ffmpeg x11-xserver-utils libdbus-1-3 libgtk-3-0 libegl1 libsdl2-2.0-0 python3-six curl jq && \
 	# Cleanup \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
@@ -21,7 +24,9 @@ RUN \
     echo "**** Downloading ESDE AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O esde.AppImage https://gitlab.com/es-de/emulationstation-de/-/package_files/76389058/download
+        curl https://gitlab.com/api/v4/projects/18817634/releases | \
+        jq '.[0].assets.links[]|select(.name|endswith(".AppImage"))|select(.name|contains("SteamDeck")|not).direct_asset_url' | \
+        xargs wget -O esde.AppImage 
 		
 # Install RetroArch
 RUN \
@@ -48,22 +53,31 @@ RUN \
     echo "**** Downloading PCSX2 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O pcsx2-emu-Qt.AppImage https://github.com/PCSX2/pcsx2/releases/download/v1.7.4558/pcsx2-v1.7.4558-linux-AppImage-64bit-Qt.AppImage
+		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/PCSX2/pcsx2/releases/latest | \
+        jq '.assets[]|select(.name|endswith(".AppImage"))'.browser_download_url | \
+        xargs wget -O pcsx2-emu-Qt.AppImage 
 
 # Downloading XEMU AppImage
 RUN \
     echo "**** Downloading XEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-		wget -O xemu-emu.AppImage https://github.com/xemu-project/xemu/releases/download/v0.7.92/xemu-v0.7.92-x86_64.AppImage
+		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/xemu-project/xemu/releases/latest | \
+        jq '.assets[]|select(.name|endswith(".AppImage"))|select(.name|contains("dbg")|not).browser_download_url' | \
+        xargs wget -O xemu-emu.AppImage 
 	
 # Downloading RPCS3 AppImage
-ARG RPCS3_APP_IMAGE_URL=https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-47fcb9562fd531350f7d9c847dda322c5f50d56d/rpcs3-v0.0.29-15807-47fcb956_linux64.AppImage
+# Get the latest binary and download curl-> json -> wget
 RUN \
     echo "**** Downloading RPCS3 AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O rpcs3-emu.AppImage "${RPCS3_APP_IMAGE_URL}"
+ 	curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | \
+    jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
+    xargs wget -O rpcs3-emu.AppImage
 
 # Install Cemu
 ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
@@ -71,7 +85,10 @@ RUN \
     echo "**** Downloading CEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
+        curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/cemu-project/Cemu/releases/latest | \
+        jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
+        xargs wget -O cemu-emu.AppImage
 
 # Install Dolphin-emu
 ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/download/continuous/Dolphin_Emulator-x86_64.AppImage
