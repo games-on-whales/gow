@@ -25,7 +25,7 @@ RUN \
         mkdir -p /tmp && \
         cd /tmp && \
         curl https://gitlab.com/api/v4/projects/18817634/releases | \
-        jq '.[0].assets.links[]|select(.name == "ES-DE_x64.AppImage").direct_asset_url' | \
+        jq '.[0].assets.links[]|select(.name|endswith(".AppImage"))|select(.name|contains("SteamDeck")|not).direct_asset_url' | \
         xargs wget -O esde.AppImage 
 		
 # Install RetroArch
