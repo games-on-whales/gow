@@ -24,7 +24,9 @@ RUN \
     echo "**** Downloading ESDE AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O esde.AppImage https://gitlab.com/es-de/emulationstation-de/-/package_files/76389058/download
+        curl https://gitlab.com/api/v4/projects/18817634/releases | \
+        jq '.[0].assets.links[]|select(.name == "ES-DE_x64.AppImage").direct_asset_url' | \
+        xargs wget -O esde.AppImage 
 		
 # Install RetroArch
 RUN \
@@ -53,8 +55,7 @@ RUN \
         cd /tmp && \
 		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/PCSX2/pcsx2/releases/latest | \
-        jq '.assets[].browser_download_url' | \
-        grep ".AppImage" | \
+        jq '.assets[]|select(.name|endswith(".AppImage"))'.browser_download_url | \
         xargs wget -O pcsx2-emu-Qt.AppImage 
 
 # Downloading XEMU AppImage
@@ -64,9 +65,7 @@ RUN \
         cd /tmp && \
 		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/xemu-project/xemu/releases/latest | \
-        jq '.assets[].browser_download_url' | \
-        grep ".AppImage" | \
-        grep -v "dbg" | \
+        jq '.assets[]|select(.name|endswith(".AppImage"))|select(.name|contains("dbg")|not).browser_download_url' | \
         xargs wget -O xemu-emu.AppImage 
 	
 # Downloading RPCS3 AppImage
@@ -77,7 +76,7 @@ RUN \
         cd /tmp && \
  	curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | \
-    jq ".assets[0].browser_download_url" | \
+    jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
     xargs wget -O rpcs3-emu.AppImage
 
 # Install Cemu
@@ -86,7 +85,10 @@ RUN \
     echo "**** Downloading CEMU AppImage ****" && \
         mkdir -p /tmp && \
         cd /tmp && \
-        wget -O cemu-emu.AppImage "${CEMU_APP_IMAGE_URL}"
+        curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/cemu-project/Cemu/releases/latest | \
+        jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
+        xargs wget -O cemu-emu.AppImage
 
 # Install Dolphin-emu
 ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/download/continuous/Dolphin_Emulator-x86_64.AppImage
