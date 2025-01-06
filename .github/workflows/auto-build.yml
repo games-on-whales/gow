@@ -4,11 +4,16 @@ on:
   push:
     paths:
       - "images/**"
+      - ".github/workflows/*"
   pull_request: # They will only build the containers, not push them to our registry
     paths:
       - "images/**"
+      - ".github/workflows/*"
     types:
       - opened
+      - edited
+      - ready_for_review
+      - review_requested
       - reopened
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
@@ -18,6 +23,7 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base"
+      platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
   base-app:
@@ -26,6 +32,7 @@ jobs:
     with:
       image_name: "base-app"
       base_image: "${{ needs.base.outputs.image_tag }}"
+      platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
   apps:
@@ -38,7 +45,7 @@ jobs:
           - { name: udevd,                      platforms: "linux/amd64" }
           - { name: sunshine,                   platforms: "linux/amd64" }
           - { name: retroarch,                  platforms: "linux/amd64" }
-          - { name: firefox,                    platforms: "linux/amd64" }
+          - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }
           - { name: steam,                      platforms: "linux/amd64" }
           - { name: pegasus,                    platforms: "linux/amd64" }
           - { name: lutris,                     platforms: "linux/amd64" }
