@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - "images/**"
+      - ".github/workflows/*"
   pull_request: # They will only build the containers, not push them to our registry
     paths:
       - "images/**"
+      - ".github/workflows/*"
     types:
       - opened
       - reopened
