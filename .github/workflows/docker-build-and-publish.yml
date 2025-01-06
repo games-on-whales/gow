@@ -17,8 +17,13 @@ on:
         required: true
       platforms:
         description: "Which platforms should this image be built for?"
-        default: "linux/amd64"
+        default: "linux/amd64,linux/arm64"
         type: string
+        required: false
+      runs-on:
+        description: "The runner to use for this build"
+        type: string
+        default: "ubuntu-latest"
         required: false
     outputs:
       image_tag:
@@ -27,7 +32,7 @@ on:
 
 jobs:
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
 
     outputs:
       image_tag: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}

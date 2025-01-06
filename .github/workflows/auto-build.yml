@@ -33,16 +33,21 @@ jobs:
     strategy:
       matrix:
         image:
-          - { name: xorg,                       platforms: "linux/amd64" }
-          - { name: pulseaudio,                 platforms: "linux/amd64" }
-          - { name: udevd,                      platforms: "linux/amd64" }
-          - { name: sunshine,                   platforms: "linux/amd64" }
-          - { name: retroarch,                  platforms: "linux/amd64" }
-          - { name: firefox,                    platforms: "linux/amd64" }
-          - { name: steam,                      platforms: "linux/amd64" }
-          - { name: pegasus,                    platforms: "linux/amd64" }
-          - { name: lutris,                     platforms: "linux/amd64" }
-          - { name: heroic-games-launcher,      platforms: "linux/amd64" }
+         - name: xorg
+         - name: pulseaudio
+         - name: udevd
+         - name: sunshine
+         - name: retroarch
+         - name: firefox
+         - name: steam
+         - name: pegasus
+         - name: lutris
+         - name: heroic-games-launcher
+        platform:
+         - arch: "linux/amd64"
+           runner: "ubuntu-latest"
+         - arch: "linux/arm64"
+           runner: "ARM64"
         #- { name: es-de,      platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
@@ -50,6 +55,7 @@ jobs:
       image_name: "${{ matrix.image.name }}"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
-      platforms: "${{ matrix.image.platforms }}"
+      platforms: "${{ matrix.platform.arch }}"
+      runs-on: "${{ matrix.platform.runner }}"
     secrets: inherit
 
