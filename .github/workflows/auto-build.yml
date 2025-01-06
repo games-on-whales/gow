@@ -11,6 +11,9 @@ on:
       - ".github/workflows/*"
     types:
       - opened
+      - edited
+      - ready_for_review
+      - review_requested
       - reopened
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
