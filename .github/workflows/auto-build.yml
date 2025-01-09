@@ -41,8 +41,8 @@ jobs:
         # udevd was an experiment it's definitely not needed anymore
         # - { name: udevd,                      platforms: "linux/amd64" }
           - { name: sunshine,                   platforms: "linux/amd64" }
-          - { name: retroarch,                  platforms: "linux/amd64,linux/arm64" }
-          - { name: firefox,                    platforms: "linux/amd64" }
+          - { name: retroarch,                  platforms: "linux/amd64" }
+          - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }
           - { name: steam,                      platforms: "linux/amd64" }
           - { name: pegasus,                    platforms: "linux/amd64" }
           - { name: lutris,                     platforms: "linux/amd64" }
