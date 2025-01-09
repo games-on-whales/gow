@@ -108,10 +108,10 @@ jobs:
             fi
             PUSH=true
             echo "has_github_token=true" >> $GITHUB_OUTPUT
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache"  >> $GITHUB_OUTPUT
-            echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache,mode=max"  >> $GITHUB_OUTPUT
+            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }}"  >> $GITHUB_OUTPUT
+            echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }},mode=max"  >> $GITHUB_OUTPUT
           else
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache"  >> $GITHUB_OUTPUT
+            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }}"  >> $GITHUB_OUTPUT
             echo "cache_to="  >> $GITHUB_OUTPUT
           fi
 
