@@ -199,9 +199,12 @@ jobs:
           if-no-files-found: error
           overwrite: true
           retention-days: 1
+  # Based on https://docs.docker.com/build/ci/github-actions/multi-platform/
+  # We have to merge the two AMD64 and ARM64 images into a single manifest list
+  # Otherwise the image would be overridden by the last one pushed
   merge:
     runs-on: ubuntu-latest
-    needs: [docker]
+    needs: [ docker ]
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
