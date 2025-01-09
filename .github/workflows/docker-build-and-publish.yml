@@ -92,6 +92,7 @@ jobs:
         run: |
           IMAGES=""
           PUSH=false
+          CURRENT_PLATFORM=${{ contains(matrix.platform, 'arm64') && 'arm64' || 'x86' }}
 
           if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
             IMAGES="gameonwhales/${{ inputs.image_name }}"
@@ -108,10 +109,10 @@ jobs:
             fi
             PUSH=true
             echo "has_github_token=true" >> $GITHUB_OUTPUT
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }}"  >> $GITHUB_OUTPUT
-            echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }},mode=max"  >> $GITHUB_OUTPUT
+            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
+            echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM},mode=max"  >> $GITHUB_OUTPUT
           else
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${{ matrix.platform }}"  >> $GITHUB_OUTPUT
+            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
             echo "cache_to="  >> $GITHUB_OUTPUT
           fi
 
