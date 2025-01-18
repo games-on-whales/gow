@@ -2,10 +2,15 @@ name: Automated builds
 
 on:
   push:
-  pull_request: # They will only build the containers, not push them
-    types:
-      - opened
-      - reopened
+    branches:
+      - master
+    paths:
+      - "images/**"
+      - ".github/workflows/*"
+  pull_request: # They will only build the containers, not push them to our registry
+    paths:
+      - "images/**"
+      - ".github/workflows/*"
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
 
@@ -14,6 +19,7 @@ jobs:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base"
+      platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
   base-app:
@@ -22,6 +28,7 @@ jobs:
     with:
       image_name: "base-app"
       base_image: "${{ needs.base.outputs.image_tag }}"
+      platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
   apps:
@@ -29,16 +36,18 @@ jobs:
     strategy:
       matrix:
         image:
-          - { name: xorg,          platforms: "linux/amd64" }
-          - { name: pulseaudio,    platforms: "linux/amd64" }
-          - { name: udevd,         platforms: "linux/amd64" }
-          - { name: sunshine,      platforms: "linux/amd64" }
-          - { name: retroarch,     platforms: "linux/amd64" }
-          - { name: firefox,       platforms: "linux/amd64" }
-          - { name: steam,         platforms: "linux/amd64" }
-          - { name: pegasus,       platforms: "linux/amd64" }
-          - { name: lutris,        platforms: "linux/amd64" }
-          - { name: prismlauncher, platforms: "linux/amd64" }
+          - { name: xorg,                       platforms: "linux/amd64" }
+          - { name: pulseaudio,                 platforms: "linux/amd64,linux/arm64" }
+        # udevd was an experiment it's definitely not needed anymore
+        # - { name: udevd,                      platforms: "linux/amd64" }
+          - { name: sunshine,                   platforms: "linux/amd64" }
+          - { name: retroarch,                  platforms: "linux/amd64" }
+          - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }
+          - { name: steam,                      platforms: "linux/amd64" }
+          - { name: pegasus,                    platforms: "linux/amd64" }
+          - { name: lutris,                     platforms: "linux/amd64" }
+          - { name: heroic-games-launcher,      platforms: "linux/amd64" }
+          - { name: prismlauncher,              platforms: "linux/amd64" }
         #- { name: es-de,      platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml

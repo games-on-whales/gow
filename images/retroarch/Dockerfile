@@ -10,11 +10,12 @@ RUN apt-get update && \
     add-apt-repository ppa:libretro/stable && \
     apt-get update && \
     # Install retroarch \
-    apt-get install -y retroarch p7zip-full && \
+    apt-get install -y retroarch p7zip-full libglu1 libaio1t64 && \
     # Cleanup \
     apt-get remove -y software-properties-common gpg-agent && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
 
 COPY configs/retroarch.cfg /cfg/retroarch.cfg
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
