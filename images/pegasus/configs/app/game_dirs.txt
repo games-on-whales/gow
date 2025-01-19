@@ -10,6 +10,7 @@
 /ROMs/atarijaguarcd
 /ROMs/atarilynx
 /ROMs/atarist
+/ROMs/dreamcast
 /ROMs/gb
 /ROMs/gba
 /ROMs/gbc

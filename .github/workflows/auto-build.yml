@@ -31,6 +31,32 @@ jobs:
       platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
+  base-emu:
+    needs: [ base-app ]
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      image_name: "base-emu"
+      base_image: "${{ needs.base.outputs.image_tag }}"
+      platforms: "linux/amd64,linux/arm64"
+    secrets: inherit
+
+  emus:
+    needs: [ base, base-app, base-emu ]
+    strategy:
+      matrix:
+        image:
+          - { name: pegasus,                    platforms: "linux/amd64" }
+          - { name: es-de,                      platforms: "linux/amd64" }
+      fail-fast: false
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      image_name: "${{ matrix.image.name }}"
+      base_image: "${{ needs.base.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-app.outputs.image_tag }}"
+      base_emu_image: "${{ needs.base-emu.outputs.image_tag }}"
+      platforms: "${{ matrix.image.platforms }}"
+    secrets: inherit
+
   apps:
     needs: [ base, base-app ]
     strategy:
@@ -44,11 +70,9 @@ jobs:
           - { name: retroarch,                  platforms: "linux/amd64" }
           - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }
           - { name: steam,                      platforms: "linux/amd64" }
-          - { name: pegasus,                    platforms: "linux/amd64" }
           - { name: lutris,                     platforms: "linux/amd64" }
           - { name: heroic-games-launcher,      platforms: "linux/amd64" }
           - { name: prismlauncher,              platforms: "linux/amd64" }
-        #- { name: es-de,      platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
