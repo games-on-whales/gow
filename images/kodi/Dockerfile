@@ -52,7 +52,7 @@ RUN apt-get update && \
 
 # Build controller addon; !!! Add needed Addons HERE !!!
 RUN cd kodi && \
-    make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons PREFIX=/usr/local ADDONS="peripheral.joystick" && \
+    make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons PREFIX=/usr/local && \
     #clean up
     cd .. && \
     rm -R kodi/ && \
