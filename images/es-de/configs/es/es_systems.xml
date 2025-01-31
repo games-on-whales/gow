@@ -4,7 +4,7 @@
     <system>
         <name>Custom Scripts</name>
         <fullname>Custom Scripts</fullname>
-        <path>~/.emulationstation/custom_scripts</path>
+        <path>~/ES-DE/custom_scripts</path>
         <extension>.desktop .sh</extension>
         <command label="Various">%ENABLESHORTCUTS% %EMULATOR_OS-SHELL% %ROM%</command>
         <platform>pc, pcwindows</platform>
