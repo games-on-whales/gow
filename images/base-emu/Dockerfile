@@ -54,70 +54,44 @@ RUN \
         apt-get remove -y python3-six && \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
-		
-# Downloading PCSX2 AppImage
-RUN \
-    echo "**** Downloading PCSX2 AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
-        https://api.github.com/repos/PCSX2/pcsx2/releases/latest | \
-        jq '.assets[]|select(.name|endswith(".AppImage"))'.browser_download_url | \
-        xargs wget -O pcsx2-emu-Qt.AppImage 
 
-# Downloading XEMU AppImage
-RUN \
-    echo "**** Downloading XEMU AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-		curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
-        https://api.github.com/repos/xemu-project/xemu/releases/latest | \
-        jq '.assets[]|select(.name|endswith(".AppImage"))|select(.name|contains("dbg")|not).browser_download_url' | \
-        xargs wget -O xemu-emu.AppImage 
-	
-# Downloading RPCS3 AppImage
-# Get the latest binary and download curl-> json -> wget
-RUN \
-    echo "**** Downloading RPCS3 AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
- 	curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
-        https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/latest | \
-    jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
-    xargs wget -O rpcs3-emu.AppImage
 
-# Install Cemu
-ARG CEMU_APP_IMAGE_URL=https://github.com/cemu-project/Cemu/releases/download/v2.0-61/Cemu-2.0-61-x86_64.AppImage
-RUN \
-    echo "**** Downloading CEMU AppImage ****" && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-        curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
-        https://api.github.com/repos/cemu-project/Cemu/releases/latest | \
+RUN <<_INSTALL_EMULATORS
+set -e
+
+EMULATORS_DIR=/Applications
+mkdir -p $EMULATORS_DIR
+cd $EMULATORS_DIR
+
+github_download(){
+    curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/$1/releases/latest | \
         jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
-        xargs wget -O cemu-emu.AppImage
+        xargs wget -O $2
+}
 
-# Install Dolphin-emu
-ARG DOLPHIN_APP_IMAGE_URL=https://github.com/qurious-pixel/dolphin/releases/download/continuous/Dolphin_Emulator-x86_64.AppImage
+echo "**** Downloading PCSX2 AppImage ****"
+github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage"
+
+echo "**** Downloading XEMU AppImage ****"
+github_download "xemu-project/xemu" "xemu-emu.AppImage"
+
+echo "**** Downloading RPCS3 AppImage ****"
+github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage"
+
+echo "**** Downloading CEMU AppImage ****"
+github_download "cemu-project/Cemu" "cemu-emu.AppImage"
+
+echo "**** Downloading Dolphin AppImage ****"
 # TODO: This is some randomly found AppImage. Need to find something more official
-RUN \
-    echo "**** Installing Dolphin Emulator ****" && \
-        apt-get update && \
-        apt-get install -y \
-            qtbase5-dev \
-            qtbase5-dev-tools \
-            qt6-base-dev \
-            qt6-base-dev-tools && \
-        mkdir -p /tmp && \
-        cd /tmp && \
-        wget -O dolphin-emu.AppImage "${DOLPHIN_APP_IMAGE_URL}"
+github_download "qurious-pixel/dolphin" "dolphin-emu.AppImage"
 
-RUN \
-    echo "**** Preparing /Applications for symlinking ****" && \
-        mkdir -p /Applications && \
-        mv /tmp/*.AppImage /Applications && \
-		chmod -v -R 777 /Applications/ && \
-		chmod -v -R a+x /Applications/
+chmod -v -R 777 $EMULATORS_DIR
+chmod -v -R a+x $EMULATORS_DIR
+_INSTALL_EMULATORS
+
+COPY --chmod=777 launchers /Applications/launchers
+ENV PATH="/Applications/launchers:${PATH}"
 
 RUN \
     echo "**** Preparing /bioses for symlinking ****" && \

@@ -33,8 +33,7 @@ RUN \
     echo "**** Preparing /ROMs for symlinking ****" && \
         mkdir -pm755 /ROMs
 
-COPY configs/ /cfg/        
-COPY --chmod=777 scripts/custom_scripts/ /cfg/custom_scripts/
+COPY configs/ /cfg/
 COPY --chmod=777 scripts/startup.sh /etc/cont-init.d/setup-de.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-app.sh
 

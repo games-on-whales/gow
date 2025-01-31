@@ -52,7 +52,6 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/pegasus.sh /bin/pegasus.sh
 
 # Copy Pegasus related files
-COPY --chmod=777 scripts/launchers/*.sh /bin/
 COPY scripts/tools/*.sh /bin/
 COPY configs /cfg
 
