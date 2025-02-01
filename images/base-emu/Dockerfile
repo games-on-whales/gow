@@ -26,12 +26,14 @@ RUN \
             libsdl2-2.0-0 \
             libvulkan1 \
             p7zip-full \
-            python3-six \
-            qt5-qmake \
             qtbase5-dev \
+            qt6-base-dev \
             software-properties-common \
             wget \
             x11-xserver-utils \
+            libaio1t64 \
+            libglu1-mesa \
+            libusb-1.0-0 \
             && \
 	# Cleanup \
 		apt-get autoremove -y && \
@@ -41,17 +43,12 @@ RUN \
 RUN \
     echo "**** Install RetroArch ****" && \
         apt-get update && \
-        apt-get install -y --no-install-recommends \
-            libaio-dev \
-            libaio1t64 \
-            libglu1-mesa \
-            libusb-1.0-0 \
-            && \
+        apt-get install -y --no-install-recommends software-properties-common && \
         add-apt-repository ppa:libretro/stable && \
         apt-get update && \
 		apt-get install -y retroarch && \
     # Cleanup \
-        apt-get remove -y python3-six && \
+        apt-get remove -y software-properties-common && \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 

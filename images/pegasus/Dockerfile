@@ -25,7 +25,6 @@ RUN  <<_INSTALL_PEGASUS
 
   echo "**** Installing pegasus ****"
   apt-get update -y
-  apt-get install -y --no-install-recommends jq curl
 
   # Pegasus still requires libssl1.1, but ubuntu switched to libssl3. Need to manually install it.
   # TODO: Doing this could be a terrible idea (it does work)
@@ -42,8 +41,6 @@ RUN  <<_INSTALL_PEGASUS
 
   # Cleanup
   rm pegasus.deb libssl1.1.deb
-  apt-get remove -y jq curl
-  apt-get autoremove -y
   rm -rf /var/lib/apt/lists/*
 _INSTALL_PEGASUS
 
