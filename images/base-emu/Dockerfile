@@ -66,7 +66,7 @@ cd $EMULATORS_DIR
 github_download(){
     curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/$1/releases/latest | \
-        jq '.assets[]|select(.name|endswith(".AppImage")).browser_download_url' | \
+        jq ".assets[]|select(.name|endswith(\".AppImage\"))${3}.browser_download_url" | \
         xargs wget -O $2
 }
 
@@ -74,7 +74,7 @@ echo "**** Downloading PCSX2 AppImage ****"
 github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage"
 
 echo "**** Downloading XEMU AppImage ****"
-github_download "xemu-project/xemu" "xemu-emu.AppImage"
+github_download "xemu-project/xemu" "xemu-emu.AppImage" '|select(.name|contains("dbg")|not)'
 
 echo "**** Downloading RPCS3 AppImage ****"
 github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage"
