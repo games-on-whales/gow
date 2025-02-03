@@ -37,6 +37,7 @@ jobs:
     with:
       image_name: "base-emu"
       base_image: "${{ needs.base.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-app.outputs.image_tag }}"
       platforms: "linux/amd64,linux/arm64"
     secrets: inherit
 
@@ -52,8 +53,7 @@ jobs:
     with:
       image_name: "${{ matrix.image.name }}"
       base_image: "${{ needs.base.outputs.image_tag }}"
-      base_app_image: "${{ needs.base-app.outputs.image_tag }}"
-      base_emu_image: "${{ needs.base-emu.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-emu.outputs.image_tag }}"
       platforms: "${{ matrix.image.platforms }}"
     secrets: inherit
 
@@ -64,8 +64,8 @@ jobs:
         image:
           - { name: xorg,                       platforms: "linux/amd64" }
           - { name: pulseaudio,                 platforms: "linux/amd64,linux/arm64" }
-        # udevd was an experiment it's definitely not needed anymore
-        # - { name: udevd,                      platforms: "linux/amd64" }
+          # udevd was an experiment it's definitely not needed anymore
+          # - { name: udevd,                      platforms: "linux/amd64" }
           - { name: sunshine,                   platforms: "linux/amd64" }
           - { name: retroarch,                  platforms: "linux/amd64" }
           - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }

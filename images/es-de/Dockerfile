@@ -1,7 +1,7 @@
-ARG BASE_EMU_IMAGE
+ARG BASE_APP_IMAGE
 
 # hadolint ignore=DL3006
-FROM ${BASE_EMU_IMAGE}
+FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
