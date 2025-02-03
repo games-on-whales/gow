@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
 
   base-emu:
-    needs: [ base-app ]
+    needs: [ base, base-app ]
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-emu"
