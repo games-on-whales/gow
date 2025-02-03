@@ -1,18 +1,7 @@
 <?xml version="1.0"?>
 <gameList>
 	<game>
-		<path>./Tools/!Install_RPCS3_Firmware.sh</path>
-		<name>!Install_RPCS3_Firmware</name>
-        <desc>Launch Firmware install</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>RPCS3 Team</developer>
-		<publisher>QuaiGoner</publisher>
-		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
-	</game>
-	<game>
-		<path>./Emulators/cemu.sh</path>
+		<path>/Applications/launchers/cemu.sh</path>
 		<name>cemu</name>
         <desc>Launch cemu</desc>
 		<releasedate>20230429T000000</releasedate>
@@ -23,7 +12,7 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/dolphin.sh</path>
+		<path>/Applications/launchers/dolphin.sh</path>
 		<name>dolphin</name>
         <desc>Launch dolphin</desc>
 		<releasedate>20230429T000000</releasedate>
@@ -34,7 +23,7 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/pcsx2.sh</path>
+		<path>/Applications/launchers/pcsx2.sh</path>
 		<name>pcsx2</name>
         <desc>Launch pcsx2</desc>
 		<releasedate>20230429T000000</releasedate>
@@ -45,7 +34,7 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/retroarch.sh</path>
+		<path>/Applications/launchers/retroarch.sh</path>
 		<name>retroarch</name>
         <desc>Launch RetroArch</desc>
 		<releasedate>20230429T000000</releasedate>
@@ -56,7 +45,7 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/rpcs3.sh</path>
+		<path>/Applications/launchers/rpcs3.sh</path>
 		<name>rpcs3</name>
         <desc>Launch RPCS3</desc>
 		<releasedate>20230429T000000</releasedate>
@@ -67,7 +56,7 @@
 		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
-		<path>./Emulators/xemu.sh</path>
+		<path>/Applications/launchers/xemu.sh</path>
 		<name>xemu</name>
         <desc>Launch XEMU</desc>
 		<releasedate>20230429T000000</releasedate>

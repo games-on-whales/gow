@@ -1,43 +1,43 @@
 collection: Applications
 launch: {file.path}
 files:
-  /usr/cemu.sh
-  /usr/bin/retroarch
-  /bin/pcsx2.sh
+  /Applications/launchers/cemu.sh
+  /Applications/launchers/retroarch.sh
+  /Applications/launchers/pcsx2.sh
   /bin/download_pegasus_themes.sh
-  /usr/dolphin.sh
-  /usr/xemu.sh
-  /usr/rpcs3.sh
+  /Applications/launchers/dolphin.sh
+  /Applications/launchers/xemu.sh
+  /Applications/launchers/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
 
 game: Emulators - Cemu
 release: 2015-10-13
-file: /bin/cemu.sh
+file: /Applications/launchers/cemu.sh
 description: Cemu is a free and open-source Wii U emulator, first released on October 13, 2015 for Microsoft Windows as a closed-source emulator developed by Exzap and Petergov. Experimental builds currently support Linux and macOS, in addition to the Windows environment available from launch.
 
 game: Emulators - Dolphin
 release: 2023-09-22
-file: /bin/dolphin.sh
+file: /Applications/launchers/dolphin.sh
 description: Dolphin is an open-source emulator for the Nintendo GameCube and Wii with support for Microsoft Windows, Linux, Mac OS X, and Android. Dolphin was the first emulator to boot GameCube and later Wii games, and now boasts compatibility with most titles for those game systems. With a huge community of developers and users around the world, Dolphin continues to gain compatibility, performance, and new features to this day.
 
 game: Emulators - PCSX2
 release: 2023-09-22
-file: /bin/pcsx2.sh
+file: /Applications/launchers/pcsx2.sh
 description: PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory.
 
 game: Emulators - RetroArch
 release: 2023-09-22
-file: /usr/bin/retroarch
+file: /Applications/launchers/retroarch.sh
 description: RetroArch is a frontend for emulators, game engines and media players. It enables you to run classic games on a wide range of computers and consoles through its slick graphical interface. Settings are also unified so configuration is done once and for all. In addition to this, you are able to run original game discs (CDs) from RetroArch.
 
 game: Emulators - RPCS3
 release: 2023-09-22
-file: /bin/rpcs3.sh
+file: /Applications/launchers/rpcs3.sh
 description: RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux, macOS and FreeBSD. The purpose of this project is to accurately emulate the PlayStation 3 in its entirety with the power of reverse engineering and community collaboration.
 
 game: Emulators - Xemu Emulator
 release: 2023-09-22
-file: /bin/xemu.sh
+file: /Applications/launchers/xemu.sh
 description: xemu is an active fork of the XQEMU project, which is based on the very popular and highly actively maintained QEMU full system emulator project. xemu is a low-level, full-system emulator which emulates the actual hardware of the Xbox.
 
 game: Tools - Download Pegasus Themes

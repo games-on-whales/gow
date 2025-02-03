@@ -9,10 +9,8 @@ RA_CFG_DIR=$HOME/.config/retroarch
 RPCS3_CFG_DIR=$HOME/.config/rpcs3
 XEMU_CFG_DIR=$HOME/.local/share/xemu
 PCSX2_CFG_DIR=$HOME/.config/PCSX2
-ES_CFG_DIR=$HOME/.emulationstation
-BIOSES_DIR=$HOME/bioses
-ROMS_DIR=$HOME/ROMs
-APP_DIR=$HOME/Applications
+ES_CFG_DIR=$HOME/ES-DE
+ROMS_DIR=/ROMs
 
 
 gow_log "Copying custom config - retroarch.cfg, if not edited"
@@ -21,12 +19,10 @@ cp -u /cfg/retroarch/retroarch.cfg "$RA_CFG_DIR/retroarch.cfg"
 
 gow_log "Copying custom config - ES-DE Custom Scripts Platform, if not edited"
 mkdir -p $ES_CFG_DIR/custom_systems
-chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_systems
 cp -u /cfg/es/es_systems.xml $ES_CFG_DIR/custom_systems
 
 gow_log "Copying custom gamelist - ES-DE Custom Scripts Platform, if not edited"
 mkdir -p $ES_CFG_DIR/gamelists/Custom\ Scripts
-chown ${UNAME}:${UNAME} $ES_CFG_DIR/gamelists/Custom\ Scripts
 cp -u /cfg/es/gamelist.xml $ES_CFG_DIR/gamelists/Custom\ Scripts
 
 gow_log "Copying custom config - RPCS3 Controller Bindings for Wolf and disable Auto-Update pop-up, if not edited"
@@ -50,20 +46,12 @@ if test -f $HOME/bioses/xbox_hdd.qcow2; then
     cp -u $HOME/bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
 
-gow_log "Copying default config - EmulationStation settings, if not edited"
-mkdir -p $ES_CFG_DIR
-cp -u /cfg/es/es_settings.xml $ES_CFG_DIR/es_settings.xml
-
-gow_log "Change media directory for EmulationStation to /media"
-sed -i 's/<string name="MediaDirectory" value="" \/>/<string name="MediaDirectory" value="\/media" \/>/g' $ES_CFG_DIR/es_settings.xml
-
-gow_log "Change ROMs directory for EmulationStation to /ROMs"
-sed -i 's/<string name="ROMDirectory" value="" \/>/<string name="ROMDirectory" value="\/ROMs" \/>/g' $ES_CFG_DIR/es_settings.xml
-
-gow_log "Copying custom launch scripts for emulators and programs, if not edited"
-mkdir -p $ES_CFG_DIR/custom_scripts
-chown ${UNAME}:${UNAME} $ES_CFG_DIR/custom_scripts
-cp -ur /cfg/custom_scripts/ $ES_CFG_DIR
+if test -f $ES_CFG_DIR/settings/es_settings.xml; then
+    gow_log "EmulationStation settings already exist, skipping"
+else
+  mkdir -p $ES_CFG_DIR/settings/
+  cp -u /cfg/es/es_settings.xml $ES_CFG_DIR/settings/es_settings.xml
+fi
 
 gow_log "Checking RA Assets presence, if none - install them"
 if [ ! -d "$RA_CFG_DIR/assets" ]; then
@@ -73,8 +61,7 @@ if [ ! -d "$RA_CFG_DIR/assets" ]; then
     rm /tmp/assets.zip
 fi
 
-gow_log "Symlinking AppImage Emulators from /Applications"
-ln -sf /Applications $HOME
-
-gow_log "Symlinking Bioses from /Bioses"
-ln -sf /bioses $HOME
+gow_log "Giving permissions to user"
+chown -R ${UNAME}:${UNAME} $ES_CFG_DIR
+mkdir -p ${HOME}/.config
+chown -R ${UNAME}:${UNAME} ${HOME}/.config
