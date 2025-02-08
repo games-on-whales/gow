@@ -21,9 +21,9 @@ function launcher() {
     export XDG_SESSION_DESKTOP=sway # systemd
     export XDG_SESSION_TYPE=wayland # xdg/systemd
 
-    # Only copy waybar default config if it doesn't exist
+    # Copy waybar default config
     mkdir -p $HOME/.config/waybar
-    if [ "$WAYBAR_HIDDEN" == "yes" ]; then
+    if [[ "$WAYBAR_HIDDEN" == "yes"  ||  "$WAYBAR_HIDDEN" == "true" ]]; then
       cp /cfg/waybar/config-hidden.jsonc $HOME/.config/waybar/config.jsonc
     else
       cp /cfg/waybar/config.jsonc $HOME/.config/waybar/config.jsonc
