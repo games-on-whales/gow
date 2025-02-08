@@ -23,7 +23,12 @@ function launcher() {
 
     # Only copy waybar default config if it doesn't exist
     mkdir -p $HOME/.config/waybar
-    cp -u /cfg/waybar/* $HOME/.config/waybar/
+    if [ "$WAYBAR_HIDDEN" == "yes" ]; then
+      cp /cfg/waybar/config-hidden.jsonc $HOME/.config/waybar/config.jsonc
+    else
+      cp /cfg/waybar/config.jsonc $HOME/.config/waybar/config.jsonc
+    fi
+    cp -u /cfg/waybar/style.css $HOME/.config/waybar/style.css
 
     # Sway needs to be overridden since we are going to change the resolution and app start
     mkdir -p $HOME/.config/sway/
