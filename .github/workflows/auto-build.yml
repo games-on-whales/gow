@@ -7,10 +7,6 @@ on:
     paths:
       - "images/**"
       - ".github/workflows/*"
-  pull_request: # They will only build the containers, not push them to our registry
-    paths:
-      - "images/**"
-      - ".github/workflows/*"
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
 
@@ -73,6 +69,7 @@ jobs:
           - { name: lutris,                     platforms: "linux/amd64" }
           - { name: heroic-games-launcher,      platforms: "linux/amd64" }
           - { name: prismlauncher,              platforms: "linux/amd64" }
+          - { name: kodi,                       platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:

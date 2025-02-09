@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<buttonmap>
+    <device name="Wolf DualSense (virtual) pad" provider="linux" buttoncount="13" axiscount="8">
+        <configuration>
+            <axis index="2" center="-1" range="2" />
+            <axis index="5" center="-1" range="2" />
+        </configuration>
+        <controller id="game.controller.default">
+            <feature name="a" button="0" />
+            <feature name="b" button="1" />
+            <feature name="back" button="8" />
+            <feature name="down" axis="+7" />
+            <feature name="guide" button="10" />
+            <feature name="left" axis="-6" />
+            <feature name="leftbumper" button="4" />
+            <feature name="leftstick">
+                <up axis="-1" />
+                <down axis="+1" />
+                <right axis="+0" />
+                <left axis="-0" />
+            </feature>
+            <feature name="leftthumb" button="11" />
+            <feature name="lefttrigger" axis="+2" />
+            <feature name="right" axis="+6" />
+            <feature name="rightbumper" button="5" />
+            <feature name="rightstick">
+                <up axis="-4" />
+                <down axis="+4" />
+                <right axis="+3" />
+                <left axis="-3" />
+            </feature>
+            <feature name="rightthumb" button="12" />
+            <feature name="righttrigger" axis="+5" />
+            <feature name="start" button="9" />
+            <feature name="up" axis="-7" />
+            <feature name="x" button="3" />
+            <feature name="y" button="2" />
+        </controller>
+    </device>
+</buttonmap>
