@@ -143,6 +143,7 @@ COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
 COPY --chmod=777 scripts/launch-comp.sh /opt/gow/launch-comp.sh
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 COPY --chmod=777 scripts/wait-x11 /opt/gow/wait-x11
+COPY --chmod=777 scripts/reconfig-waqybar.py /opt/gow/reconfig-waqybar.py
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends libsdl2-2.0-0 libncurses6 && \
