@@ -1,14 +1,12 @@
-ARG BASE_APP_IMAGE
+ARG KODI_VERSION=21.2-Omega
+ARG KODI_INSTALLATION_FOLDER=/kodi
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
-# hadolint ignore=DL3006
-FROM ${BASE_APP_IMAGE}
+FROM ubuntu:24.10 AS kodi-builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# TODO: Build this madness in a multi-step Dockerfile and just copy the needed binary
-# Required packages are listed here:
-# - https://github.com/xbmc/xbmc/blob/master/docs/README.Ubuntu.md#32-get-build-dependencies-manually
-ARG REQUIRED_PACKAGES=" \
+ARG DEV_PACKAGES=" \
     debhelper autoconf autoconf automake \
     autopoint gettext autotools-dev cmake \
     curl default-jre doxygen gawk gcc gdc \
@@ -26,7 +24,7 @@ ARG REQUIRED_PACKAGES=" \
     libgpg-error-dev libgtest-dev libiso9660-dev \
     libjpeg-dev liblcms2-dev libltdl-dev liblzo2-dev \
     libmicrohttpd-dev libmysqlclient-dev libnfs-dev \
-    libogg-dev libpcre2-dev libplist-dev libpng-dev \
+    libogg-dev libpcre3-dev libplist-dev libpng-dev \
     libpulse-dev libshairplay-dev libsmbclient-dev \
     libspdlog-dev libsqlite3-dev libssl-dev libtag1-dev \
     libtiff5-dev libtinyxml-dev libtinyxml2-dev libtool \
@@ -39,26 +37,66 @@ ARG REQUIRED_PACKAGES=" \
     libxkbcommon-dev waylandpp-dev wayland-protocols \
     "
 
-# Build Kodi from source
-RUN apt-get update && \
-    apt-get install -y $REQUIRED_PACKAGES && \
-    git clone https://github.com/xbmc/xbmc kodi && \
-    apt-get update && \
-    mkdir kodi-build && \
-    cd kodi-build && \
-    cmake ../kodi -DCMAKE_INSTALL_PREFIX=/usr/local -DCORE_PLATFORM_NAME=wayland -DAPP_RENDER_SYSTEM=gl && \
-    cmake --build . -- VERBOSE=1 -j$(getconf _NPROCESSORS_ONLN) && \
-    make install
+RUN apt-get update -y && \
+    apt-get install -y \
+    $DEV_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
 
-# Build controller addon; !!! Add needed Addons HERE !!!
-RUN cd kodi && \
-    make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons PREFIX=/usr/local && \
-    #clean up
-    cd .. && \
-    rm -R kodi/ && \
-    rm -R kodi-build/ && \
-    apt-get autoremove -y --purge
+ARG KODI_VERSION
+ARG KODI_INSTALLATION_FOLDER
 
+RUN <<_BUILD_KODI
+
+mkdir ${KODI_INSTALLATION_FOLDER}
+
+git clone https://github.com/xbmc/xbmc xbmc
+echo "Checking out Kodi version: ${KODI_VERSION}"
+cd xbmc && git checkout ${KODI_VERSION}
+mkdir build && cd build
+
+cmake ../ -DCMAKE_INSTALL_PREFIX=${KODI_INSTALLATION_FOLDER} -DCORE_PLATFORM_NAME=wayland -DAPP_RENDER_SYSTEM=gl -GNinja
+cmake --build . -j$(getconf _NPROCESSORS_ONLN)
+make -j$(getconf _NPROCESSORS_ONLN) -C ../tools/depends/target/binary-addons PREFIX=${KODI_INSTALLATION_FOLDER} \
+      ADDONS="peripheral.joystick pvr.*"
+
+cmake --install .
+exit 0 # TODO: the install step seems to fail, but the binaries are there...
+_BUILD_KODI
+
+# hadolint ignore=DL3006
+FROM ${BASE_APP_IMAGE}
+
+ARG REQUIRED_PACKAGES=" \
+    libasound2-dev libass-dev \
+    libavahi-client3 libavahi-common3 \
+    libbluetooth3 libbluray2 bzip2 \
+    libcdio19t64 libp8-platform2 libcrossguid0 \
+    libcurl4t64 libcwiid1t64 libdbus-1-3 \
+    libdrm2 libegl1 libenca0 \
+    libexiv2-27 libflac12t64 libfmt9 \
+    libfontconfig1 libfreetype6 \
+    libfribidi0 libfstrcmp0 \
+    libgcrypt20 libgif7 libgles2 \
+    libgl1 libglu1 libgnutls30t64 \
+    libgpg-error0 libiso9660-11t64 \
+    libjpeg62 liblcms2-2 libltdl7 liblzo2-2 \
+    libmicrohttpd12t64 libmysqlclient21 libnfs14 \
+    libogg0 libpcre3 libplist-2.0-4 libpng16-16t64 \
+    libpulse0 libshairplay0 libsmbclient0 \
+    libspdlog1.12 libsqlite3-0 libssl3t64 libtag1v5 \
+    libtiff6 libtinyxml2-10 libtinyxml2.6.2v5 libtool \
+    libudev1 libunistring5 libva-dev libvdpau1 \
+    libvorbis0a libxmu6 libxrandr2 libxslt1.1 \
+    libxt6t64 lsb-release nasm \
+    unzip uuid zip zlib1g \
+    libflatbuffers23.5.26 libglew2.2 libwayland-client0 \
+    libwayland-client++1 libwayland-cursor++1 libwayland-egl++1 libxkbcommon-x11-0 wayland-protocols \
+"
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    $REQUIRED_PACKAGES && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
@@ -66,6 +104,10 @@ COPY configs/Xbox_controller.xml /opt/gow/Xbox_controller.xml
 COPY configs/Switch_controller.xml /opt/gow/Switch_controller.xml
 COPY configs/PS_controller.xml /opt/gow/PS_controller.xml
 COPY configs/settings.xml /opt/gow/settings.xml
+
+ARG KODI_INSTALLATION_FOLDER
+COPY --chmod=777 --from=kodi-builder $KODI_INSTALLATION_FOLDER $KODI_INSTALLATION_FOLDER
+RUN ln -s $KODI_INSTALLATION_FOLDER/bin/kodi /usr/bin/kodi
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

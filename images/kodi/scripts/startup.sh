@@ -14,5 +14,5 @@ done
 gow_log "Starting Kodi"
 
 source /opt/gow/launch-comp.sh
-launcher kodi
+launcher KODI_HOME=$HOME kodi
 #launcher jstest-gtk
