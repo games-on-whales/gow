@@ -9,7 +9,7 @@ ARG ANKI_APP_VERSION="24.11"
 RUN apt-get update &&\
     apt-get install -y libxcb-xinerama0 libxcb-cursor0 libnss3 zstd xdg-utils
 
-RUN wget https://github.com/ankitects/anki/releases/download/${ANKI_APP_VERSION}/anki-${ANKI_APP_VERSION}-linux-qt6.tar.zst &&\
+RUN wget https://apps.ankiweb.net/downloads/archive/anki-${ANKI_APP_VERSION}-linux-qt6.tar.zst &&\
     tar xaf anki-${ANKI_APP_VERSION}-linux-qt6.tar.zst &&\
     cd anki-${ANKI_APP_VERSION}-linux-qt6 &&\
     ./install.sh
