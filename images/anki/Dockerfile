@@ -1,6 +1,6 @@
 ARG BASE_APP_IMAGE
 # hadolint ignore=DL3006
-FROM ${BASE_APP_IMAGE}
+FROM ghcr.io/games-on-whales/firefox:edge
 
 ARG DEBIAN_FRONTEND=noninteractive
 
