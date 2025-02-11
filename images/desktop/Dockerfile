@@ -58,15 +58,11 @@ RUN \
     # \
     # Install additional apps \
     apt reinstall -y xfce4-settings && \
-    apt-get install -y $ADDITIONAL_PACKAGES
-
-RUN \
+    apt-get install -y $ADDITIONAL_PACKAGES && \
     # \
     # Fixes \
     rm -f \
-    /etc/xdg/autostart/xscreensaver.desktop
-
-RUN \
+    /etc/xdg/autostart/xscreensaver.desktop && \
     # \
     # Clean \
     apt update && \
@@ -84,6 +80,9 @@ RUN \
 # Replace launch scripts
 COPY --chmod=777 scripts/launch-comp.sh scripts/startup.sh /opt/gow/
 COPY --chmod=777 scripts/startdbus.sh /opt/gow/startdbus
+
+#
+# Include default xfce config
 COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
 
 # 
