@@ -10,7 +10,7 @@ for file in /opt/gow/startup.d/* ; do
     fi
 done
 
-gow_log "[start] Starting Gnome"
+gow_log "[start] Starting XFCE"
 
 source /opt/gow/launch-comp.sh
 launcher

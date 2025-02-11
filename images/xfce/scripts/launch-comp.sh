@@ -23,18 +23,16 @@ function launcher() {
   # Launch DBUS
   sudo /opt/gow/startdbus
 
-  export DESKTOP_SESSION=xfce4
-  export XDG_CURRENT_DESKTOP=xfce4
+  export DESKTOP_SESSION=xfce
+  export XDG_CURRENT_DESKTOP=XFCE
   export XDG_SESSION_TYPE="x11"
   export _JAVA_AWT_WM_NONREPARENTING=1
   export GDK_BACKEND=x11
   export MOZ_ENABLE_WAYLAND=0
-  export QT_QPA_PLATFORM="x11;xcb"
+  export QT_QPA_PLATFORM="xcb"
   export QT_AUTO_SCREEN_SCALE_FACTOR=1
   export QT_ENABLE_HIGHDPI_SCALING=1
   export DISPLAY=:0
-  export XKB_DEFAULT_LAYOUT=fr
-  export XKB_DEFAULT_VARIANT=azerty
   export $(dbus-launch)
   export REAL_WAYLAND_DISPLAY=$WAYLAND_DISPLAY
   export GTK_THEME=Arc-Dark:dark

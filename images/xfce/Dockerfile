@@ -28,10 +28,8 @@ ARG ADDITIONAL_PACKAGES=" \
     xfce4-whiskermenu-plugin \
     xarchiver \
     mousepad \
-    libreoffice libreoffice-writer \
     zip unzip p7zip-full \
     gnome-software gnome-software-plugin-flatpak \
-    git \
     "
 # 
 # Prevent firefox snap
