@@ -22,7 +22,6 @@ ARG DE_PACKAGES=" \
     "
 
 ARG ADDITIONAL_PACKAGES=" \
-    vlc \
     xfce4-terminal \
     xfce4-taskmanager \
     xfce4-whiskermenu-plugin \
