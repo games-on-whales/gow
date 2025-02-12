@@ -7,6 +7,8 @@ on:
     paths:
       - "images/**"
       - ".github/workflows/*"
+      - "apps/**"
+      
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
 

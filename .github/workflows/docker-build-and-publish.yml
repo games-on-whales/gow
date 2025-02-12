@@ -171,8 +171,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./images/${{ inputs.image_name }}
-          file: ./images/${{ inputs.image_name }}/Dockerfile
+          context: ./apps/${{ inputs.image_name }}/build
+          file: ./apps/${{ inputs.image_name }}/build/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ steps.prep.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
