@@ -57,7 +57,7 @@ mkdir build && cd build
 
 cmake ../ -DCMAKE_INSTALL_PREFIX=${KODI_INSTALLATION_FOLDER} -DCORE_PLATFORM_NAME=wayland -DAPP_RENDER_SYSTEM=gl -GNinja
 cmake --build . -j$(getconf _NPROCESSORS_ONLN)
-make install
+cmake --install .
 
 make -j$(getconf _NPROCESSORS_ONLN) -C ../tools/depends/target/binary-addons PREFIX=${KODI_INSTALLATION_FOLDER} \
       ADDONS=${KODI_ADDONS}
