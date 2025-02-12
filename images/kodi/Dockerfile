@@ -1,5 +1,5 @@
 ARG KODI_VERSION=21.2-Omega
-ARG KODI_INSTALLATION_FOLDER=/kodi
+ARG KODI_INSTALLATION_FOLDER=/usr/local
 ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
 FROM ubuntu:24.10 AS kodi-builder
@@ -44,10 +44,11 @@ RUN apt-get update -y && \
 
 ARG KODI_VERSION
 ARG KODI_INSTALLATION_FOLDER
+ARG KODI_ADDONS="peripheral.joystick"
 
 RUN <<_BUILD_KODI
 
-mkdir ${KODI_INSTALLATION_FOLDER}
+mkdir -p ${KODI_INSTALLATION_FOLDER}
 
 git clone https://github.com/xbmc/xbmc xbmc
 echo "Checking out Kodi version: ${KODI_VERSION}"
@@ -56,10 +57,10 @@ mkdir build && cd build
 
 cmake ../ -DCMAKE_INSTALL_PREFIX=${KODI_INSTALLATION_FOLDER} -DCORE_PLATFORM_NAME=wayland -DAPP_RENDER_SYSTEM=gl -GNinja
 cmake --build . -j$(getconf _NPROCESSORS_ONLN)
-make -j$(getconf _NPROCESSORS_ONLN) -C ../tools/depends/target/binary-addons PREFIX=${KODI_INSTALLATION_FOLDER} \
-      ADDONS="peripheral.joystick pvr.*"
+make install
 
-cmake --install .
+make -j$(getconf _NPROCESSORS_ONLN) -C ../tools/depends/target/binary-addons PREFIX=${KODI_INSTALLATION_FOLDER} \
+      ADDONS=${KODI_ADDONS}
 exit 0 # TODO: the install step seems to fail, but the binaries are there...
 _BUILD_KODI
 
@@ -107,7 +108,6 @@ COPY configs/settings.xml /opt/gow/settings.xml
 
 ARG KODI_INSTALLATION_FOLDER
 COPY --chmod=777 --from=kodi-builder $KODI_INSTALLATION_FOLDER $KODI_INSTALLATION_FOLDER
-RUN ln -s $KODI_INSTALLATION_FOLDER/bin/kodi /usr/bin/kodi
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
