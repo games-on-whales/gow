@@ -5,6 +5,7 @@ ARG BASE_APP_IMAGE
 FROM ${BASE_APP_IMAGE}
 
 ARG CORE_PACKAGES=" \
+    dbus \
     flatpak \
     "
 
@@ -30,6 +31,8 @@ RUN \
 # 
 # Fix bwarp perms for flatpaks
 RUN chmod u+s /usr/bin/bwrap
+
+COPY overlay /
 
 # 
 # Replace launch scripts
