@@ -13,5 +13,8 @@ done
 
 gow_log "Starting Kodi"
 
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install -y tv.kodi.Kodi
+
 source /opt/gow/launch-comp.sh
-launcher kodi
+launcher flatpak run tv.kodi.Kodi

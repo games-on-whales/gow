@@ -5,9 +5,7 @@ ARG BASE_APP_IMAGE
 FROM ${BASE_APP_IMAGE}
 
 ARG CORE_PACKAGES=" \
-    kodi \
-    kodi-peripheral-joystick \
-    kodi-pvr-* \
+    flatpak \
     "
 
 RUN \
@@ -17,8 +15,21 @@ RUN \
     # Install core packages \
     apt-get install -y --no-install-recommends $CORE_PACKAGES && \
     # \
+    # Clean \
+    apt-get update && \
+    apt-get remove -y \
+	foot && \
     apt-get autoremove -y &&\
-    apt-get clean
+    apt-get clean && \
+    rm -rf \
+        /config/.cache \
+        /var/lib/apt/lists/* \
+        /var/tmp/* \
+        /tmp/*
+
+# 
+# Fix bwarp perms for flatpaks
+RUN chmod u+s /usr/bin/bwrap
 
 # 
 # Replace launch scripts
