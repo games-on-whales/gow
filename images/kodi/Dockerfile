@@ -11,6 +11,7 @@ ARG CORE_PACKAGES=" \
 
 RUN <<_INSTALL_FLATPAK
 
+set -e
 apt-get update
 # Install core packages
 apt-get install -y --no-install-recommends $CORE_PACKAGES
@@ -27,14 +28,13 @@ rm -rf \
 
 _INSTALL_FLATPAK
 
-# 
-# Fix bwarp perms for flatpaks
-RUN chmod u+s /usr/bin/bwrap
-
 #
 # System wide install of Kodi
 RUN <<_INSTALL_KODI
 
+set -e
+# Fix bwarp perms for flatpaks
+chmod u+s /usr/bin/bwrap
 service dbus start
 flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install -y --noninteractive --system tv.kodi.Kodi
