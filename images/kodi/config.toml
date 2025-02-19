@@ -1,0 +1,23 @@
+[[apps]]
+start_virtual_compositor = true
+title = 'Kodi'
+
+    [apps.runner]
+    base_create_json = '''{
+      "HostConfig": {
+          "IpcMode": "host",
+          "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+          "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+          "Ulimits": [{"Name":"nofile", "Hard":10240, "Soft":10240}],
+          "Privileged": false,
+          "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+        }
+    }'''
+
+    devices = []
+    env = [ 'RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/kodi:edge'
+    mounts = []
+    name = 'WolfKodi'
+    ports = []
+    type = 'docker'
