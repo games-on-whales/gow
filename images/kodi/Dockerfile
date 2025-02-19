@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_APP_IMAGE
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
@@ -9,7 +9,7 @@ ARG CORE_PACKAGES=" \
     flatpak \
     "
 
-RUN <<_INSTALL_FLATPAK
+RUN <<_INSTALL_KODI
 
 set -e
 apt-get update
@@ -26,13 +26,6 @@ rm -rf \
     /var/tmp/* \
     /tmp/*
 
-_INSTALL_FLATPAK
-
-#
-# System wide install of Kodi
-RUN <<_INSTALL_KODI
-
-set -e
 # Fix bwarp perms for flatpaks
 chmod u+s /usr/bin/bwrap
 service dbus start
