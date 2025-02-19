@@ -1,4 +1,4 @@
-ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/firefox:edge
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/xfce:edge
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
