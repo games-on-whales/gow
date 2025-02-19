@@ -39,23 +39,34 @@ ARG REQUIRED_PACKAGES=" \
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    wget https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/releases/download/v2.15.2/heroic_2.15.2_amd64.deb && \
-    dpkg -i ./heroic_2.15.2_amd64.deb && \
-    rm ./heroic_2.15.2_amd64.deb && \
-    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+WORKDIR /
 
-# mangohud
-WORKDIR /
-RUN wget https://github.com/flightlessmango/MangoHud/releases/download/v0.8.0/MangoHud-0.8.0.r0.gf77864d.tar.gz
-RUN tar xf MangoHud-0.8.0.r0.gf77864d.tar.gz
-WORKDIR /MangoHud
-RUN tar xf MangoHud-package.tar
-RUN chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
-RUN rm -rf /MangoHud && rm /MangoHud-0.8.0.r0.gf77864d.tar.gz
-WORKDIR /
+RUN <<_INSTALL_HEROIC
+#!/bin/bash
+set -e
+source /opt/gow/bash-lib/utils.sh
+
+github_download "Heroic-Games-Launcher/HeroicGamesLauncher" ".assets[]|select(.name|endswith(\"_amd64.deb\")).browser_download_url" "heroic.deb"
+dpkg -i heroic.deb
+rm heroic.deb
+_INSTALL_HEROIC
+
+RUN <<_INSTALL_MANGO
+#!/bin/bash
+set -e
+source /opt/gow/bash-lib/utils.sh
+
+github_download "flightlessmango/MangoHud" ".assets[]|select(.name|endswith(\".tar.gz\")).browser_download_url" "MangoHud.tar.gz"
+tar xf MangoHud.tar.gz
+cd MangoHud
+tar xf MangoHud-package.tar
+chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
+rm -rf /MangoHud
+_INSTALL_MANGO
+
+COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
