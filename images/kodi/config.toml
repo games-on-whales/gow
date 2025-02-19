@@ -17,7 +17,7 @@ title = 'Kodi'
     devices = []
     env = [ 'RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
     image = 'ghcr.io/games-on-whales/kodi:edge'
-    mounts = ['/etc/wolf/shared/media:/home/retro/Media/:rw', '/var/lib/systemd/coredump:/var/lib/systemd/coredump:rw']
+    mounts = []
     name = 'WolfKodi'
     ports = []
     type = 'docker'
