@@ -31,6 +31,9 @@ ARG REQUIRED_PACKAGES=" \
     cabextract \
     gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
     gstreamer1.0-plugins-base:i386 gstreamer1.0-plugins-good:i386 gstreamer1.0-plugins-bad:i386 gstreamer1.0-plugins-ugly:i386 gstreamer1.0-libav:i386 \
+    tar \
+    wget \
+    ca-certificates \
     "
 
 RUN dpkg --add-architecture i386 && \
@@ -43,6 +46,16 @@ RUN dpkg --add-architecture i386 && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
+
+# mangohud
+WORKDIR /
+RUN wget https://github.com/flightlessmango/MangoHud/releases/download/v0.8.0/MangoHud-0.8.0.r0.gf77864d.tar.gz
+RUN tar xf MangoHud-0.8.0.r0.gf77864d.tar.gz
+WORKDIR /MangoHud
+RUN tar xf MangoHud-package.tar
+RUN chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
+RUN rm -rf /MangoHud && rm /MangoHud-0.8.0.r0.gf77864d.tar.gz
+WORKDIR /
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
