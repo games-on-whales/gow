@@ -31,7 +31,8 @@ echo "**** Install base packages ****"
 apt-get install -y --no-install-recommends \
     fuse \
     libnss3 \
-    wget
+    wget \
+    jq
 
 echo "**** Install gosu ****"
 wget --progress=dot:giga \
