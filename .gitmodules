@@ -1,0 +1,3 @@
+[submodule "website/themes/hugo-book"]
+	path = website/themes/hugo-book
+	url = https://github.com/alex-shpak/hugo-book
