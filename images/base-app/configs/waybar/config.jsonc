@@ -1,6 +1,9 @@
 // -*- mode: jsonc -*-
 {
+  // don't manualy change the following 3
   "layer": "top",
+  "mode": "dock",
+  "start_hidden": false,
   // Waybar at top layer
   "position": "top",
   // Waybar position (top|bottom|left|right)

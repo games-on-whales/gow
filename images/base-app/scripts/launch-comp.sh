@@ -24,6 +24,8 @@ function launcher() {
     # Only copy waybar default config if it doesn't exist
     mkdir -p $HOME/.config/waybar
     cp -u /cfg/waybar/* $HOME/.config/waybar/
+    # Switch out settings based on $WAYBAR_HIDDEN
+    /opt/gow/reconfig-waqybar.py
 
     # Sway needs to be overridden since we are going to change the resolution and app start
     mkdir -p $HOME/.config/sway/
