@@ -1,3 +1,5 @@
 *
 !images/
 !apps/
+apps/kodi/assets/wolf.config.toml
+**.md
