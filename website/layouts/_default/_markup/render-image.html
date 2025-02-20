@@ -1,0 +1,13 @@
+<div class="osx-window">
+  <div class="title-bar">
+    <div class="buttons">
+      <div class="close-button"></div>
+      <div class="minimize-button"></div>
+      <div class="maximize-button"></div>
+    </div>
+    <div class="title">Moonlight | Wolf</div>
+  </div>
+  <div class="content">
+    <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ with .Title }}title="{{ . }}"{{ end }}/>
+  </div>
+</div>

@@ -8,7 +8,7 @@ on:
       - "images/**"
       - ".github/workflows/*"
       - "apps/**"
-      
+
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
 
@@ -16,6 +16,7 @@ jobs:
   base:
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
+      docker_path: "images"
       image_name: "base"
       platforms: "linux/amd64,linux/arm64"
     secrets: inherit
@@ -24,6 +25,7 @@ jobs:
     needs: [ base ]
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
+      docker_path: "images"
       image_name: "base-app"
       base_image: "${{ needs.base.outputs.image_tag }}"
       platforms: "linux/amd64,linux/arm64"
@@ -33,6 +35,7 @@ jobs:
     needs: [ base, base-app ]
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
+      docker_path: "images"
       image_name: "base-emu"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
@@ -49,6 +52,7 @@ jobs:
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
+      docker_path: "apps"
       image_name: "${{ matrix.image.name }}"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-emu.outputs.image_tag }}"
@@ -60,22 +64,19 @@ jobs:
     strategy:
       matrix:
         image:
-          - { name: xorg,                       platforms: "linux/amd64" }
-          - { name: pulseaudio,                 platforms: "linux/amd64,linux/arm64" }
-          # udevd was an experiment it's definitely not needed anymore
-          # - { name: udevd,                      platforms: "linux/amd64" }
-          - { name: sunshine,                   platforms: "linux/amd64" }
-          - { name: retroarch,                  platforms: "linux/amd64" }
-          - { name: firefox,                    platforms: "linux/amd64,linux/arm64" }
-          - { name: steam,                      platforms: "linux/amd64" }
-          - { name: lutris,                     platforms: "linux/amd64" }
-          - { name: heroic-games-launcher,      platforms: "linux/amd64" }
-          - { name: prismlauncher,              platforms: "linux/amd64" }
-          - { name: kodi,                       platforms: "linux/amd64" }
-          - { name: xfce,                       platforms: "linux/amd64" }
+          - { name: pulseaudio,            docker_path: images, platforms: "linux/amd64,linux/arm64" }
+          - { name: retroarch,             docker_path: apps,   platforms: "linux/amd64" }
+          - { name: firefox,               docker_path: apps,   platforms: "linux/amd64,linux/arm64" }
+          - { name: steam,                 docker_path: apps,   platforms: "linux/amd64" }
+          - { name: lutris,                docker_path: apps,   platforms: "linux/amd64" }
+          - { name: heroic-games-launcher, docker_path: apps,   platforms: "linux/amd64" }
+          - { name: prismlauncher,         docker_path: apps,   platforms: "linux/amd64" }
+          - { name: kodi,                  docker_path: apps,   platforms: "linux/amd64" }
+          - { name: xfce,                  docker_path: apps,   platforms: "linux/amd64" }
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
+      docker_path: "${{ matrix.image.docker_path }}"
       image_name: "${{ matrix.image.name }}"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"

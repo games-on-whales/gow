@@ -1,5 +1,0 @@
-name: gow
-version: ~
-nav:
- - modules/ROOT/nav.adoc
- - modules/protocols/nav.adoc
