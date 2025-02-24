@@ -1,11 +1,12 @@
 baseURL = 'https://games-on-whales.github.io/gow/'
-title = 'Wildlife - Games on Whales Docker images'
+title = 'Games on Whales'
 languageCode = 'en-us'
 
 # TODO: add giscus for comments via Github Discussions
 # https://giscus.app/
 # https://www.justinjbird.me/blog/2023/adding-comments-to-a-hugo-site-using-giscus/
 
+theme = ["hugo-book"]
 
 [params]
 BookTheme = 'dark'
@@ -15,7 +16,7 @@ BookRepo = "https://github.com/games-on-whales/gow"
 [module]
 [[module.mounts]]
 source = '../apps/'
-target = 'content'
+target = 'content/apps'
 excludeFiles = ['build/**', 'build'] # TODO: doesn't work
 
 [[module.mounts]]

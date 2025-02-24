@@ -1,4 +1,4 @@
-# [Pegasus Front-end](https://pegasus-frontend.org) Image
+# Pegasus Front-end
 
 "A cross platform, customizable graphical frontend for launching emulators and managing your game collection."
 
