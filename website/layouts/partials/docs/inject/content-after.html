@@ -1,0 +1,4 @@
+
+<h3> Example config </h3>
+{{ $toml := (.Resources.GetMatch "assets/wolf.config.toml").Content | safeHTML }}
+{{ highlight $toml "toml" "" }}

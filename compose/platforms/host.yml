@@ -1,4 +1,0 @@
-# This file contains compose configuration that is specific to running GoW
-# using the host's existing desktop.
-version: "3"
-services:

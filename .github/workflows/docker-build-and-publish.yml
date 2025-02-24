@@ -15,6 +15,10 @@ on:
         description: "The name of the image to build and publish"
         type: string
         required: true
+      docker_path:
+        description: "The path to the Dockerfile"
+        type: string
+        required: true
       platforms:
         description: "Which platforms should this image be built for?"
         default: "linux/amd64"
@@ -171,8 +175,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./images/${{ inputs.image_name }}
-          file: ./images/${{ inputs.image_name }}/Dockerfile
+          context: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build
+          file: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ steps.prep.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
