@@ -1,5 +1,5 @@
-baseURL = 'https://games-on-whales.github.io/gow/'
-title = 'Games on Whales'
+baseURL = 'https://games-on-whales.github.io/wildlife/'
+title = 'Wildlife'
 languageCode = 'en-us'
 
 theme = ["hugo-book"]
@@ -8,7 +8,7 @@ theme = ["hugo-book"]
 BookSearch = false
 BookTheme = 'light'
 BookSection = "*"
-BookRepo = "https://github.com/games-on-whales/gow"
+BookRepo = "https://github.com/games-on-whales/wildlife"
 
 [module]
 [[module.mounts]]
