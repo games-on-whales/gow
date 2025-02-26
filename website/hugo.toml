@@ -1,0 +1,21 @@
+baseURL = 'https://games-on-whales.github.io/gow/'
+title = 'Games on Whales'
+languageCode = 'en-us'
+
+theme = ["hugo-book"]
+
+[params]
+BookSearch = false
+BookTheme = 'light'
+BookSection = "*"
+BookRepo = "https://github.com/games-on-whales/gow"
+
+[module]
+[[module.mounts]]
+source = '../apps/'
+target = 'content/apps'
+excludeFiles = ['build/**', 'build'] # TODO: doesn't work
+
+[[module.mounts]]
+source = "content"
+target = "content"

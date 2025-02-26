@@ -1,0 +1,12 @@
+{{ $toml := .Resources.GetMatch "assets/wolf.config.toml" }}
+{{ with $toml }}
+<article class="markdown book-article">
+    <h2 id="sample-config"> Default config </h2>
+    <p> This is the default configuration block that will be used in Wolf, you can override it by editing the
+        <code>config.toml</code>. </p>
+    <details>
+        <summary> Click to expand</summary>
+        {{ highlight $toml.Content "toml" "" }}
+    </details>
+</article>
+{{ end }}

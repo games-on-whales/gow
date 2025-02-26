@@ -1,7 +1,0 @@
-= GOW - Games on Whales
-
-A collection of Docker images ready to be used by https://github.com/games-on-whales/wolf[Wolf] in order to run games and apps on a remote host!
-
-WARNING: Historically, this was the first attempt that we've made at running games in Docker. https://github.com/games-on-whales/wolf[Wolf] has now completely replaced the simple bash script present in this repo.
-
-image::ROOT:GOW-running.jpg[]
