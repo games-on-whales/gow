@@ -1,5 +1,6 @@
 [[apps]]
 title = 'Heroic'
+icon_png_path = "https://games-on-whales.github.io/wildlife/apps/heroic-games-launcher/assets/icon.png"
 
 [apps.runner]
 type = 'docker'
