@@ -1,4 +1,4 @@
-ARG BASE_APP_IMAGE
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
@@ -9,8 +9,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
 #   - https://github.com/lutris/docs/blob/master/WineDependencies.md
 ARG REQUIRED_PACKAGES=" \
-# The currently packaged version of Lutris in Ubuntu is no longer supported
-#     lutris \
      cabextract \
      curl \
      fluid-soundfont-gs \
@@ -50,13 +48,15 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
 
-    # Manually installing the latest stable release per https://lutris.net/downloads
-RUN wget -q 'https://github.com/lutris/lutris/releases/download/v0.5.18/lutris_0.5.18_all.deb' && \
-    dpkg -i lutris_0.5.18_all.deb && \
-    rm lutris_0.5.18_all.deb && \
-    # Cleanup \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+RUN <<_INSTALL_LUTRIS
+#!/bin/bash
+set -e
+source /opt/gow/bash-lib/utils.sh
+
+github_download "lutris/lutris" ".assets[]|select(.name|endswith(\".deb\")).browser_download_url" "lutris.deb"
+dpkg -i lutris.deb
+rm lutris.deb
+_INSTALL_LUTRIS
 
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
