@@ -6,6 +6,10 @@ body {
     top: 3.5rem;
 }
 
+.book-toc .book-toc-content {
+    margin-top: 3.5rem;
+}
+
 .navbar {
     background: #191919;
     color: #fff;
@@ -400,9 +404,11 @@ footer.footer {
 .footer a {
     color: #191919
 }
+
 .navbar {
     background: #22272e;
 }
+
 .fancy-stripe {
     height: 5px;
     background-image: linear-gradient(139deg, rgb(23, 69, 251), rgb(23, 129, 251), rgb(23, 224, 251), rgb(42, 255, 102));

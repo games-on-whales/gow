@@ -6,9 +6,6 @@
 [![Donate button](https://img.shields.io/badge/Donate-Open%20Collective-blue.svg?color=blue)](https://opencollective.com/games-on-whales/donate)
 
 A collection of Docker images ready to be used by [Wolf](https://github.com/games-on-whales/wolf) in order to run games
-and apps on a remote host!  
-Read more on our [documentation](https://games-on-whales.github.io/gow/)
+and apps on a remote host!
 
-![Screenshot of GOW running](docs/modules/ROOT/images/GOW-running.jpg)
-
-
+Read more about the included images and how to use them in [wildlife](https://games-on-whales.github.io/wildlife/)

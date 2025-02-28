@@ -19,3 +19,9 @@ excludeFiles = ['build/**', 'build'] # TODO: doesn't work
 [[module.mounts]]
 source = "content"
 target = "content"
+
+# See: https://stackoverflow.com/a/63206852
+[markup]
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = true
