@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_APP_IMAGE
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
@@ -34,6 +34,7 @@ ARG REQUIRED_PACKAGES=" \
     tar \
     wget \
     ca-certificates \
+    xz-utils \
     "
 
 RUN dpkg --add-architecture i386 && \
