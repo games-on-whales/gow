@@ -80,8 +80,7 @@ echo "**** Downloading CEMU AppImage ****"
 github_download "cemu-project/Cemu" "cemu-emu.AppImage"
 
 echo "**** Downloading Dolphin AppImage ****"
-# TODO: This is some randomly found AppImage. Need to find something more official
-github_download "qurious-pixel/dolphin" "dolphin-emu.AppImage"
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" '|select(.name|contains("zsync")|not)'
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
