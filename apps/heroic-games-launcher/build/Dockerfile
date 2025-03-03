@@ -49,7 +49,7 @@ RUN <<_INSTALL_HEROIC
 set -e
 source /opt/gow/bash-lib/utils.sh
 
-github_download "Heroic-Games-Launcher/HeroicGamesLauncher" ".assets[]|select(.name|endswith(\"_amd64.deb\")).browser_download_url" "heroic.deb"
+github_download "Heroic-Games-Launcher/HeroicGamesLauncher" ".assets[]|select(.name|endswith(\"amd64.deb\")).browser_download_url" "heroic.deb"
 dpkg -i heroic.deb
 rm heroic.deb
 _INSTALL_HEROIC
