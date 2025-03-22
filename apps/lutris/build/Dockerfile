@@ -33,6 +33,23 @@ RUN dpkg --add-architecture i386 && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
+
+# Install lutris
+RUN  <<_INSTALL_LUTRIS
+  #!/bin/bash
+  set -e
+
+  echo "**** Installing pegasus ****"
+  wget https://github.com/lutris/lutris/releases/download/v0.5.18/lutris_0.5.18_all.deb --output-document=lutris.deb
+  apt-get install -y ./lutris.deb
+
+  # Cleanup
+  rm lutris.deb
+  rm -rf /var/lib/apt/lists/*
+_INSTALL_LUTRIS
+
+
+
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh

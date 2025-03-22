@@ -9,11 +9,23 @@ files:
   /Applications/launchers/xemu.sh
   /Applications/launchers/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
+  /Applications/launchers/ppsspp.sh
+  /Applications/launchers/citron.sh
 
 game: Emulators - Cemu
 release: 2015-10-13
 file: /Applications/launchers/cemu.sh
 description: Cemu is a free and open-source Wii U emulator, first released on October 13, 2015 for Microsoft Windows as a closed-source emulator developed by Exzap and Petergov. Experimental builds currently support Linux and macOS, in addition to the Windows environment available from launch.
+
+game: Emulators - Citron
+release: 2025-01-02
+file: /Applications/launchers/citron.sh
+description: Citron, a cutting-edge Nintendo Homebrew emulator designed to deliver an optimized experience for playing your favorite games and exploring new ones. Citron is a high-performance and easy-to-use emulator, tailored for enthusiasts and developers alike.
+
+game: Emulators - ppsspp
+release: 2014-08-28
+file: /Applications/launchers/ppsspp.sh
+description: PPSSPP is a fast and portable PSP emulator.
 
 game: Emulators - Dolphin
 release: 2023-09-22

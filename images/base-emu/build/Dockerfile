@@ -63,24 +63,31 @@ cd $EMULATORS_DIR
 github_download(){
     curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
         https://api.github.com/repos/$1/releases/latest | \
-        jq ".assets[]|select(.name|endswith(\".AppImage\"))${3}.browser_download_url" | \
+        jq ".assets[]|select(.name|endswith(\"${3}\")).browser_download_url" | \
         xargs wget -O $2
 }
 
 echo "**** Downloading PCSX2 AppImage ****"
-github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage"
+github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage" ".AppImage"
 
 echo "**** Downloading XEMU AppImage ****"
-github_download "xemu-project/xemu" "xemu-emu.AppImage" '|select(.name|contains("dbg")|not)'
+github_download "xemu-project/xemu" "xemu-emu.AppImage" "x86_64.AppImage"
 
 echo "**** Downloading RPCS3 AppImage ****"
-github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage"
+github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage" ".AppImage"
 
 echo "**** Downloading CEMU AppImage ****"
-github_download "cemu-project/Cemu" "cemu-emu.AppImage"
+github_download "cemu-project/Cemu" "cemu-emu.AppImage" ".AppImage"
 
 echo "**** Downloading Dolphin AppImage ****"
-github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" '|select(.name|contains("zsync")|not)'
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "anylinux.dwarfs-x86_64.AppImage"
+
+echo "**** Downloading Citron AppImage ****"
+github_download "pkgforge-dev/Citron-AppImage" "citron-emu.AppImage" "anylinux-x86_64_v3.AppImage"
+
+echo "**** Downloading PPSSPP AppImage ****"
+github_download "pkgforge-dev/PPSSPP-AppImage" "ppsspp-emu.AppImage" "anylinux-x86_64.AppImage"
+
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR

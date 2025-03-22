@@ -17,6 +17,25 @@ gow_log "Pegasus - Copying game_dirs.txt, if not edited"
 cp -u /cfg/app/game_dirs.txt "${PEGASUS_CFG}/game_dirs.txt"
 
 #########################################
+# Configure Citron
+#########################################
+CITRON_CFG=$HOME/.config/citron
+
+gow_log "Citron - Configure"
+mkdir -p "$CITRON_CFG"
+cp -u /cfg/citron/qt-config.ini "${CITRON_CFG}/qt-config.ini"
+
+#########################################
+# Configure PPSSPP
+#########################################
+PPSSPP_CFG=$HOME/.config/ppsspp
+
+gow_log "PPSSPP - Configure"
+mkdir -p "$PPSSPP_CFG/PSP/SYSTEM"
+cp -u /cfg/ppsspp/controls.ini "${PPSSPP_CFG}/PSP/SYSTEM/controls.ini"
+cp -u /cfg/ppsspp/ppsspp.ini "${PPSSPP_CFG}/PSP/SYSTEM/ppsspp.ini"
+
+#########################################
 # Configure PCSX2
 #########################################
 PCSX2_CFG=$HOME/.config/PCSX2
