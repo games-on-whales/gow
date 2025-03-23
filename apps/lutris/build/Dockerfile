@@ -5,6 +5,10 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+#GitHub REST query versioning
+ARG GITHUB_REST_VERSION=2022-11-28
+
+
 # The following list of packages is informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
 #   - https://github.com/lutris/docs/blob/master/WineDependencies.md
@@ -24,7 +28,6 @@ ARG REQUIRED_PACKAGES=" \
     wine-stable \
     winetricks \
     zenity \
-    mangohud \
     "
 
 RUN dpkg --add-architecture i386 && \
@@ -34,11 +37,35 @@ RUN dpkg --add-architecture i386 && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
+
+RUN  <<_UPDATE_LUTRIS
+  #!/bin/bash
+  set -e
+
+
+ github_download(){
+    curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
+        https://api.github.com/repos/$1/releases/latest | \
+        jq ".assets[]|select(.name|endswith(\"${3}\")).browser_download_url" | \
+        xargs wget -O $2
+ }
+
+ echo "**** Downloading latest Lutris deb ****"
+ github_download "lutris/lutris" "lutris.deb" "all.deb"
+
+ apt-get install -y ./lutris.deb
+
+ # Cleanup
+  rm lutris.deb
+_UPDATE_LUTRIS
+
+
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
-COPY configs /opt/gow
+COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
+COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
