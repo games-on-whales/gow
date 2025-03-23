@@ -55,4 +55,13 @@ then
     cp "/opt/gow/lutris-lutris.conf" "${HOME}/.config/lutris/lutris.conf"
 fi
 
+# copy default MagoHud config.
+if [ ! -f "${HOME}/.config/MangoHud/MangoHud.conf" ]
+then
+    gow_log "[start-create-dirs] Creating MangoHud config file."
+    mkdir -p "${HOME}/.config/MangoHud"
+    cp "/opt/gow/MangoHud/MangoHud.conf" "${HOME}/.config/MangoHud/MangoHud.conf"
+fi
+
+
 gow_log "[start-create-dirs] End"
