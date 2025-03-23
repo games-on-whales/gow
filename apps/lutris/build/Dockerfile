@@ -24,6 +24,7 @@ ARG REQUIRED_PACKAGES=" \
     wine-stable \
     winetricks \
     zenity \
+    mangohud \
     "
 
 RUN dpkg --add-architecture i386 && \
@@ -37,8 +38,7 @@ RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
-COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
-COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
+COPY configs /opt/gow
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
