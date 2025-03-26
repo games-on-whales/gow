@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /
 
+ARG SDL_JS_TEST_VERSION=8a84a47209f96eb3994cf9f906ae072e828886bb
+ENV SDL_JS_TEST_VERSION=${SDL_JS_TEST_VERSION}
 RUN <<_BUILD_SDL_JSTEST
     set -e 
 
@@ -19,6 +21,7 @@ RUN <<_BUILD_SDL_JSTEST
 
     git clone https://github.com/games-on-whales/sdl-jstest
     cd sdl-jstest
+    git checkout ${SDL_JS_TEST_VERSION}
     git submodule init
     git submodule update
     mkdir build
