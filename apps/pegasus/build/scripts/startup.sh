@@ -32,7 +32,6 @@ PPSSPP_CFG=$HOME/.config/ppsspp
 
 gow_log "PPSSPP - Configure"
 mkdir -p "$PPSSPP_CFG/PSP/SYSTEM"
-cp -u /cfg/ppsspp/controls.ini "${PPSSPP_CFG}/PSP/SYSTEM/controls.ini"
 cp -u /cfg/ppsspp/ppsspp.ini "${PPSSPP_CFG}/PSP/SYSTEM/ppsspp.ini"
 
 #########################################
