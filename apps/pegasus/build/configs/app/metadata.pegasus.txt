@@ -11,6 +11,7 @@ files:
   /bin/Install_RPCS3_Firmware.sh
   /Applications/launchers/ppsspp.sh
   /Applications/launchers/citron.sh
+  /Applications/launchers/shadps4.sh
 
 game: Emulators - Cemu
 release: 2015-10-13
