@@ -25,6 +25,10 @@ function launcher() {
     mkdir -p $HOME/.config/waybar
     cp -u /cfg/waybar/* $HOME/.config/waybar/
 
+    # Only copy mangohud default config if it doesn't exist
+    mkdir -p $HOME/.config/MangoHud/
+    cp -u /cfg/MangoHud/MangoHud.conf $HOME/.config/MangoHud/MangoHud.conf
+
     # Sway needs to be overridden since we are going to change the resolution and app start
     mkdir -p $HOME/.config/sway/
     cp /cfg/sway/config $HOME/.config/sway/config
