@@ -4,13 +4,10 @@ FROM ${BASE_IMAGE} as sdl-jstest-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
-
 WORKDIR /
 
 ARG SDL_JS_TEST_VERSION=8a84a47209f96eb3994cf9f906ae072e828886bb
 ENV SDL_JS_TEST_VERSION=${SDL_JS_TEST_VERSION}
-
 RUN <<_BUILD_SDL_JSTEST
     set -e 
 

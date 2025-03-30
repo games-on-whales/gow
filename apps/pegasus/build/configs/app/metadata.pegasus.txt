@@ -27,6 +27,11 @@ release: 2014-08-28
 file: /Applications/launchers/ppsspp.sh
 description: PPSSPP is a fast and portable PSP emulator.
 
+game: Emulators - ShadPS4
+release: 2023-09-29
+file: /Applications/launchers/shadps4.sh
+description: shadPS4 is an early PlayStation 4 emulator for Windows, Linux and macOS written in C++.
+
 game: Emulators - Dolphin
 release: 2023-09-22
 file: /Applications/launchers/dolphin.sh
