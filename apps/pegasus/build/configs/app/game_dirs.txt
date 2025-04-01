@@ -31,6 +31,7 @@
 /ROMs/psp
 /ROMs/psx
 /ROMs/saturn
+/ROMs/scummvm
 /ROMs/sega32x
 /ROMs/segacd
 /ROMs/snes

@@ -9,6 +9,11 @@ files:
   /Applications/launchers/xemu.sh
   /Applications/launchers/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
+  /usr/bin/kitty
+
+game: Bash Console
+file: /usr/bin/kitty
+description: Bash Console
 
 game: Emulators - Cemu
 release: 2015-10-13
