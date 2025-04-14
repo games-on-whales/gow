@@ -23,6 +23,11 @@ set -e
 echo "**** Update apt database ****"
 apt-get update
 
+echo "**** Add Mesa repo from oibaf ****"
+apt-get install -y --no-install-recommends \
+    software-properties-common
+add-apt-repository ppa:oibaf/graphics-drivers
+
 echo "**** Install certificates ****"
 apt-get install -y --reinstall --no-install-recommends \
     ca-certificates
