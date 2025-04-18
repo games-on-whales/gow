@@ -34,8 +34,7 @@ ARG REQUIRED_PACKAGES=" \
     tar \
     wget \
     ca-certificates \
-    xz-utils \
-    "
+    xz-utils"
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -53,19 +52,6 @@ github_download "Heroic-Games-Launcher/HeroicGamesLauncher" ".assets[]|select(.n
 dpkg -i heroic.deb
 rm heroic.deb
 _INSTALL_HEROIC
-
-RUN <<_INSTALL_MANGO
-#!/bin/bash
-set -e
-source /opt/gow/bash-lib/utils.sh
-
-github_download "flightlessmango/MangoHud" ".assets[]|select(.name|endswith(\".tar.gz\")).browser_download_url" "MangoHud.tar.gz"
-tar xf MangoHud.tar.gz
-cd MangoHud
-tar xf MangoHud-package.tar
-chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
-rm -rf /MangoHud
-_INSTALL_MANGO
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 

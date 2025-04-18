@@ -14,7 +14,8 @@
     "sway/workspaces",
     "sway/mode",
     "sway/scratchpad",
-    "custom/kitty"
+    "custom/kitty",
+    "custom/nemo"
   ],
   "modules-center": [
     "sway/window"
@@ -32,6 +33,13 @@
     "format": "{} ",
     "tooltip": false,
     "on-click": "kitty"
+  },
+  "custom/nemo": {
+    "return-type": "json",
+    "format": "{}  ",
+    "exec": "printf '{\"tooltip\": \"Nemo file manager\"}'",
+    "interval": "once",
+    "on-click": "nemo"
   },
   "sway/mode": {
     "format": "<span style=\"italic\">{}</span>"
