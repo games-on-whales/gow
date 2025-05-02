@@ -7,6 +7,7 @@ FROM ${BASE_APP_IMAGE}
 ARG CORE_PACKAGES=" \
     dbus \
     flatpak \
+    python3 \
     "
 
 RUN <<_INSTALL_KODI
