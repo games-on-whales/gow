@@ -152,5 +152,21 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2-jstest
 
+#################################
+# Install MangoHuD
+#################################
+RUN <<_INSTALL_MANGO
+#!/bin/bash
+set -e
+source /opt/gow/bash-lib/utils.sh
+
+github_download "flightlessmango/MangoHud" ".assets[]|select(.name|endswith(\".tar.gz\")).browser_download_url" "MangoHud.tar.gz"
+tar xf MangoHud.tar.gz
+cd MangoHud
+tar xf MangoHud-package.tar
+chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
+rm -rf /MangoHud
+_INSTALL_MANGO
+
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}

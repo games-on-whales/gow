@@ -54,19 +54,6 @@ dpkg -i heroic.deb
 rm heroic.deb
 _INSTALL_HEROIC
 
-RUN <<_INSTALL_MANGO
-#!/bin/bash
-set -e
-source /opt/gow/bash-lib/utils.sh
-
-github_download "flightlessmango/MangoHud" ".assets[]|select(.name|endswith(\".tar.gz\")).browser_download_url" "MangoHud.tar.gz"
-tar xf MangoHud.tar.gz
-cd MangoHud
-tar xf MangoHud-package.tar
-chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
-rm -rf /MangoHud
-_INSTALL_MANGO
-
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
