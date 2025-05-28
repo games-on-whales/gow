@@ -34,7 +34,7 @@ _BUILD_SDL_JSTEST
 #################################
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.15.14"
+ARG GAMESCOPE_VERSION="3.15.16"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -131,6 +131,30 @@ RUN <<_INSTALL_GAMESCOPE
       /var/lib/apt/lists/* \
       $GAMESCOPE_SRC
 _INSTALL_GAMESCOPE
+
+#################################
+# Install Mangohud & Ulilities
+#################################
+
+
+RUN <<_INSTALL_MANGO
+#!/bin/bash
+set -e
+
+    apt-get update -y && \
+    apt-get install -y curl mc nemo && \
+    rm -rf /var/lib/apt/lists/*
+
+
+source /opt/gow/bash-lib/utils.sh
+
+github_download "flightlessmango/MangoHud" ".assets[]|select(.name|endswith(\".tar.gz\")).browser_download_url" "MangoHud.tar.gz"
+tar xf MangoHud.tar.gz
+cd MangoHud
+tar xf MangoHud-package.tar
+chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
+rm -rf /MangoHud
+_INSTALL_MANGO
 
 #################################
 # Install Sway
