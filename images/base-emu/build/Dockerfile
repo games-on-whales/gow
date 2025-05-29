@@ -80,7 +80,7 @@ echo "**** Downloading CEMU AppImage ****"
 github_download "cemu-project/Cemu" "cemu-emu.AppImage"
 
 echo "**** Downloading Dolphin AppImage ****"
-github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" '|select(.name|contains("zsync")|not)'
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" '|select(.name|contains("dwarfs-x86_64"))'
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
