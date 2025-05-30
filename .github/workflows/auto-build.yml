@@ -8,6 +8,11 @@ on:
       - "images/**"
       - ".github/workflows/*"
       - "apps/**"
+  pull_request:
+    paths:
+      - "images/**"
+      - ".github/workflows/*"
+      - "apps/**"
 
 #  schedule:
 #    - cron: "0 0 * * *" # nightly
