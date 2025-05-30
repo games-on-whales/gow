@@ -87,7 +87,7 @@ RUN <<_INSTALL_GAMESCOPE
 
     # Dependencies
     DEV_PACKAGES="\
-        git curl build-essential gcc pkg-config ninja-build meson cmake equivs libcap2-bin \
+        git build-essential gcc pkg-config ninja-build meson cmake equivs libcap2-bin \
         libvulkan-dev libwayland-dev wayland-protocols libudev-dev libinput-dev libpixman-1-dev libseat-dev libssl-dev libcap-dev \
         libx11-dev libx11-xcb-dev libxdamage-dev libxxf86vm-dev libxres-dev libxmu-dev libx11-xcb-dev libxcomposite-dev libxtst-dev \
         libxrender-dev libxshmfence-dev libxkbfile-dev libxkbcommon-dev libxfont-dev libxcvt-dev libgl-dev \
