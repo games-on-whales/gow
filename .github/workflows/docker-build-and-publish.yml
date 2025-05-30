@@ -43,7 +43,7 @@ jobs:
 
   docker:
     needs: prepare
-    runs-on: ${{ contains(matrix.platform, 'arm64') && 'ARM64' || 'ubuntu-latest' }}
+    runs-on: ${{ contains(matrix.platform, 'arm64') && github.repository == 'games-on-whales/gow' && 'ARM64' || 'ubuntu-latest' }}
 
     strategy:
       matrix:
