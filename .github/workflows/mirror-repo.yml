@@ -3,6 +3,8 @@ name: Repo Mirror
 on: [ push ]
 jobs:
   codeberg:
+    # This job will only run if the repository is 'games-on-whales/gow'
+    if: github.repository == 'games-on-whales/gow'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
