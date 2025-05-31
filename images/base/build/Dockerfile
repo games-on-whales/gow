@@ -37,6 +37,7 @@ apt-get install -y --no-install-recommends \
     fuse \
     libnss3 \
     wget \
+    curl \
     jq
 
 echo "**** Install gosu ****"
