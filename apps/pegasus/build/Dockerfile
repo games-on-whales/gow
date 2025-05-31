@@ -18,6 +18,21 @@ RUN \
 		apt-get autoremove -y && \
 		rm -rf /var/lib/apt/lists/*
 
+# Install software to mount iso/zip
+RUN \
+    echo "**** Install mount iso & zip dependencies ****" && \
+        apt-get update && \
+        apt-get install -y \
+            fuseiso \
+            fuse-zip \
+            && \
+    # Cleanup \
+		apt-get autoremove -y && \
+		rm -rf /var/lib/apt/lists/*
+
+# Setup ISO mounting location
+RUN mkdir -p /media/iso_mount && chown 1000:1000 /media/iso_mount
+
 # Install pegasus
 RUN  <<_INSTALL_PEGASUS
   #!/bin/bash
