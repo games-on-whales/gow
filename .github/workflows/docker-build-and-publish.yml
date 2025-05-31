@@ -109,9 +109,9 @@ jobs:
           if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
             REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}"
             if [ "$IMAGES" = "" ]; then
-              IMAGES="ghcr.io/${REGISTRY_IMAGE}"
+              IMAGES="${REGISTRY_IMAGE}"
             else
-              IMAGES="$IMAGES,ghcr.io/${REGISTRY_IMAGE}"
+              IMAGES="$IMAGES,${REGISTRY_IMAGE}"
             fi
             PUSH=true
             echo "has_github_token=true" >> $GITHUB_OUTPUT
