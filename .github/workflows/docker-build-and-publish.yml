@@ -61,7 +61,14 @@ jobs:
           else
             # Forks shall push to <username>/gow/<image-name>
             IS_FORK=true
-            GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              # For PRs, we use the forked repository owner as namespace
+              # This allows us to pull build caches from the forked repository
+              GHCR_NAMESPACE="${{ github.event.pull_request.head.repo.owner.login }}/gow"
+            else
+              # For branches, we use the repository owner as namespace
+              GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
+            fi
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
             ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
           fi
@@ -155,6 +162,19 @@ jobs:
           IMAGES=""
           CURRENT_PLATFORM="${{ contains(matrix.platform, 'arm64') && 'arm64' || 'x86' }}"
 
+          upstream_build_from_cache_image="ghcr.io/games-on-whales/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
+          build_from_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
+          build_to_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
+
+          echo "==> Testing if build cache ${build_from_cache_image} exists"
+          docker buildx imagetools inspect "${build_from_cache_image}" 2>/dev/null || build_cache_missing=1
+          if [ -n "${build_cache_missing:-}" ]; then
+            echo "==> No existing buildx cache for branch build found, using upstream buildcache image ${upstream_build_from_cache_image}"
+            build_from_cache_image="${upstream_build_from_cache_image}"
+          else
+            echo "==> Found existing buildx cache for branch build, using image ${build_from_cache_image}"
+          fi
+
           if [[ "${{ github.event_name }}" != "pull_request" ]]; then
             echo "==> Setting variables for branch build"
 
@@ -171,9 +191,10 @@ jobs:
               else
                 IMAGES="$IMAGES,${REGISTRY_IMAGE}"
               fi
+
               echo "has_github_token=true" >> $GITHUB_OUTPUT
-              echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
-              echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM},mode=max"  >> $GITHUB_OUTPUT
+              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
+              echo "cache_to=type=registry,ref=${build_to_cache_image},mode=max"  >> $GITHUB_OUTPUT
               echo "==> Pushing to GitHub Container Registry"
             fi
 
@@ -187,12 +208,11 @@ jobs:
             BUILDX_OUTPUT="type=docker,dest=/tmp/${{ inputs.image_name }}-${PLATFORM_PAIR}.tar"
 
             if [ -d /tmp/.buildx-cache ]; then
-              echo "==> Using existing buildx cache"
+              echo "==> Using existing local buildx cache for pr-${{ github.event.number }}"
               echo "cache_from=type=local,src=/tmp/.buildx-cache"  >> $GITHUB_OUTPUT
             else
-              ghcr_build_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
-              echo "==> No existing buildx cache for pr-${{ github.event.number }} found, using buildcache image ${ghcr_build_cache_image}"
-              echo "cache_from=type=registry,ref=${ghcr_build_cache_image}"  >> $GITHUB_OUTPUT
+              echo "==> No existing buildx cache for pr-${{ github.event.number }} found, using buildcache image ${build_from_cache_image}"
+              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
             fi
             echo "cache_to=type=local,dest=/tmp/.buildx-cache-new"  >> $GITHUB_OUTPUT
 
