@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -u
-
 gow_log() {
     echo "$(date +"[%Y-%m-%d %H:%M:%S]") $*"
 }
