@@ -29,21 +29,62 @@ on:
         description: "The highest-priority tag assigned to the built image"
         value: ${{ jobs.docker.outputs.image_tag }}
 
+env:
+  DOCKERHUB_NAMESPACE: 'gamesonwhales'
+  DOCKERHUB_USERNAME: 'abeltramo'
+  ARM64_RUNNER: ''
+  PLATFORM_PAIR: ''
+
 jobs:
-  # First, create a job to set up the matrix
   prepare:
     runs-on: ubuntu-latest
     outputs:
       platforms: ${{ steps.set-platforms.outputs.platforms }}
+      is_fork: ${{ steps.set-docker-vars.outputs.is_fork }}
+      ghcr_namespace: ${{ steps.set-docker-vars.outputs.ghcr_namespace }}
+      dockerhub_namespace: ${{ steps.set-docker-vars.outputs.dockerhub_namespace }}
+      arm64_runner: ${{ steps.set-docker-vars.outputs.arm64_runner }}
     steps:
       - id: set-platforms
         run: |
           platforms=$(echo "${{ inputs.platforms }}" | tr ',' '\n' | jq -R -s -c 'split("\n")[:-1]')
           echo "platforms=${platforms}" >> $GITHUB_OUTPUT
+          echo "==> Platforms set to: ${platforms}"
+
+      - id: set-docker-vars
+        run: |
+          if [[ "${{ github.repository }}" == "games-on-whales/gow" ]]; then
+            IS_FORK=false
+            GHCR_NAMESPACE="${{ github.repository_owner }}"
+            DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
+            ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ARM64' }}
+          else
+            # Forks shall push to <username>/gow/<image-name>
+            IS_FORK=true
+            GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
+            DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
+            ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
+          fi
+
+          echo "is_fork=${IS_FORK}" >> $GITHUB_OUTPUT
+          echo "ghcr_namespace=${GHCR_NAMESPACE}" >> $GITHUB_OUTPUT
+          echo "dockerhub_namespace=${DOCKERHUB_NAMESPACE}" >> $GITHUB_OUTPUT
+          echo "arm64_runner=${ARM64_RUNNER}" >> $GITHUB_OUTPUT
+
+          echo "==> Docker variables set:"
+          echo "is_fork=${IS_FORK}"
+          echo "ghcr_namespace=${GHCR_NAMESPACE}"
+          echo "dockerhub_namespace=${DOCKERHUB_NAMESPACE}"
+          echo "arm64_runner=${ARM64_RUNNER}"
 
   docker:
     needs: prepare
-    runs-on: ${{ contains(matrix.platform, 'arm64') && github.repository == 'games-on-whales/gow' && 'ARM64' || 'ubuntu-latest' }}
+    runs-on: ${{ contains(matrix.platform, 'arm64') && needs.prepare.outputs.arm64_runner || 'ubuntu-latest' }}
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     strategy:
       matrix:
@@ -82,51 +123,125 @@ jobs:
             exit 1
            }
 
+          echo "==> Inputs validated successfully, exporting PLATFORM_PAIR"
+          platform="${{ matrix.platform }}"
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache buildx layers locally
+        if: github.event_name == 'pull_request'
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}-pr-${{ github.event.number }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}-
+
       # Set derived configuration variables:
       # - images: images to build (docker and/or github)
-      # - push: if images need to be uploaded to repository (when secrets available)
       # - has_docker_token
       # - has_github_token
       # - cache_from: image tag to use for imported cache
       # - cache_to: image tag to use for exported cache
       # - github_server_url: reference to source code repository
+      # - base_image_name: name of the base image to be used for up and downloading artifacts
+      # - base_app_image_name: name of the base app image to be used for up and downloading artifacts
+      # - buildx_output: will be used to determine how to export the built image (e.g. to a tarball for PRs or to a registry for branches)
       - name: Prepare
         id: prep
         run: |
           IMAGES=""
-          PUSH=false
-          CURRENT_PLATFORM=${{ contains(matrix.platform, 'arm64') && 'arm64' || 'x86' }}
+          CURRENT_PLATFORM="${{ contains(matrix.platform, 'arm64') && 'arm64' || 'x86' }}"
 
-          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            IMAGES="gameonwhales/${{ inputs.image_name }}"
-            PUSH=true
-            echo "has_docker_token=true" >> $GITHUB_OUTPUT
-          fi
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            echo "==> Setting variables for branch build"
 
-          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-            REGISTRY_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}"
-            if [ "$IMAGES" = "" ]; then
-              IMAGES="${REGISTRY_IMAGE}"
-            else
-              IMAGES="$IMAGES,${REGISTRY_IMAGE}"
+            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
+              echo "has_docker_token=true" >> $GITHUB_OUTPUT
+              echo "==> Pushing to Docker Hub"
             fi
-            PUSH=true
-            echo "has_github_token=true" >> $GITHUB_OUTPUT
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
-            echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM},mode=max"  >> $GITHUB_OUTPUT
+
+            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+              REGISTRY_IMAGE="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}"
+              if [ "$IMAGES" = "" ]; then
+                IMAGES="${REGISTRY_IMAGE}"
+              else
+                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
+              fi
+              echo "has_github_token=true" >> $GITHUB_OUTPUT
+              echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
+              echo "cache_to=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM},mode=max"  >> $GITHUB_OUTPUT
+              echo "==> Pushing to GitHub Container Registry"
+            fi
+
+            BUILDX_OUTPUT="type=registry"
           else
-            echo "cache_from=type=registry,ref=${REGISTRY_IMAGE}:buildcache-${CURRENT_PLATFORM}"  >> $GITHUB_OUTPUT
-            echo "cache_to="  >> $GITHUB_OUTPUT
+            echo "==> Setting variables for pull request build"
+            # we only use local tags for PR builds
+            IMAGES="localhost:5000/${{ inputs.image_name }}"
+
+            # For pull requests, we save the image in a tarball
+            BUILDX_OUTPUT="type=docker,dest=/tmp/${{ inputs.image_name }}-${PLATFORM_PAIR}.tar"
+
+            if [ -d /tmp/.buildx-cache ]; then
+              echo "==> Using existing buildx cache"
+              echo "cache_from=type=local,src=/tmp/.buildx-cache"  >> $GITHUB_OUTPUT
+            else
+              ghcr_build_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
+              echo "==> No existing buildx cache for pr-${{ github.event.number }} found, using buildcache image ${ghcr_build_cache_image}"
+              echo "cache_from=type=registry,ref=${ghcr_build_cache_image}"  >> $GITHUB_OUTPUT
+            fi
+            echo "cache_to=type=local,dest=/tmp/.buildx-cache-new"  >> $GITHUB_OUTPUT
+
+            if [[ "${{ inputs.base_image != '' }}" == "true" ]]; then
+              # get image name for up and downloading pr artifacts
+              base_image_name=$(echo "${{ inputs.base_image }}" | sed 's|.*/||; s|:.*||')
+              echo "base_image_name=${base_image_name}" >> $GITHUB_OUTPUT
+            fi
+
+            if [[ "${{ inputs.base_app_image != '' }}" == "true" ]]; then
+              # get image name for up and downloading pr artifacts
+              base_app_image_name=$(echo "${{ inputs.base_app_image }}" | sed 's|.*/||; s|:.*||')
+              echo "base_app_image_name=${base_app_image_name}" >> $GITHUB_OUTPUT
+            fi
           fi
 
           echo "images=${IMAGES}"  >> $GITHUB_OUTPUT
-          echo "push=${PUSH}"  >> $GITHUB_OUTPUT
+          echo "buildx_outputs=${BUILDX_OUTPUT}" >> $GITHUB_OUTPUT
           echo "github_server_url=${GITHUB_SERVER_URL}"  >> $GITHUB_OUTPUT
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+
+          echo "==> Images to build: ${IMAGES}"
+          echo "==> Buildx outputs: ${BUILDX_OUTPUT}"
+          echo "==> GitHub server URL: ${GITHUB_SERVER_URL}"
+
+      - name: Download base image artifact
+        id: download-base-image-artifact
+        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != '' }}
+        uses: dawidd6/action-download-artifact@v10
+        with:
+          name: docker-${{ steps.prep.outputs.base_image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          workflow_search: true
+          search_artifacts: true
+          allow_forks: true
+          workflow_conclusion: "in_progress"
+          commit: ${{ github.event.pull_request.head.sha }}
+          path: /tmp/
+      
+      - name: Download base-app image artifact
+        id: download-base-app-image-artifact
+        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != '' }}
+        uses: dawidd6/action-download-artifact@v10
+        with:
+          name: docker-${{ steps.prep.outputs.base_app_image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          workflow_search: true
+          search_artifacts: true
+          allow_forks: true
+          workflow_conclusion: "in_progress"
+          commit: ${{ github.event.pull_request.head.sha }}
+          path: /tmp/
 
       - name: Docker meta
         id: meta
@@ -155,22 +270,42 @@ jobs:
         with:
           install: true
           version: latest
-          driver-opts: image=moby/buildkit:master
+          driver-opts: image=moby/buildkit:master${{ github.event_name == 'pull_request' && ',network=host' || '' }}
 
       - name: Login to DockerHub
-        if: steps.prep.outputs.has_docker_token != '' # secrets not available in PRs
+        if: steps.prep.outputs.has_docker_token != ''
         uses: docker/login-action@v3
         with:
-          username: abeltramo
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        if: steps.prep.outputs.has_github_token != '' # secrets not available in PRs
+        if: steps.prep.outputs.has_github_token != ''
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Load base image
+        if: github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != ''
+        run: |
+          set -e
+          echo "==> Loading base image from artifact"
+          docker load -i "/tmp/${{ steps.prep.outputs.base_image_name }}-${{ env.PLATFORM_PAIR }}.tar"
+          docker inspect "${{ inputs.base_image }}"
+          echo "==> Pushing base image to local registry"
+          docker push "${{ inputs.base_image }}"
+
+      - name: Load base-app image
+        if: github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != ''
+        run: |
+          set -e
+          echo "==> Loading base-app image from artifact"
+          docker load -i "/tmp/${{ steps.prep.outputs.base_app_image_name }}-${{ env.PLATFORM_PAIR }}.tar"
+          docker inspect "${{ inputs.base_app_image }}"
+          echo "==> Pushing base image to local registry"
+          docker push "${{ inputs.base_app_image }}"
 
       - name: Build and Push
         id: docker_build
@@ -180,7 +315,7 @@ jobs:
           context: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build
           file: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build/Dockerfile
           platforms: ${{ matrix.platform }}
-          push: ${{ steps.prep.outputs.push }}
+          outputs: ${{ steps.prep.outputs.buildx_outputs }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
@@ -189,16 +324,38 @@ jobs:
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
+      - name: Upload docker image as artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          path: /tmp/${{ inputs.image_name }}-*.tar
+          if-no-files-found: error
+          retention-days: 1
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Cleanup buildx cache
+        if: github.event_name == 'pull_request'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
       - name: Image digest
         run: echo "${{ inputs.image_name }} > ${{ steps.docker_build.outputs.digest }}"
 
       - name: Export digest
+        if: github.event_name != 'pull_request'
+        id: export-digest
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.docker_build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
+          echo "hash=${digest#sha256:}" >> $GITHUB_OUTPUT
 
       - name: Upload digest
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
@@ -212,24 +369,25 @@ jobs:
   # Otherwise the image would be overridden by the last one pushed
   merge:
     runs-on: ubuntu-latest
-    needs: [ docker ]
+    needs: [ prepare, docker ]
+    if: github.event_name != 'pull_request'
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
           path: /tmp/digests
-          pattern: digests-${{ inputs.image_name}}-*
+          pattern: digests-${{ inputs.image_name }}-*
           merge-multiple: true
 
       - name: Login to Docker Hub
-        if: needs.docker.outputs.has_docker_token != '' # secrets not available in PRs
+        if: needs.docker.outputs.has_docker_token != ''
         uses: docker/login-action@v3
         with:
-          username: abeltramo
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
-        if: needs.docker.outputs.has_github_token != '' # secrets not available in PRs
+        if: needs.docker.outputs.has_github_token != ''
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -251,26 +409,28 @@ jobs:
             type=ref,event=branch
             type=sha
 
-      - name: Create manifest list and push
+      - name: Create ghcr manifest list and push
+        if: needs.docker.outputs.has_github_token != ''
         working-directory: /tmp/digests
         run: |
-          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-              docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("ghcr.io"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-              $(printf 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@sha256:%s ' *)
-          fi
-                    # Create manifest for Docker Hub
-          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-              docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("gameonwhales"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-              $(printf 'gameonwhales/${{ inputs.image_name }}@sha256:%s ' *)
-          fi
-
-      - name: Inspect image
+          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("ghcr.io"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf 'ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}@sha256:%s ' *)
+      
+      - name: Create Docker Hub manifest list and push
+        if: needs.docker.outputs.has_docker_token != ''
+        working-directory: /tmp/digests
         run: |
-          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-            echo "Inspecting GHCR image:"
-            docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
-          fi
-          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            echo "Inspecting Docker Hub image:"
-            docker buildx imagetools inspect gameonwhales/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
-          fi
+          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("gameonwhales"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf 'gameonwhales/${{ inputs.image_name }}@sha256:%s ' *)
+
+      - name: Inspect ghcr image
+        if: needs.docker.outputs.has_github_token != ''
+        run: |
+          echo "Inspecting GHCR image:"
+          docker buildx imagetools inspect ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
+
+      - name: Inspect Docker Hub image
+        if: needs.docker.outputs.has_docker_token != ''
+        run: |
+          echo "Inspecting Docker Hub image:"
+          docker buildx imagetools inspect gameonwhales/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
