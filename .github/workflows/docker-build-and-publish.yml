@@ -246,7 +246,7 @@ jobs:
           workflow_search: true
           search_artifacts: true
           allow_forks: true
-          workflow_conclusion: "in_progress"
+          workflow_conclusion: ""
           commit: ${{ github.event.pull_request.head.sha }}
           path: /tmp/
       
@@ -259,7 +259,7 @@ jobs:
           workflow_search: true
           search_artifacts: true
           allow_forks: true
-          workflow_conclusion: "in_progress"
+          workflow_conclusion: ""
           commit: ${{ github.event.pull_request.head.sha }}
           path: /tmp/
 
