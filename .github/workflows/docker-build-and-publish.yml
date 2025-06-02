@@ -440,8 +440,8 @@ jobs:
         if: needs.docker.outputs.has_docker_token != ''
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("gameonwhales"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-          $(printf 'gameonwhales/${{ inputs.image_name }}@sha256:%s ' *)
+          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("docker.io"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf 'docker.io/gameonwhales/${{ inputs.image_name }}@sha256:%s ' *)
 
       - name: Inspect ghcr image
         if: needs.docker.outputs.has_github_token != ''
