@@ -30,7 +30,7 @@ on:
         value: ${{ jobs.docker.outputs.image_tag }}
 
 env:
-  DOCKERHUB_NAMESPACE: 'gamesonwhales'
+  DOCKERHUB_NAMESPACE: 'gameonwhales'
   DOCKERHUB_USERNAME: 'abeltramo'
   ARM64_RUNNER: ''
   PLATFORM_PAIR: ''
