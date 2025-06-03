@@ -46,6 +46,7 @@ can either create the ROM directories in the format below or edit Pegasus to use
 /ROMs/psp
 /ROMs/psx
 /ROMs/saturn
+/ROMs/scummvm
 /ROMs/sega32x
 /ROMs/segacd
 /ROMs/snes
@@ -72,6 +73,53 @@ mounts = [
     "/mnt/PATH_TO_ROMS_IN_YOUR_HOST/:/ROMs/:rw" # <-- EDIT HERE
 ]
 ```
+## Special Notes
+
+### Setting up the `pegasus.metadata.txt` file
+
+There is a `rom_launcher.sh` script to make life easier. When using it, as long as you use the same folder name
+used for the ROM it'll be able to find it. For example, for PS3:
+
+```text
+collection: Sony Playstation 3
+shortname: ps3
+command: /Applications/launchers/rom_launcher.sh ps3 "{file.path}"
+
+...
+```
+
+### PS3 games
+
+ISOs are supported! Just use the above `rom_launcher.sh` script.
+
+### ScummVM
+
+ScummVM will work with zip files if you use the `rom_launcher.sh` script!
+
+You must first prepare the zip file for this to work correctly:
+- Add the complete game in the root of the zip file
+- Add a `*.scummvm` file inside of the root of the zip file.
+  - This file must contain the official "name" that ScummVM associates with this game
+  - This name can be found in the following [yaml file](https://github.com/scummvm/scummvm-web/blob/master/data/en/games.yaml)
+    - It is the `id` portion that comes after the `:`.
+      - For example:
+          ```yaml
+            -
+              id: 'scumm:tentacle'
+              name: 'Maniac Mansion: Day of the Tentacle'
+              engine_id: scumm
+              company_id: lucasarts
+              year: '1993'
+              moby_id: '719'
+              steam_id: ''
+              gog_id: ''
+              zoom_id: ''
+              additional_stores: ''
+              datafiles: Day_of_the_Tentacle
+              wikipedia_page: Day_of_the_Tentacle
+              series_id: maniac
+          ```
+        `tentacle` would be what you would put on the first line of the `*.scummvm` file 
 
 ## Customization
 
