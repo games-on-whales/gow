@@ -92,7 +92,10 @@ def gen_all_icons():
         {"name": ["Steam"], "palette": 2, "output": "apps/steam/assets/icon.png"},
         {"name": ["Lutris"], "palette": 2, "output": "apps/lutris/assets/icon.png"},
         {"name": ["Heroic"], "palette": 2, "output": "apps/heroic-games-launcher/assets/icon.png"},
-        {"name": ["Prism Launcher", "(minecraft)"], "palette": 2, "output": "apps/prismlauncher/assets/icon.png"}
+        {"name": ["Prism Launcher", "(minecraft)"], "palette": 2, "output": "apps/prismlauncher/assets/icon.png"},
+        {"name": ["Unigine Heaven"], "palette": 2, "output": "apps/unigine-benchmark/assets/heaven-icon.png"},
+        {"name": ["Unigine Valley"], "palette": 2, "output": "apps/unigine-benchmark/assets/valley-icon.png"},
+        {"name": ["Unigine Superposition"], "palette": 2, "output": "apps/unigine-benchmark/assets/superposition-icon.png"}
     ]
 
     for app in apps:

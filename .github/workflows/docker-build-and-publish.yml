@@ -70,7 +70,7 @@ jobs:
               GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
             fi
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
-            ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
+            ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-24.04-arm' }}
           fi
 
           echo "is_fork=${IS_FORK}" >> $GITHUB_OUTPUT
