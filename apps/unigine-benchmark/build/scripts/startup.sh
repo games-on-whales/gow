@@ -59,10 +59,16 @@ for file in /opt/gow/startup.d/* ; do
 done
 
 # Enable MangoHud with detailed preset
-export MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
-mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
-echo "position=bottom-left" > "$MANGOHUD_CONFIGFILE"
-echo "preset=4" >> "$MANGOHUD_CONFIGFILE"
+if [[ -f "$HOME/.config/MangoHud/MangoHud.conf" ]]; then
+  gow_log "MangoHud.conf is already present, prioritizing existing configuration."
+else
+  gow_log "Configuring MangoHud for Unigine Benchmark."
+  export MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
+  mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
+  echo "position=bottom-left" > "$MANGOHUD_CONFIGFILE"
+  echo "preset=4" >> "$MANGOHUD_CONFIGFILE"
+  echo "gpu_voltage" >> "$MANGOHUD_CONFIGFILE"
+fi
 
 gow_log "[start] Downloading and installing Unigine Benchmark installer"
 
