@@ -44,7 +44,7 @@ jobs:
       image_name: "base-emu"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
-      platforms: "linux/amd64,linux/arm64"
+      platforms: "linux/amd64"
     secrets: inherit
 
   emus:
