@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM ubuntu:24.10
+FROM ubuntu:25.04
 
 # Configure default user and set env
 # The users UID and GID will be set on container startup
@@ -22,11 +22,6 @@ RUN <<_INSTALL_PACKAGES
 set -e
 echo "**** Update apt database ****"
 apt-get update
-
-echo "**** Add Mesa repo from oibaf ****"
-apt-get install -y --no-install-recommends \
-    software-properties-common
-add-apt-repository ppa:oibaf/graphics-drivers
 
 echo "**** Install certificates ****"
 apt-get install -y --reinstall --no-install-recommends \

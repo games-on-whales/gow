@@ -26,6 +26,7 @@ ARG REQUIRED_PACKAGES=" \
      mesa-vulkan-drivers \
      mesa-vulkan-drivers:i386 \
      p7zip \
+     python3-dbus \
      python3-distro \
      python3-gi-cairo \
      python3-lxml \
