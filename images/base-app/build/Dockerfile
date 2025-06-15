@@ -79,6 +79,9 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2-jstest
 
+# Add /usr/games/ to $PATH in order to be able to run gamescope
+ENV PATH="/usr/games/:${PATH}"
+
 #################################
 # Install MangoHuD
 #################################
