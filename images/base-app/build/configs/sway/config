@@ -104,5 +104,8 @@ include /etc/sway/config.d/*
 
 bar swaybar_command waybar
 
+# Steam big picture fix
+for_window [class="steam" title="Steam Big Picture Mode"] floating enable
+
 # Need to autostart something after this line, for example:
 # see: launch-comp.sh
