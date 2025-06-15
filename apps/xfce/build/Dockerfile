@@ -20,6 +20,7 @@ ARG DE_PACKAGES=" \
     xubuntu-default-settings \
     xubuntu-icon-theme \
     papirus-icon-theme arc-theme \
+    at-spi2-core \
     "
 
 ARG ADDITIONAL_PACKAGES=" \
