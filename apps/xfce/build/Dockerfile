@@ -16,6 +16,7 @@ ARG CORE_PACKAGES=" \
 
 ARG DE_PACKAGES=" \
     xfce4 \
+    xfce4-settings \
     xubuntu-default-settings \
     xubuntu-icon-theme \
     papirus-icon-theme arc-theme \
@@ -25,6 +26,7 @@ ARG ADDITIONAL_PACKAGES=" \
     xfce4-terminal \
     xfce4-taskmanager \
     xfce4-whiskermenu-plugin \
+    xfce4-docklike-plugin \
     xarchiver \
     mousepad \
     zip unzip p7zip-full \
@@ -43,18 +45,12 @@ RUN \
     apt-get update && \
     # \
     # Install core packages \
-    apt-get install -y --no-install-recommends $CORE_PACKAGES && \
+    apt-get install -y $CORE_PACKAGES && \
     # \
     # Install de \
-    apt-get install -y --no-install-recommends $DE_PACKAGES && \
-    # \
-    # Download and Install docklike plugin from mx repos \
-    wget https://mxrepo.com/mx/repo/pool/main/x/xfce4-docklike-plugin/xfce4-docklike-plugin_0.4.1-0.1~mx23+1_amd64.deb && \
-    dpkg -i xfce4-docklike-plugin_0.4.1-0.1~mx23+1_amd64.deb && \
-    rm xfce4-docklike-plugin_0.4.1-0.1~mx23+1_amd64.deb && \
+    apt-get install -y $DE_PACKAGES && \
     # \
     # Install additional apps \
-    apt reinstall -y xfce4-settings && \
     apt-get install -y $ADDITIONAL_PACKAGES && \
     # \
     # Fixes \
