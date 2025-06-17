@@ -16,6 +16,7 @@ function launcher() {
   elif [ -n "$RUN_SWAY" ]; then
     gow_log "[Sway] - Starting: \`$@\`"
 
+    export SWAYSOCK=${XDG_RUNTIME_DIR}/sway.socket  # Enables the sway socket
     export SWAY_STOP_ON_APP_EXIT=${SWAY_STOP_ON_APP_EXIT:-"yes"}
     export XDG_CURRENT_DESKTOP=sway # xdg-desktop-portal
     export XDG_SESSION_DESKTOP=sway # systemd

@@ -1,8 +1,5 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
+# Users can easily add custom configuration in the home folder
+include /home/retro/.config/sway/custom-cfg
 
 ### Variables
 #
@@ -104,8 +101,12 @@ include /etc/sway/config.d/*
 
 bar swaybar_command waybar
 
-# Steam big picture fix
-for_window [class="steam" title="Steam Big Picture Mode"] floating enable
+# App fixes
+# You can get more info about windows at runtime with `swaymsg -t get_tree`
+# Steam big picture fix (force windowing mode)
+for_window [class="steam"] fullscreen disabled
+# Force steam games in fullscreen mode
+for_window [class="steam_app_.*"] fullscreen enabled
 
 # Need to autostart something after this line, for example:
 # see: launch-comp.sh
