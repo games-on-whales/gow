@@ -42,5 +42,5 @@ function launcher() {
 
   #
   # Start Xwayland and xfce4
-  dbus-run-session -- bash -E -c "WAYLAND_DISPLAY=\$REAL_WAYLAND_DISPLAY Xwayland :0 & sleep 2 && xfce4-session"
+  dbus-run-session -- bash -E -c "WAYLAND_DISPLAY=\$REAL_WAYLAND_DISPLAY Xwayland :0 & sleep 2 && startxfce4"
 }

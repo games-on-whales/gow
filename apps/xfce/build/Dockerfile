@@ -52,7 +52,7 @@ RUN \
     apt-get install -y $DE_PACKAGES && \
     # \
     # Install additional apps \
-    apt-get install -y $ADDITIONAL_PACKAGES && \
+    apt-get install -y --no-install-recommends $ADDITIONAL_PACKAGES && \
     # \
     # Fixes \
     rm -f \
@@ -60,8 +60,7 @@ RUN \
     # \
     # Clean \
     apt update && \
-    apt-get remove -y \
-	foot && \
+    apt-get remove -y foot && \
     apt autoremove -y &&\
     apt clean && \
     rm -rf \
