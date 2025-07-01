@@ -23,7 +23,7 @@ jobs:
     with:
       docker_path: "images"
       image_name: "base"
-      platforms: "linux/amd64,linux/arm64"
+      platforms: "linux/amd64"
     secrets: inherit
 
   base-app:
@@ -33,7 +33,7 @@ jobs:
       docker_path: "images"
       image_name: "base-app"
       base_image: "${{ needs.base.outputs.image_tag }}"
-      platforms: "linux/amd64,linux/arm64"
+      platforms: "linux/amd64"
     secrets: inherit
 
   base-emu:
@@ -69,9 +69,9 @@ jobs:
     strategy:
       matrix:
         image:
-          - { name: pulseaudio,            docker_path: images, platforms: "linux/amd64,linux/arm64" }
+          - { name: pulseaudio,            docker_path: images, platforms: "linux/amd64" }
           - { name: retroarch,             docker_path: apps,   platforms: "linux/amd64" }
-          - { name: firefox,               docker_path: apps,   platforms: "linux/amd64,linux/arm64" }
+          - { name: firefox,               docker_path: apps,   platforms: "linux/amd64" }
           - { name: steam,                 docker_path: apps,   platforms: "linux/amd64" }
           - { name: lutris,                docker_path: apps,   platforms: "linux/amd64" }
           - { name: heroic-games-launcher, docker_path: apps,   platforms: "linux/amd64" }

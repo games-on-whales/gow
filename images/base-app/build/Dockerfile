@@ -88,6 +88,8 @@ ENV PATH="/usr/games/:${PATH}"
 # We had lots of issues with Sway 1.10.1
 # So we are manually reverting back to 1.9 from Ubuntu 24.04
 RUN <<_INSTALL_SWAY
+#!/bin/bash
+set -e
 curl -L -o sway.deb https://launchpad.net/ubuntu/+source/sway/1.9-1build2/+build/28013086/+files/sway_1.9-1build2_amd64.deb
 apt update
 apt install -y --no-install-recommends ./sway.deb
