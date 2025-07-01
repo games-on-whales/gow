@@ -1,6 +1,6 @@
-ARG BASE_IMAGE
+ARG BASE_IMAGE=ghcr.io/games-on-whales/base:edge
 #################################
-FROM ${BASE_IMAGE} as sdl-jstest-builder
+FROM ${BASE_IMAGE} AS sdl-jstest-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -53,8 +53,8 @@ ARG REQUIRED_PACKAGES="\
     fonts-noto-cjk \
     locales \
     gamescope \
-    sway xwayland kitty nano \
-    waybar fonts-font-awesome  xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
+    xwayland kitty nano \
+    waybar fonts-font-awesome xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     "
 
 RUN apt-get update -y && \
@@ -81,6 +81,18 @@ COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2
 
 # Add /usr/games/ to $PATH in order to be able to run gamescope
 ENV PATH="/usr/games/:${PATH}"
+
+#################################
+# Install Sway
+#################################
+# We had lots of issues with Sway 1.10.1
+# So we are manually reverting back to 1.9 from Ubuntu 24.04
+RUN <<_INSTALL_SWAY
+curl -L -o sway.deb https://launchpad.net/ubuntu/+source/sway/1.9-1build2/+build/28013086/+files/sway_1.9-1build2_amd64.deb
+apt update
+apt install -y --no-install-recommends ./sway.deb
+rm -rf /var/lib/apt/lists/* ./sway.deb
+_INSTALL_SWAY
 
 #################################
 # Install MangoHuD

@@ -104,11 +104,11 @@ bar swaybar_command waybar
 # App fixes
 # You can get more info about windows at runtime with `swaymsg -t get_tree`
 # Steam big picture fix (force windowing mode)
-for_window [class="steam"] fullscreen disabled
+# for_window [class="steam"] fullscreen disabled
 # Force steam games in fullscreen mode
-for_window [class="steam_app_.*"] fullscreen enabled
+# for_window [class="steam_app_.*"] fullscreen enabled
 # Force ES-DE to start windowed
-for_window [class="es-de"] fullscreen disabled
+# for_window [class="es-de"] fullscreen disabled
 
 # Need to autostart something after this line, for example:
 # see: launch-comp.sh
