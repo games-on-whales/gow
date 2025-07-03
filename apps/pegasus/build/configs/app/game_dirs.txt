@@ -43,3 +43,4 @@
 /ROMs/wonderswan
 /ROMs/wonderswancolor
 /ROMs/xbox
+/ROMs/xbox360

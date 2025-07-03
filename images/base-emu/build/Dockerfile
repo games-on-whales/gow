@@ -61,26 +61,43 @@ mkdir -p $EMULATORS_DIR
 cd $EMULATORS_DIR
 
 github_download(){
-    curl -H "X-GitHub-Api-Version: "$(GITHUB_REST_VERSION)"" \
-        https://api.github.com/repos/$1/releases/latest | \
-        jq ".assets[]|select(.name|endswith(\".AppImage\"))${3}.browser_download_url" | \
-        xargs wget -O $2
+    local repo="$1"
+    local out_file="$2"
+    local extra_filter="$3"
+    local api_suffix="$4"
+    local ext=".${out_file##*.}"
+    local url="https://api.github.com/repos/${repo}/releases${api_suffix}"
+    local jq_prefix=""
+    if [ -z "$api_suffix" ]; then
+        jq_prefix='[.[] | select(.prerelease==false and .draft==false)][0]'
+    fi
+    curl -s "$url" | \
+    jq "${jq_prefix}.assets[]|select(.name|endswith(\"${ext}\"))${extra_filter}.browser_download_url" | \
+    xargs wget -O "$out_file"
 }
 
 echo "**** Downloading PCSX2 AppImage ****"
-github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage"
+github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage" "" "/latest"
 
 echo "**** Downloading XEMU AppImage ****"
-github_download "xemu-project/xemu" "xemu-emu.AppImage" '|select(.name|contains("dbg")|not)'
+github_download "xemu-project/xemu" "xemu-emu.AppImage" "|select(.name|contains(\"dbg\")|not)|select(.name|contains(\"x86_64\"))" "/latest"
 
 echo "**** Downloading RPCS3 AppImage ****"
-github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage"
+github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage" "" "/latest"
 
 echo "**** Downloading CEMU AppImage ****"
-github_download "cemu-project/Cemu" "cemu-emu.AppImage"
+github_download "cemu-project/Cemu" "cemu-emu.AppImage" "" "/latest"
 
 echo "**** Downloading Dolphin AppImage ****"
-github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" '|select(.name|contains("dwarfs-x86_64"))'
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
+
+echo "**** Downloading Xenia Canary ****"
+github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
+
+echo "**** Extracting Xenia Canary ****"
+mkdir -p xenia-canary
+tar -xf xenia_canary_linux.tar.gz -C xenia-canary
+rm xenia_canary_linux.tar.gz
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
