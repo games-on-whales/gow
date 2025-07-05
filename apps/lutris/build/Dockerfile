@@ -15,6 +15,8 @@ ARG REQUIRED_PACKAGES=" \
      gir1.2-gtk-3.0 \
      gir1.2-notify-0.7 \
      gir1.2-webkit2-4.1 \
+     libgdk-pixbuf2* \
+     librsvg2* \
      libasound2-plugins:i386 \
      libdbus-1-3:i386 \
      libfreetype6:i386 \
