@@ -45,6 +45,11 @@ release: 2023-09-22
 file: /Applications/launchers/xemu.sh
 description: xemu is an active fork of the XQEMU project, which is based on the very popular and highly actively maintained QEMU full system emulator project. xemu is a low-level, full-system emulator which emulates the actual hardware of the Xbox.
 
+game: Emulators - Xenia Canary
+release: 2024-05-01
+file: /Applications/launchers/xenia.sh
+description: Xenia Canary is an experimental Xbox 360 emulator for Linux, based on the Xenia project. This version is the latest Canary build for Linux, providing improved compatibility and features over the mainline version.
+
 game: Tools - Download Pegasus Themes
 release: 2023-09-22
 file: /bin/download_pegasus_themes.sh

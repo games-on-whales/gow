@@ -108,4 +108,11 @@ if [ -f "/bioses/xbox_hdd.qcow2" ]; then
     cp -u /bioses/xbox_hdd.qcow2 $XEMU_CFG_DIR/xemu/xbox_hdd.qcow2
 fi
 
+#########################################
+# Configure Xenia Canary
+#########################################
+XENIA_CFG_DIR=$HOME/.config/xenia-canary
+mkdir -p $XENIA_CFG_DIR
+# (Add more config copy/setup here if needed in the future)
+
 launcher /bin/pegasus.sh
