@@ -92,6 +92,7 @@ declare -A EMULATOR_COMMAND=( \
 ["wonderswan"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
 ["wonderswancolor"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
 ["xbox"]="/Applications/xemu-emu.AppImage --appimage-extract-and-run -full-screen -dvd_path \"${ROM}\"" \
+["xbox360"]="/Applications/launchers/xenia.sh --fullscreen \"${ROM}\"" \
 )
 
 echo "Running command: ${EMULATOR_COMMAND[${EMULATOR}]}"
