@@ -109,7 +109,7 @@ tar xf MangoHud.tar.gz
 cd MangoHud
 tar xf MangoHud-package.tar
 chmod +x ./mangohud-setup.sh && ./mangohud-setup.sh install
-rm -rf /MangoHud
+rm -rf /MangoHud*
 _INSTALL_MANGO
 
 # Configure the default directory to be the 'retro' users home directory
