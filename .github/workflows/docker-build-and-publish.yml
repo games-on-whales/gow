@@ -69,7 +69,7 @@ jobs:
             else
               # For branches, we use the repository owner as namespace
               owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
-              GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
+              GHCR_NAMESPACE="${owner}/gow"
             fi
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
             ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
