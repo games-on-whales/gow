@@ -68,6 +68,7 @@ jobs:
               GHCR_NAMESPACE="${owner}/gow"
             else
               # For branches, we use the repository owner as namespace
+              owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
               GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
             fi
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
