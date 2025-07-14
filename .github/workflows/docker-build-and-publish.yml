@@ -64,10 +64,12 @@ jobs:
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               # For PRs, we use the forked repository owner as namespace
               # This allows us to pull build caches from the forked repository
-              GHCR_NAMESPACE="${{ github.event.pull_request.head.repo.owner.login }}/gow"
+              owner=$(echo ${{ github.event.pull_request.head.repo.owner.login }} | tr '[:upper:]' '[:lower:]')
+              GHCR_NAMESPACE="${owner}/gow"
             else
               # For branches, we use the repository owner as namespace
-              GHCR_NAMESPACE="${{ github.repository_owner }}/gow"
+              owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+              GHCR_NAMESPACE="${owner}/gow"
             fi
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
             ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
