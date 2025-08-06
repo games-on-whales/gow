@@ -1,0 +1,6 @@
+{
+  "runtime": {
+    "name": "ALVR",
+    "library_path": "/opt/alvr/lib64/libalvr_openxr.so"
+  }
+}

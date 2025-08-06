@@ -1,0 +1,107 @@
+{
+  "version": "20.0.0",
+  "session_settings": {
+    "video": {
+      "preferred_fps": 90,
+      "resolution_dropdown": "2880x1700",
+      "render_resolution": {
+        "scale": 1.0,
+        "absolute_width": null
+      },
+      "recommended_target_resolution": {
+        "x": 2880,
+        "y": 1700
+      },
+      "adapt_to_framerate": {
+        "enabled": true,
+        "target_framerate": 90,
+        "max_resolution_scale": 1.0,
+        "min_resolution_scale": 0.8
+      },
+      "bitrate": {
+        "mode": "ConstantBitrate",
+        "content": 100000000
+      },
+      "color_correction": {
+        "brightness": 0.0,
+        "contrast": 0.0,
+        "saturation": 0.5,
+        "gamma": 2.2,
+        "sharpening": 0.0
+      },
+      "codec": "H264",
+      "client_request_realtime_decoder": false
+    },
+    "audio": {
+      "microphone": {
+        "devices_dropdown": "Default",
+        "input_device": {
+          "type": "name",
+          "content": "default"
+        },
+        "config": {
+          "average_buffering_ms": 50,
+          "batch_ms": 10
+        }
+      },
+      "game_audio": {
+        "devices_dropdown": "Default",
+        "output_device": {
+          "type": "name", 
+          "content": "default"
+        },
+        "config": {
+          "average_buffering_ms": 150,
+          "batch_ms": 10
+        }
+      }
+    },
+    "headset": {
+      "mode": "Quest3",
+      "universe_id": 2,
+      "serial_number": "1WMGH000XX0000",
+      "tracking_ref_only": false,
+      "tracking_frame_offset": 0,
+      "position_offset": [0.0, 0.0, 0.0],
+      "force_3dof": false,
+      "controllers": {
+        "enabled": true,
+        "mode": "Quest3Touch",
+        "tracking_ref_only": false,
+        "tracking_frame_offset": 0,
+        "position_offset_left": [-0.1, 0.0, 0.0],
+        "rotation_offset_left": [0.0, 0.0, 0.0],
+        "position_offset_right": [0.1, 0.0, 0.0],
+        "rotation_offset_right": [0.0, 0.0, 0.0]
+      }
+    },
+    "connection": {
+      "stream_protocol": "udp",
+      "client_discovery": {
+        "auto_trust_clients": false
+      },
+      "stream_port": 9943,
+      "aggressive_keyframe_resend": false,
+      "on_connect_script": "",
+      "on_disconnect_script": "",
+      "enable_fec": true
+    },
+    "extra": {
+      "patches": {
+        "remove_sync": false,
+        "linux_async_reprojection": true
+      },
+      "capture": {
+        "startup_video_recording": false,
+        "capture_frame_dir": ""
+      },
+      "logging": {
+        "log_to_disk": true,
+        "notification_level": "Warning",
+        "log_button_presses": false,
+        "log_tracking": false,
+        "log_haptics": false
+      }
+    }
+  }
+}

@@ -73,6 +73,7 @@ RUN \
 # Replace launch scripts
 COPY --chmod=777 scripts/launch-comp.sh scripts/startup.sh /opt/gow/
 COPY --chmod=777 scripts/startdbus.sh /opt/gow/startdbus
+COPY --chmod=755 scripts/root-shell.sh /usr/local/bin/root-shell
 
 #
 # Include default xfce config
@@ -83,8 +84,9 @@ COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
 COPY scripts/locale /etc/default/locale
 
 # 
-# Allow anyone to start dbus without password
-RUN echo "\nALL ALL=NOPASSWD: /opt/gow/startdbus" >> /etc/sudoers
+# Allow retro user full sudo access without password
+RUN echo "\nretro ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo "\nALL ALL=NOPASSWD: /opt/gow/startdbus" >> /etc/sudoers
 
 # 
 # Fix bwarp perms for flatpaks

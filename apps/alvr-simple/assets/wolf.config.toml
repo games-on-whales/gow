@@ -1,0 +1,36 @@
+[[apps]]
+title = 'ALVR VR Server'
+icon_png_path = "https://games-on-whales.github.io/wildlife/apps/alvr-simple/assets/icon.png"
+
+[apps.runner]
+type = 'docker'
+name = 'WolfALVR'
+image = 'ghcr.io/games-on-whales/alvr:edge'
+env = [
+    'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*',
+    'ALVR_SERVER_HOST=0.0.0.0',
+    'ALVR_WEB_PORT=8082',
+    'RUN_SWAY=true'
+]
+devices = []
+mounts = [
+    'alvr-config:/home/retro/.local/share/alvr:rw'
+]
+ports = [
+    '8082:8082/tcp',  # ALVR Web Interface
+    '9943:9943/udp',  # ALVR Streaming Port 1
+    '9944:9944/udp'   # ALVR Streaming Port 2
+]
+base_create_json = """
+{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": true,
+    "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+    "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  },
+  "User": "0:0"
+}
+\
+"""
