@@ -76,7 +76,7 @@ ARG DEV_PACKAGES=" \
     libxrandr2 \
     libgbm1 \
     libxss1 \
-    libasound2 \
+    libasound2t64 \
     libatspi2.0-0 \
     libgtk-3-0 \
     libxshmfence1 \
@@ -115,14 +115,40 @@ RUN \
     apt-get install -y $CORE_PACKAGES && \
     # \
     # Install desktop environment \
-    apt-get install -y $DE_PACKAGES && \
-    # \
-    # Install additional apps \
-    apt-get install -y --no-install-recommends $ADDITIONAL_PACKAGES && \
-    # \
-    # Install development packages \
-    apt-get install -y --no-install-recommends $DEV_PACKAGES && \
-    # \
+    apt-get install -y $DE_PACKAGES
+
+# Install additional packages in separate layer for better caching
+RUN apt-get install -y --no-install-recommends $ADDITIONAL_PACKAGES
+
+# Install development packages
+RUN apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        python3 \
+        python3-pip \
+        nodejs \
+        npm \
+        default-jdk \
+        mono-complete \
+        libnss3-dev \
+        libatk-bridge2.0-dev \
+        libdrm2 \
+        libxkbcommon-dev \
+        libxcomposite1 \
+        libxdamage1 \
+        libxrandr2 \
+        libgbm1 \
+        libxss1 \
+        libatspi2.0-0 \
+        libgtk-3-0 \
+        libxshmfence1 && \
+    # Try to install .NET SDK (may fail on some Ubuntu versions) \
+    (apt-get install -y dotnet-sdk-8.0 || apt-get install -y dotnet-sdk-6.0 || echo ".NET SDK not available - continuing") && \
+    # Try both package names for libasound2 \
+    (apt-get install -y libasound2t64 || apt-get install -y libasound2 || echo "Audio library package not found - continuing")
+
+# Install applications
+RUN \
     # Install Visual Studio Code \
     apt-get install -y code && \
     # \
@@ -132,8 +158,10 @@ RUN \
     # Install Steam \
     dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y steam-installer && \
-    # \
+    apt-get install -y steam-installer
+
+# Install Unity Hub and setup applications
+RUN \
     # Download and install Unity Hub \
     wget -qO unity-hub.AppImage https://public-cdn.cloud.unity3d.com/hub/prod/UnityHub.AppImage && \
     chmod +x unity-hub.AppImage && \
@@ -150,10 +178,13 @@ Terminal=false\n\
 Type=Application\n\
 Categories=Development;' > /usr/share/applications/unity-hub.desktop && \
     # \
-    # Download Unity Hub icon \
-    wget -qO /usr/share/pixmaps/unity-hub.png https://unity.com/favicon.ico || echo "Icon download failed" && \
-    # \
-    # Configure file manager permissions \
+    # Download Unity Hub icon (allow failure) \
+    wget -qO /usr/share/pixmaps/unity-hub.png https://unity.com/favicon.ico || echo "Icon download failed"
+
+# Setup user permissions and directories
+RUN \
+    # Create fuse group if it doesn't exist and add retro user \
+    groupadd -f fuse && \
     usermod -a -G fuse retro && \
     # \
     # Set up Wolf directories with proper permissions \
@@ -168,8 +199,10 @@ Categories=Development;' > /usr/share/applications/unity-hub.desktop && \
     # Set permissions \
     chown -R retro:retro /mnt/Wolf && \
     chown -R retro:retro /home/retro && \
-    chown -R retro:retro /shared && \
-    # \
+    chown -R retro:retro /shared
+
+# Cleanup
+RUN \
     # Fixes \
     rm -f /etc/xdg/autostart/xscreensaver.desktop && \
     # \

@@ -1,11 +1,11 @@
 [[apps]]
-title = 'Desktop (xfce)'
+title = 'Desktop (xfce) - Enhanced Development'
 icon_png_path = "https://games-on-whales.github.io/wildlife/apps/xfce/assets/icon.png"
 
 [apps.runner]
 type = 'docker'
 name = 'WolfXFCE'
-image = 'ghcr.io/games-on-whales/xfce:edge'
+image = 'ghcr.io/devilblader87/gow/xfce:latest'
 env = ['GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
 devices = []
 mounts = [
