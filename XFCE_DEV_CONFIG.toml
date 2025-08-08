@@ -1,11 +1,14 @@
+# Enhanced XFCE Development Desktop Configuration
+# Add this to your Wolf config.toml
+
 [[apps]]
-title = 'Desktop (xfce)'
+title = 'Development Desktop (XFCE)'
 icon_png_path = "https://games-on-whales.github.io/wildlife/apps/xfce/assets/icon.png"
 
 [apps.runner]
 type = 'docker'
-name = 'WolfXFCE'
-image = 'ghcr.io/games-on-whales/xfce:edge'
+name = 'WolfXFCEDev'
+image = 'ghcr.io/devilblader87/gow/xfce-dev:edge'
 env = ['GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
 devices = []
 mounts = [

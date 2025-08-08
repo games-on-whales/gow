@@ -1,0 +1,564 @@
+config_version = 5
+hostname = 'Wolf'
+uuid = 'bc768eb9-140e-42f7-a01b-aebb5a2332bb'
+
+[gstreamer.audio]
+default_audio_params = 'queue max-size-buffers=3 leaky=downstream ! audiorate ! audioconvert'
+default_opus_encoder = 'opusenc bitrate={bitrate} bitrate-type=cbr frame-size={packet_duration} bandwidth=fullband audio-type=restricted-lowdelay max-payload-size=1400'
+default_sink = '''rtpmoonlightpay_audio name=moonlight_pay packet_duration={packet_duration} encrypt={encrypt} aes_key="{aes_key}" aes_iv="{aes_iv}" !
+appsink name=wolf_udp_sink'''
+default_source = 'interpipesrc listen-to={session_id}_audio is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=3 block=false'
+
+[gstreamer.video]
+default_sink = '''rtpmoonlightpay_video name=moonlight_pay payload_size={payload_size} fec_percentage={fec_percentage} min_required_fec_packets={min_required_fec_packets} !
+appsink sync=false name=wolf_udp_sink
+'''
+default_source = 'interpipesrc listen-to={session_id}_video is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=1 leaky-type=downstream'
+
+    [gstreamer.video.defaults.nvcodec]
+    video_params = '''cudaupload !
+cudaconvertscale !
+video/x-raw(memory:CUDAMemory), width={width}, height={height}, chroma-site={color_range}, format=NV12, colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+    video_params_zero_copy = '''glupload !
+glcolorconvert !
+video/x-raw(memory:GLMemory),format=NV12, width={width}, height={height}, chroma-site={color_range}, colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+
+    [gstreamer.video.defaults.qsv]
+    video_params = '''videoconvertscale !
+video/x-raw, chroma-site={color_range}, width={width}, height={height}, format=NV12,
+colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+    video_params_zero_copy = '''vapostproc !
+video/x-raw(memory:VAMemory),format=NV12, chroma-site={color_range},
+colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+
+    [gstreamer.video.defaults.va]
+    video_params = '''vapostproc !
+video/x-raw, chroma-site={color_range}, width={width}, height={height}, format=NV12,
+colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+    video_params_zero_copy = '''vapostproc !
+video/x-raw(memory:VAMemory), format=NV12, chroma-site={color_range}, width={width}, height={height},
+colorimetry={color_space}, pixel-aspect-ratio=1/1'''
+
+    [[gstreamer.video.av1_encoders]]
+    check_elements = [ 'nvav1enc', 'cudaconvertscale', 'cudaupload' ]
+    encoder_pipeline = '''nvav1enc gop-size=-1 bitrate={bitrate} rc-mode=cbr zerolatency=true preset=p1 tune=ultra-low-latency multi-pass=two-pass-quarter !
+av1parse !
+video/x-av1, stream-format=obu-stream, alignment=frame, profile=main'''
+    plugin_name = 'nvcodec'
+
+    [[gstreamer.video.av1_encoders]]
+    check_elements = [ 'qsvav1enc', 'vapostproc' ]
+    encoder_pipeline = '''qsvav1enc gop-size=0 ref-frames=1 bitrate={bitrate} rate-control=cbr low-latency=1 target-usage=6 !
+av1parse !
+video/x-av1, stream-format=obu-stream, alignment=frame, profile=main'''
+    plugin_name = 'qsv'
+
+    [[gstreamer.video.av1_encoders]]
+    check_elements = [ 'vaav1enc', 'vapostproc' ]
+    encoder_pipeline = '''vaav1enc ref-frames=1 bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+av1parse !
+video/x-av1, stream-format=obu-stream, alignment=frame, profile=main'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.av1_encoders]]
+    check_elements = [ 'vaav1lpenc', 'vapostproc' ]
+    encoder_pipeline = '''vaav1lpenc ref-frames=1 bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+av1parse !
+video/x-av1, stream-format=obu-stream, alignment=frame, profile=main'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.av1_encoders]]
+    check_elements = [ 'av1enc' ]
+    encoder_pipeline = '''av1enc usage-profile=realtime end-usage=vbr target-bitrate={bitrate} !
+av1parse !
+video/x-av1, stream-format=obu-stream, alignment=frame, profile=main'''
+    plugin_name = 'aom'
+    video_params = '''videoconvertscale !
+videorate !
+video/x-raw, width={width}, height={height}, framerate={fps}/1, format=I420,
+chroma-site={color_range}, colorimetry={color_space}'''
+    video_params_zero_copy = '''videoconvertscale !
+videorate !
+video/x-raw, width={width}, height={height}, framerate={fps}/1, format=I420,
+chroma-site={color_range}, colorimetry={color_space}'''
+
+    [[gstreamer.video.h264_encoders]]
+    check_elements = [ 'nvh264enc', 'cudaconvertscale', 'cudaupload' ]
+    encoder_pipeline = '''nvh264enc preset=low-latency-hq zerolatency=true gop-size=0 rc-mode=cbr-ld-hq bitrate={bitrate} aud=false !
+h264parse !
+video/x-h264, profile=main, stream-format=byte-stream'''
+    plugin_name = 'nvcodec'
+
+    [[gstreamer.video.h264_encoders]]
+    check_elements = [ 'qsvh264enc', 'vapostproc' ]
+    encoder_pipeline = '''qsvh264enc b-frames=0 gop-size=0 idr-interval=1 ref-frames=1 bitrate={bitrate} rate-control=cbr target-usage=6  !
+h264parse !
+video/x-h264, profile=main, stream-format=byte-stream'''
+    plugin_name = 'qsv'
+
+    [[gstreamer.video.h264_encoders]]
+    check_elements = [ 'vah264enc', 'vapostproc' ]
+    encoder_pipeline = '''vah264enc aud=false b-frames=0 ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+h264parse !
+video/x-h264, profile=main, stream-format=byte-stream'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.h264_encoders]]
+    check_elements = [ 'vah264lpenc', 'vapostproc' ]
+    encoder_pipeline = '''vah264lpenc aud=false b-frames=0 ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+h264parse !
+video/x-h264, profile=main, stream-format=byte-stream'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.h264_encoders]]
+    check_elements = [ 'x264enc' ]
+    encoder_pipeline = '''x264enc pass=qual tune=zerolatency speed-preset=superfast b-adapt=false bframes=0 ref=1
+sliced-threads=true threads={slices_per_frame} option-string="slices={slices_per_frame}:keyint=infinite:open-gop=0"
+b-adapt=false bitrate={bitrate} aud=false !
+video/x-h264, profile=high, stream-format=byte-stream'''
+    plugin_name = 'x264'
+
+    [[gstreamer.video.hevc_encoders]]
+    check_elements = [ 'nvh265enc', 'cudaconvertscale', 'cudaupload' ]
+    encoder_pipeline = '''nvh265enc gop-size=-1 bitrate={bitrate} aud=false rc-mode=cbr zerolatency=true preset=p1 tune=ultra-low-latency multi-pass=two-pass-quarter !
+h265parse !
+video/x-h265, profile=main, stream-format=byte-stream'''
+    plugin_name = 'nvcodec'
+
+    [[gstreamer.video.hevc_encoders]]
+    check_elements = [ 'qsvh265enc', 'vapostproc' ]
+    encoder_pipeline = '''qsvh265enc b-frames=0 gop-size=0 idr-interval=1 ref-frames=1 bitrate={bitrate} rate-control=cbr low-latency=1 target-usage=6 !
+h265parse !
+video/x-h265, profile=main, stream-format=byte-stream'''
+    plugin_name = 'qsv'
+
+    [[gstreamer.video.hevc_encoders]]
+    check_elements = [ 'vah265enc', 'vapostproc' ]
+    encoder_pipeline = '''vah265enc aud=false b-frames=0 ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+h265parse !
+video/x-h265, profile=main, stream-format=byte-stream'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.hevc_encoders]]
+    check_elements = [ 'vah265lpenc', 'vapostproc' ]
+    encoder_pipeline = '''vah265lpenc aud=false b-frames=0 ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=6 !
+h265parse !
+video/x-h265, profile=main, stream-format=byte-stream'''
+    plugin_name = 'va'
+
+    [[gstreamer.video.hevc_encoders]]
+    check_elements = [ 'x265enc' ]
+    encoder_pipeline = '''x265enc tune=zerolatency speed-preset=superfast bitrate={bitrate}
+option-string="info=0:keyint=-1:qp=28:repeat-headers=1:slices={slices_per_frame}:aud=0:annexb=1:log-level=3:open-gop=0:bframes=0:intra-refresh=0" !
+video/x-h265, profile=main, stream-format=byte-stream'''
+    plugin_name = 'x265'
+    video_params = '''videoconvertscale !
+videorate !
+video/x-raw, width={width}, height={height}, framerate={fps}/1, format=I420,
+chroma-site={color_range}, colorimetry={color_space}'''
+    video_params_zero_copy = '''videoconvertscale !
+videorate !
+video/x-raw, width={width}, height={height}, framerate={fps}/1, format=I420,
+chroma-site={color_range}, colorimetry={color_space}'''
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/firefox/assets/icon.png'
+start_virtual_compositor = true
+title = 'Firefox'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": false,
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=1', 'MOZ_ENABLE_WAYLAND=1', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/firefox:edge'
+    mounts = []
+    name = 'WolfFirefox'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/retroarch/assets/icon.png'
+start_virtual_compositor = true
+title = 'RetroArch'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/retroarch:edge'
+    mounts = []
+    name = 'WolfRetroarch'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/steam/assets/icon.png'
+start_virtual_compositor = true
+title = 'Steam'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+    "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "Ulimits": [{"Name":"nofile", "Hard":10240, "Soft":10240}],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'PROTON_LOG=1', 'RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/steam:edge'
+    mounts = []
+    name = 'WolfSteam'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/pegasus/assets/icon.png'
+start_virtual_compositor = true
+title = 'Pegasus'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=1', 'GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/pegasus:edge'
+    mounts = []
+    name = 'WolfPegasus'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/lutris/assets/icon.png'
+start_virtual_compositor = true
+title = 'Lutris'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=1', 'GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/' ]
+    image = 'ghcr.io/games-on-whales/lutris:edge'
+    mounts = [ 'lutris:/var/lutris/:rw' ]
+    name = 'WolfLutris'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/prismlauncher/assets/icon.png'
+start_virtual_compositor = true
+title = 'Prismlauncher'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=1', 'GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/' ]
+    image = 'ghcr.io/games-on-whales/prismlauncher:edge'
+    mounts = []
+    name = 'Prismlauncher'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/xfce/assets/icon.png'
+title = 'Desktop (xfce)'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": true,
+    "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+    "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/xfce:edge'
+    mounts = []
+    name = 'WolfXFCE'
+    ports = []
+    type = 'docker'
+
+# Enhanced XFCE Development Desktop with Unity Hub, VS Code, Chrome, Steam
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/xfce/assets/icon.png'
+title = 'Development Desktop (XFCE)'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": true,
+    "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+    "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  },
+  "User": "0:0"
+}
+'''
+    devices = []
+    env = [ 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/devilblader87/gow/xfce-dev:edge'
+    mounts = [
+        'xfce-home:/home/retro:rw',
+        'wolf-data:/mnt/Wolf:rw',
+        'projects-data:/mnt/Wolf/Projects:rw',
+        'unity-data:/mnt/Wolf/Unity:rw',
+        'vscode-data:/mnt/Wolf/VSCode:rw',
+        'steam-data:/mnt/Wolf/Steam:rw',
+        'shared-projects:/shared/projects:rw'
+    ]
+    name = 'WolfXFCEDev'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/es-de/assets/icon.png'
+title = 'EmulationStation'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": false,
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=1', 'MOZ_ENABLE_WAYLAND=1', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/es-de:edge'
+    mounts = []
+    name = 'WolfES-DE'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+icon_png_path = 'https://games-on-whales.github.io/wildlife/apps/kodi/assets/icon.png'
+title = 'Kodi'
+
+    [apps.runner]
+    base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "Privileged": false,
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN"],
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+    devices = []
+    env = [ 'RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*' ]
+    image = 'ghcr.io/games-on-whales/kodi:edge'
+    mounts = []
+    name = 'WolfKodi'
+    ports = []
+    type = 'docker'
+
+[[apps]]
+start_audio_server = false
+start_virtual_compositor = false
+title = 'Test ball'
+
+    [apps.audio]
+    source = 'audiotestsrc wave=ticks is-live=true'
+
+    [apps.runner]
+    run_cmd = "sh -c \"while :; do echo 'running...'; sleep 10; done\""
+    type = 'process'
+
+    [apps.video]
+    source = '''videotestsrc pattern=ball flip=true is-live=true !
+video/x-raw, framerate={fps}/1
+'''
+
+[[paired_clients]]
+app_state_folder = '12366222265535536080'
+client_cert = '''-----BEGIN CERTIFICATE-----
+MIICvzCCAaegAwIBAgIBADANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhOVklE
+SUEgR2FtZVN0cmVhbSBDbGllbnQwHhcNMjQwNDIwMTY0NjIzWhcNNDQwNDE1MTY0
+NjIzWjAjMSEwHwYDVQQDDBhOVklESUEgR2FtZVN0cmVhbSBDbGllbnQwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4TEXuJbIiMUeklqFJSw8rfu6eDGIp
+2Hdw7ha+8cIJmVCgM4/DuqrE9EuyI9CmiARWq+3OaRHWGNOjzoQMK1bgpBrL7cJy
+iZhmVM+B+SjZEuEhNKiUGuLv232UDzVXDvdv1noa1k6LFlTCcT8Nl9DyFaIzaiYh
++REJq3DooWLMeg+mvVG89+IdPqHhQyuxajp2JAX8qKMmip671vZj+N+ajWNImvDc
+qOIRN2TwkcQFTWAzyIv9GP6l28BCMkSFbOeaIS45MhF1nPlTGb8D7HJHILQ8yui3
+7GV6VjKA2Gw7KzRHwtsjJYsmbYr0aoMfAdX1ArG4DDF7JI+J1OriiHe/AgMBAAEw
+DQYJKoZIhvcNAQELBQADggEBAIxcqnLJ+nK6qYAWa4D+PCAYFVtWcs4ZUG6ue2sd
+3Db3t3wEmOnE1L/r+h6Qpwl+tAuZXfNCMS/Z6ztAUu0Y5mCPoXrryFns/yZh+7Oi
+87rOkrfEVI0B42Zt3U4bkZBX3M3wS3E6o58XCgttSw3AwuEtdawkCh6/oAWIaAOO
+8TJMmWo3TLZTAZU8XSZJpancMOJwm/UhUQ8OSX1WSnZEvW5Fed7LGn9FwjM0IliY
+uhtBL/81oCgMlIIf1n6gew5tyLfogl5pj1uQ0Tr04P0GVSxXEYTKQL48/L+xWxxf
+ZzDKkx8DrSA7+6mWn2G5z46N+ZPmLOr40y9+6JKCgP+FAKA=
+-----END CERTIFICATE-----
+'''
+
+    [paired_clients.settings]
+    controllers_override = []
+    h_scroll_acceleration = 1.0
+    mouse_acceleration = 1.0
+    run_gid = 1000
+    run_uid = 1000
+    v_scroll_acceleration = 1.0
+
+[[paired_clients]]
+app_state_folder = '12366222265535536080'
+client_cert = '''-----BEGIN CERTIFICATE-----
+MIICvzCCAaegAwIBAgIBADANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhOVklE
+SUEgR2FtZVN0cmVhbSBDbGllbnQwHhcNMjQwNDIwMTY0NjIzWhcNNDQwNDE1MTY0
+NjIzWjAjMSEwHwYDVQQDDBhOVklESUEgR2FtZVN0cmVhbSBDbGllbnQwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4TEXuJbIiMUeklqFJSw8rfu6eDGIp
+2Hdw7ha+8cIJmVCgM4/DuqrE9EuyI9CmiARWq+3OaRHWGNOjzoQMK1bgpBrL7cJy
+iZhmVM+B+SjZEuEhNKiUGuLv232UDzVXDvdv1noa1k6LFlTCcT8Nl9DyFaIzaiYh
++REJq3DooWLMeg+mvVG89+IdPqHhQyuxajp2JAX8qKMmip671vZj+N+ajWNImvDc
+qOIRN2TwkcQFTWAzyIv9GP6l28BCMkSFbOeaIS45MhF1nPlTGb8D7HJHILQ8yui3
+7GV6VjKA2Gw7KzRHwtsjJYsmbYr0aoMfAdX1ArG4DDF7JI+J1OriiHe/AgMBAAEw
+DQYJKoZIhvcNAQELBQADggEBAIxcqnLJ+nK6qYAWa4D+PCAYFVtWcs4ZUG6ue2sd
+3Db3t3wEmOnE1L/r+h6Qpwl+tAuZXfNCMS/Z6ztAUu0Y5mCPoXrryFns/yZh+7Oi
+87rOkrfEVI0B42Zt3U4bkZBX3M3wS3E6o58XCgttSw3AwuEtdawkCh6/oAWIaAOO
+8TJMmWo3TLZTAZU8XSZJpancMOJwm/UhUQ8OSX1WSnZEvW5Fed7LGn9FwjM0IliY
+uhtBL/81oCgMlIIf1n6gew5tyLfogl5pj1uQ0Tr04P0GVSxXEYTKQL48/L+xWxxf
+ZzDKkx8DrSA7+6mWn2G5z46N+ZPmLOr40y9+6JKCgP+FAKA=
+-----END CERTIFICATE-----
+'''
+
+    [paired_clients.settings]
+    controllers_override = []
+    h_scroll_acceleration = 1.0
+    mouse_acceleration = 1.0
+    run_gid = 1000
+    run_uid = 1000
+    v_scroll_acceleration = 1.0
+
+[[paired_clients]]
+app_state_folder = '12988891822358115678'
+client_cert = '''-----BEGIN CERTIFICATE-----
+MIICvzCCAaegAwIBAgIBADANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhOVklE
+SUEgR2FtZVN0cmVhbSBDbGllbnQwHhcNMjUwODAxMTgxMzM1WhcNNDUwNzI3MTgx
+MzM1WjAjMSEwHwYDVQQDDBhOVklESUEgR2FtZVN0cmVhbSBDbGllbnQwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7mRS0gA/3lG5Kq0yM6IN58eCqiL4R
+YC5k9RfVqLXNlTe/4Vua8P/12pzFgne2vKMorLkk6bb6yKX4U9sAQwJJxHKANwJ/
+PZiZfCFN/poZn3hgl8/VOmJ0ZlsNPh2KDgNCsu3aCtNvjHen3DBQJkhj5jeT6OmD
+CdP7aJ+s+wLiW9I7OO5AM+0eFvGCI+Pc+FCyULT9/oKFSBQQgOU9qeOqnZb84s4A
+Tr+ERtDOzqQ4IWMP5ZpEXnmltklxBaU5W9UNFXxccycdkNhsxzhrIXlmx43TjNox
+JufaMa7Eyv2zL2SI3u2SbR5K2sk465JSRvvqT4Awq4QezTLlEkaySEdLAgMBAAEw
+DQYJKoZIhvcNAQELBQADggEBAK/xX44s8S1UygfHl403bYAFwlPHmju+BkVsoJlf
+byx5ef3pi2En9GnRkXOTTZE/4yHEVauFcLy+ql7dS2gSLOAVvv7+MzCKQJtd48A9
+7WulBQ5xl/BBa3L/J/3IDmd+rJvCPJ/saQQDRgMgh4Qxwr50otOu3EPKgCr0dyNz
+UByt9yRe8KQf/0ufz65uxI8s4sLDozlVaHUCM/HZSDMOgkFcUWletxYXqrs7SIH3
+QkSKrIJaEnnyhFFDa3hryRH90p/KvDOOp+h55rBwFGaP4QzfTW+hy1gossoXhUhL
+Em5IPeOgvaTftwJnveZgYJdLReT0q/aSr6wEwCoY1hoE4xg=
+-----END CERTIFICATE-----
+'''
+
+    [paired_clients.settings]
+    controllers_override = []
+    h_scroll_acceleration = 1.0
+    mouse_acceleration = 1.0
+    run_gid = 1000
+    run_uid = 1000
+    v_scroll_acceleration = 1.0
+
+[[paired_clients]]
+app_state_folder = '12366222265535536080'
+client_cert = '''-----BEGIN CERTIFICATE-----
+MIICvzCCAaegAwIBAgIBADANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhOVklE
+SUEgR2FtZVN0cmVhbSBDbGllbnQwHhcNMjQwNDIwMTY0NjIzWhcNNDQwNDE1MTY0
+NjIzWjAjMSEwHwYDVQQDDBhOVklESUEgR2FtZVN0cmVhbSBDbGllbnQwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4TEXuJbIiMUeklqFJSw8rfu6eDGIp
+2Hdw7ha+8cIJmVCgM4/DuqrE9EuyI9CmiARWq+3OaRHWGNOjzoQMK1bgpBrL7cJy
+iZhmVM+B+SjZEuEhNKiUGuLv232UDzVXDvdv1noa1k6LFlTCcT8Nl9DyFaIzaiYh
++REJq3DooWLMeg+mvVG89+IdPqHhQyuxajp2JAX8qKMmip671vZj+N+ajWNImvDc
+qOIRN2TwkcQFTWAzyIv9GP6l28BCMkSFbOeaIS45MhF1nPlTGb8D7HJHILQ8yui3
+7GV6VjKA2Gw7KzRHwtsjJYsmbYr0aoMfAdX1ArG4DDF7JI+J1OriiHe/AgMBAAEw
+DQYJKoZIhvcNAQELBQADggEBAIxcqnLJ+nK6qYAWa4D+PCAYFVtWcs4ZUG6ue2sd
+3Db3t3wEmOnE1L/r+h6Qpwl+tAuZXfNCMS/Z6ztAUu0Y5mCPoXrryFns/yZh+7Oi
+87rOkrfEVI0B42Zt3U4bkZBX3M3wS3E6o58XCgttSw3AwuEtdawkCh6/oAWIaAOO
+8TJMmWo3TLZTAZU8XSZJpancMOJwm/UhUQ8OSX1WSnZEvW5Fed7LGn9FwjM0IliY
+uhtBL/81oCgMlIIf1n6gew5tyLfogl5pj1uQ0Tr04P0GVSxXEYTKQL48/L+xWxxf
+ZzDKkx8DrSA7+6mWn2G5z46N+ZPmLOr40y9+6JKCgP+FAKA=
+-----END CERTIFICATE-----
+'''
+
+    [paired_clients.settings]
+    controllers_override = []
+    h_scroll_acceleration = 1.0
+    mouse_acceleration = 1.0
+    run_gid = 1000
+    run_uid = 1000
+    v_scroll_acceleration = 1.0
+
+[[paired_clients]]
+app_state_folder = '12988891822358115678'
+client_cert = '''-----BEGIN CERTIFICATE-----
+MIICvzCCAaegAwIBAgIBADANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhOVklE
+SUEgR2FtZVN0cmVhbSBDbGllbnQwHhcNMjUwODAxMTgxMzM1WhcNNDUwNzI3MTgx
+MzM1WjAjMSEwHwYDVQQDDBhOVklESUEgR2FtZVN0cmVhbSBDbGllbnQwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7mRS0gA/3lG5Kq0yM6IN58eCqiL4R
+YC5k9RfVqLXNlTe/4Vua8P/12pzFgne2vKMorLkk6bb6yKX4U9sAQwJJxHKANwJ/
+PZiZfCFN/poZn3hgl8/VOmJ0ZlsNPh2KDgNCsu3aCtNvjHen3DBQJkhj5jeT6OmD
+CdP7aJ+s+wLiW9I7OO5AM+0eFvGCI+Pc+FCyULT9/oKFSBQQgOU9qeOqnZb84s4A
+Tr+ERtDOzqQ4IWMP5ZpEXnmltklxBaU5W9UNFXxccycdkNhsxzhrIXlmx43TjNox
+JufaMa7Eyv2zL2SI3u2SbR5K2sk465JSRvvqT4Awq4QezTLlEkaySEdLAgMBAAEw
+DQYJKoZIhvcNAQELBQADggEBAK/xX44s8S1UygfHl403bYAFwlPHmju+BkVsoJlf
+byx5ef3pi2En9GnRkXOTTZE/4yHEVauFcLy+ql7dS2gSLOAVvv7+MzCKQJtd48A9
+7WulBQ5xl/BBa3L/J/3IDmd+rJvCPJ/saQQDRgMgh4Qxwr50otOu3EPKgCr0dyNz
+UByt9yRe8KQf/0ufz65uxI8s4sLDozlVaHUCM/HZSDMOgkFcUWletxYXqrs7SIH3
+QkSKrIJaEnnyhFFDa3hryRH90p/KvDOOp+h55rBwFGaP4QzfTW+hy1gossoXhUhL
+Em5IPeOgvaTftwJnveZgYJdLReT0q/aSr6wEwCoY1hoE4xg=
+-----END CERTIFICATE-----
+'''
+
+    [paired_clients.settings]
+    controllers_override = []
+    h_scroll_acceleration = 1.0
+    mouse_acceleration = 1.0
+    run_gid = 1000
+    run_uid = 1000
+    v_scroll_acceleration = 1.0
