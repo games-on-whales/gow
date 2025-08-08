@@ -210,5 +210,10 @@ RUN chmod u+s /usr/bin/bwrap
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
+# Enhanced XFCE Development Environment - Build $(date +%Y%m%d)
+# Includes Unity Hub, VS Code, Chrome, Steam, and development tools
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source=$IMAGE_SOURCE
+LABEL org.opencontainers.image.title="Enhanced XFCE Development Environment"
+LABEL org.opencontainers.image.description="XFCE desktop with Unity Hub, VS Code, Chrome, Steam, and development tools"

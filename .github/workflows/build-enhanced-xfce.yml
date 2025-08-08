@@ -1,0 +1,149 @@
+name: Build Enhanced XFCE Container
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_to_registry:
+        description: 'Push to GitHub Container Registry'
+        type: boolean
+        default: true
+      image_tag:
+        description: 'Image tag (default: latest)'
+        type: string
+        default: 'latest'
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/xfce/**'
+      - 'build-xfce-enhanced.sh'
+      - '.github/workflows/build-enhanced-xfce.yml'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/xfce-enhanced
+
+jobs:
+  build-base-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      base-image: ${{ steps.base.outputs.image }}
+      base-app-image: ${{ steps.base-app.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Base Image
+        id: base
+        run: |
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ github.repository }}/base:${{ github.sha }}"
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag "${IMAGE_TAG}" \
+            --push \
+            images/base/build/
+          echo "image=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Build Base-App Image
+        id: base-app
+        run: |
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ github.repository }}/base-app:${{ github.sha }}"
+          docker buildx build \
+            --platform linux/amd64 \
+            --build-arg BASE_IMAGE="${{ steps.base.outputs.image }}" \
+            --tag "${IMAGE_TAG}" \
+            --push \
+            images/base-app/build/
+          echo "image=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+  build-enhanced-xfce:
+    needs: build-base-images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=commit-
+            type=raw,value=${{ inputs.image_tag || 'latest' }}
+            type=raw,value=enhanced
+          labels: |
+            org.opencontainers.image.title=Enhanced XFCE Development Environment
+            org.opencontainers.image.description=XFCE desktop with Unity Hub, VS Code, Chrome, Steam, and development tools
+            org.opencontainers.image.vendor=Games on Whales
+
+      - name: Build and push Enhanced XFCE image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/xfce/build
+          platforms: linux/amd64
+          push: ${{ inputs.push_to_registry != false }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_APP_IMAGE=${{ needs.build-base-images.outputs.base-app-image }}
+            IMAGE_SOURCE=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate summary
+        run: |
+          echo "## 🚀 Enhanced XFCE Container Built Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Container Details:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry:** ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tags:** ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 What's Included:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Unity Hub for game development" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Visual Studio Code editor" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Google Chrome browser" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Steam gaming platform" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Enhanced file manager with full access" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Development tools (Git, Node.js, Python, .NET)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Persistent storage configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Update your Wolf config.toml to use: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag || 'latest' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Restart Wolf server: \`sudo systemctl restart wolf\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Connect via Moonlight to access your enhanced XFCE desktop" >> $GITHUB_STEP_SUMMARY
+
+      - name: Output image information
+        run: |
+          echo "Enhanced XFCE image built and pushed successfully!"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag || 'latest' }}"
+          echo "You can now use this image in your Wolf configuration."
