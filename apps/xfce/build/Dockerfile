@@ -181,17 +181,28 @@ Categories=Development;' > /usr/share/applications/unity-hub.desktop && \
     # Download Unity Hub icon (allow failure) \
     wget -qO /usr/share/pixmaps/unity-hub.png https://unity.com/favicon.ico || echo "Icon download failed"
 
-# Setup user permissions and directories
+# Setup user and groups
 RUN \
-    # Create fuse group if it doesn't exist and add retro user \
+    # Create retro user if it doesn't exist \
+    if ! id "retro" &>/dev/null; then \
+        useradd -m -s /bin/bash -u 1000 retro; \
+    fi && \
+    # Create fuse group if it doesn't exist \
     groupadd -f fuse && \
-    usermod -a -G fuse retro && \
-    # \
+    # Add retro user to fuse group \
+    usermod -a -G fuse retro
+
+# Setup directories
+RUN \
     # Set up Wolf directories with proper permissions \
     mkdir -p /mnt/Wolf/Projects /mnt/Wolf/Unity /mnt/Wolf/Steam /mnt/Wolf/VSCode /mnt/Wolf/Downloads /mnt/Wolf/Documents && \
     mkdir -p /home/retro/Projects /home/retro/Unity /home/retro/Downloads /home/retro/Documents && \
-    mkdir -p /shared/projects /shared/unity /shared/downloads /shared/documents && \
-    # Create symlinks to Wolf directories \
+    mkdir -p /shared/projects /shared/unity /shared/downloads /shared/documents
+
+# Setup symlinks and permissions
+RUN \
+    # Create symlinks to Wolf directories (remove existing first if they exist) \
+    rm -rf /home/retro/Projects /home/retro/Unity /home/retro/Downloads /home/retro/Documents && \
     ln -sf /mnt/Wolf/Projects /home/retro/Projects && \
     ln -sf /mnt/Wolf/Unity /home/retro/Unity && \
     ln -sf /mnt/Wolf/Downloads /home/retro/Downloads && \

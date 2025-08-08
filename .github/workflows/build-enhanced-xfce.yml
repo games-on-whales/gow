@@ -11,6 +11,14 @@ on:
         description: 'Image tag (default: latest)'
         type: string
         default: 'latest'
+      use_existing_base:
+        description: 'Use existing base images (skip rebuilding base/base-app)'
+        type: boolean
+        default: true
+      base_app_image:
+        description: 'Base app image to use (if using existing)'
+        type: string
+        default: 'ghcr.io/devilblader87/gow/base-app:latest'
   push:
     branches:
       - master
@@ -25,6 +33,7 @@ env:
 
 jobs:
   build-base-images:
+    if: ${{ inputs.use_existing_base != true }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,6 +80,7 @@ jobs:
 
   build-enhanced-xfce:
     needs: build-base-images
+    if: always()
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -114,7 +124,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            BASE_APP_IMAGE=${{ needs.build-base-images.outputs.base-app-image }}
+            BASE_APP_IMAGE=${{ needs.build-base-images.outputs.base-app-image || inputs.base_app_image }}
             IMAGE_SOURCE=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
