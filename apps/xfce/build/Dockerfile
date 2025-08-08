@@ -4,6 +4,14 @@ ARG BASE_APP_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+# Debug: Check what users exist in base image
+RUN echo "=== Base Image Debug Info ===" && \
+    echo "Users in base image:" && \
+    cat /etc/passwd && \
+    echo "Groups in base image:" && \
+    cat /etc/group && \
+    echo "=========================="
+
 ARG CORE_PACKAGES=" \
     lsb-release \
     wget \
@@ -181,16 +189,14 @@ Categories=Development;' > /usr/share/applications/unity-hub.desktop && \
     # Download Unity Hub icon (allow failure) \
     wget -qO /usr/share/pixmaps/unity-hub.png https://unity.com/favicon.ico || echo "Icon download failed"
 
-# Setup user and groups
+# Setup user and groups (simplified approach)
 RUN \
-    # Create retro user if it doesn't exist \
-    if ! id "retro" &>/dev/null; then \
-        useradd -m -s /bin/bash -u 1000 retro; \
-    fi && \
-    # Create fuse group if it doesn't exist \
-    groupadd -f fuse && \
-    # Add retro user to fuse group \
-    usermod -a -G fuse retro
+    # Ensure retro user exists (create if needed) \
+    id retro || useradd -m -s /bin/bash retro && \
+    # Ensure fuse group exists \
+    getent group fuse || groupadd fuse && \
+    # Add user to group \
+    usermod -a -G fuse retro || true
 
 # Setup directories
 RUN \
@@ -201,16 +207,18 @@ RUN \
 
 # Setup symlinks and permissions
 RUN \
+    # Ensure retro user exists before setting permissions \
+    id retro || useradd -m -s /bin/bash retro && \
     # Create symlinks to Wolf directories (remove existing first if they exist) \
     rm -rf /home/retro/Projects /home/retro/Unity /home/retro/Downloads /home/retro/Documents && \
     ln -sf /mnt/Wolf/Projects /home/retro/Projects && \
     ln -sf /mnt/Wolf/Unity /home/retro/Unity && \
     ln -sf /mnt/Wolf/Downloads /home/retro/Downloads && \
     ln -sf /mnt/Wolf/Documents /home/retro/Documents && \
-    # Set permissions \
-    chown -R retro:retro /mnt/Wolf && \
-    chown -R retro:retro /home/retro && \
-    chown -R retro:retro /shared
+    # Set permissions (with fallback) \
+    chown -R retro:retro /mnt/Wolf 2>/dev/null || true && \
+    chown -R retro:retro /home/retro 2>/dev/null || true && \
+    chown -R retro:retro /shared 2>/dev/null || true
 
 # Cleanup
 RUN \
@@ -237,7 +245,10 @@ COPY --chmod=755 scripts/root-shell.sh /usr/local/bin/root-shell
 
 #
 # Include default xfce config
-COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
+COPY --chmod=777 scripts/xfce4 /opt/gow/xfce4
+
+# Fix ownership after copy
+RUN chown -R retro:retro /opt/gow/xfce4 2>/dev/null || true
 
 # 
 # Fix locals
