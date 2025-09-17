@@ -76,6 +76,30 @@ github_download(){
     xargs wget -O "$out_file"
 }
 
+gitlab_download(){
+    local gitlab_url="$1"
+    local out_file="$2"
+    local extra_filter="$3"
+
+    # Extract GitLab instance URL and project path from the input URL
+    local gitlab_instance=$(echo "$gitlab_url" | sed 's|https://\([^/]*\).*|\1|')
+    local project_path=$(echo "$gitlab_url" | sed 's|https://[^/]*/||')
+    local api_url="https://${gitlab_instance}/api/v4/projects/${project_path//\//%2F}/releases"
+
+    # Get latest release assets and filter for the desired file
+    local download_url=$(curl -s "$api_url" | \
+        jq '.[0].assets.links[] | select(.name | contains("'${extra_filter}'")) | .direct_asset_url' | \
+        tr -d '"')
+
+    if [ -z "$download_url" ] || [ "$download_url" = "null" ]; then
+        echo "No matching download found for ${out_file} with filter: ${extra_filter}"
+        return 1
+    fi
+
+    # Download the file
+    wget -O "$out_file" "$download_url"
+}
+
 echo "**** Downloading PCSX2 AppImage ****"
 github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage" "" "/latest"
 
@@ -92,7 +116,7 @@ echo "**** Downloading Dolphin AppImage ****"
 github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
 
 echo "**** Downloading Citron Emulator AppImage ****"
-github_download "pkgforge-dev/Citron-AppImage" "citron.AppImage" "|select(.name|contains(\"anylinux-x86_64_v3\"))"
+gitlab_download "https://git.citron-emu.org/citron/emu" "citron.AppImage" "x86_64_v3"
 
 echo "**** Downloading Xenia Canary ****"
 github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
