@@ -54,6 +54,7 @@ RUN \
 
 
 RUN <<_INSTALL_EMULATORS
+#!/bin/bash
 set -e
 
 EMULATORS_DIR=/Applications
