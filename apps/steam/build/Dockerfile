@@ -62,6 +62,9 @@ RUN rm /usr/bin/zenity && ln -s /usr/bin/true /usr/bin/zenity
 # refresh system font cache. For font warnings on startup see: https://github.com/ValveSoftware/steam-runtime/issues/482
 RUN fc-cache -f -v
 
+# create symlink for improved decky loader compatibility
+RUN ln -sf "$HOME" /home/deck
+
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
 COPY --chmod=777 steamos-update /usr/bin/steamos-update
