@@ -5,7 +5,7 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:24.10 AS bwrap-builder
+FROM ubuntu:25.04 AS bwrap-builder
 
 ENV DEBIAN_FRONTEND=non-interactive
 WORKDIR /root
