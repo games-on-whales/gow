@@ -117,7 +117,7 @@ echo "**** Downloading Dolphin AppImage ****"
 github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
 
 echo "**** Downloading Citron Emulator AppImage ****"
-gitlab_download "https://git.citron-emu.org/citron/emu" "citron.AppImage" "x86_64_v3"
+gitlab_download "https://git.citron-emu.org/citron/emu" "citron.AppImage" "x86_64"
 
 echo "**** Downloading Xenia Canary ****"
 github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
