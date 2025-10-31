@@ -101,6 +101,35 @@ gitlab_download(){
     wget -O "$out_file" "$download_url"
 }
 
+forgejo_download(){
+    local forgejo_url="$1"
+    local out_file="$2"
+    local extra_filter="$3"
+
+    # Extract Forgejo instance and project path from URL
+    local forgejo_instance=$(echo "$forgejo_url" | sed 's|https://\([^/]*\).*|\1|')
+    local project_path=$(echo "$forgejo_url" | sed 's|https://[^/]*/||')
+    
+    # Split project path into owner and repo
+    local owner=$(echo "$project_path" | cut -d'/' -f1)
+    local repo=$(echo "$project_path" | cut -d'/' -f2)
+
+    # Forgejo API URL for releases
+    local api_url="https://${forgejo_instance}/api/v1/repos/${owner}/${repo}/releases"
+
+    # Fetch releases JSON and find download URL matching extra_filter for assets
+    local download_url=$(curl -s "$api_url" | jq -r '.[] | .assets[]?.browser_download_url' | grep "$extra_filter" | head -n 1)
+
+    if [ -z "$download_url" ]; then
+        echo "No matching download found for ${out_file} with filter: ${extra_filter}"
+        return 1
+    fi
+
+    # Download the matched asset
+    wget -O "$out_file" "$download_url"
+}
+
+
 echo "**** Downloading PCSX2 AppImage ****"
 github_download "PCSX2/pcsx2" "pcsx2-emu.AppImage" "" "/latest"
 
@@ -117,7 +146,7 @@ echo "**** Downloading Dolphin AppImage ****"
 github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
 
 echo "**** Downloading Citron Emulator AppImage ****"
-gitlab_download "https://git.citron-emu.org/citron/emu" "citron.AppImage" "x86_64"
+forgejo_download "https://git.citron-emu.org/citron/emulator" "citron.AppImage" "x86_64"
 
 echo "**** Downloading Xenia Canary ****"
 github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
