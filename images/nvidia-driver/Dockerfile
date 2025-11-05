@@ -16,3 +16,4 @@ FROM scratch
 
 COPY --from=nvidia-installer /usr/nvidia/ /usr/nvidia
 COPY --from=nvidia-installer /etc/vulkan/icd.d/nvidia_icd.json /usr/nvidia/share/vulkan/icd.d/
+COPY --from=nvidia-installer /bin/sh /bin/sh
