@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_APP_IMAGE
+ARG FIREFOX_IMAGE=ghcr.io/games-on-whales/firefox:edge
 
 # hadolint ignore=DL3006
-FROM ${BASE_APP_IMAGE}
+FROM ${FIREFOX_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
@@ -13,6 +13,7 @@ ARG REQUIRED_PACKAGES=" \
     libva-drm2 \
     libcurl4 \
     libva-wayland2 \
+    xdg-utils \
 "
 
 # Install ShadowPC
