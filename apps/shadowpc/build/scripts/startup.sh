@@ -5,6 +5,9 @@ source /opt/gow/bash-lib/utils.sh
 
 gow_log "ShadowPC startup.sh"
 
+# Register shadow:// protocol handler
+xdg-mime default shadow-beta.desktop x-scheme-handler/shadow
+
 # Launch ShadowPC through the compositor
 source /opt/gow/launch-comp.sh
 launcher /usr/bin/shadow-beta

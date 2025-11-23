@@ -28,6 +28,22 @@ apt-get autoremove -y
 rm -rf /var/lib/apt/lists/*
 _INSTALL_PACKAGES
 
+# Create desktop file for shadow:// protocol handler
+RUN <<_CREATE_DESKTOP
+mkdir -p /usr/share/applications
+cat > /usr/share/applications/shadow-beta.desktop <<'EOF'
+[Desktop Entry]
+Name=Shadow
+Comment=Shadow Cloud Gaming
+Exec=/usr/bin/shadow-beta %u
+Icon=shadow-beta
+Terminal=false
+Type=Application
+Categories=Game;
+MimeType=x-scheme-handler/shadow;
+EOF
+_CREATE_DESKTOP
+
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
