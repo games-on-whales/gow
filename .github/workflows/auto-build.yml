@@ -73,6 +73,7 @@ jobs:
           - { name: retroarch,             docker_path: apps,   platforms: "linux/amd64" }
           - { name: firefox,               docker_path: apps,   platforms: "linux/amd64" }
           - { name: steam,                 docker_path: apps,   platforms: "linux/amd64" }
+          - { name: shadowpc,              docker_path: apps,   platforms: "linux/amd64" }
           - { name: lutris,                docker_path: apps,   platforms: "linux/amd64" }
           - { name: heroic-games-launcher, docker_path: apps,   platforms: "linux/amd64" }
           - { name: prismlauncher,         docker_path: apps,   platforms: "linux/amd64" }
