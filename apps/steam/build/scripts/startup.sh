@@ -35,7 +35,7 @@ export WINEDLLOVERRIDES=dxgi=n
 # on OOBE and stuff.
 mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
 echo "position=top-right" > "$MANGOHUD_CONFIGFILE"
-echo "no_display" > "$MANGOHUD_CONFIGFILE"
+echo "no_display" >> "$MANGOHUD_CONFIGFILE"
 
 # Prepare our initial VRS config file
 # for dynamic VRS in Mesa.
