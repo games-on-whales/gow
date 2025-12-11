@@ -5,7 +5,7 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:24.10 AS bwrap-builder
+FROM ubuntu:25.04 AS bwrap-builder
 
 ENV DEBIAN_FRONTEND=non-interactive
 WORKDIR /root
@@ -61,6 +61,9 @@ RUN rm /usr/bin/zenity && ln -s /usr/bin/true /usr/bin/zenity
 
 # refresh system font cache. For font warnings on startup see: https://github.com/ValveSoftware/steam-runtime/issues/482
 RUN fc-cache -f -v
+
+# create symlink for improved decky loader compatibility
+RUN ln -sf "$HOME" /home/deck
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
