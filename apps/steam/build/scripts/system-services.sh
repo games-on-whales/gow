@@ -19,6 +19,7 @@ gow_log "*** D-Bus Watchdog started ***"
 if [ ! -f "$HOME/homebrew/services/PluginLoader" ]; then
   gow_log "Installing Decky Loader"
   mkdir -p "$HOME/.steam/steam/"
+  mkdir -p "$HOME/.steam/debian-installation/"
   touch "$HOME/.steam/debian-installation/.cef-enable-remote-debugging"
   mkdir -p "$HOME/homebrew/services/"
   github_download "SteamDeckHomebrew/decky-loader" ".assets[]|select(.name|(\"PluginLoader\")).browser_download_url" "PluginLoader"
