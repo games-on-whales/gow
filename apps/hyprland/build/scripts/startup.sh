@@ -23,7 +23,7 @@ mkdir -p $HOME/.cache
 mkdir -p $HOME/.local/share/
 
 # We have to manually pass the resolution to hyprland
-mkdir -p $HOME/.config/sway/
+mkdir -p $HOME/.config/hypr/
 cp /cfg/hypr/hyprlandd.conf $HOME/.config/hypr/hyprlandd.conf
 # Modify the config file for res and to launch the app at the end
 GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
