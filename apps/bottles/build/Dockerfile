@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
+ARG BASE_APP_IMAGE
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
@@ -26,6 +26,9 @@ rm -rf \
     /var/lib/apt/lists/* \
     /var/tmp/* \
     /tmp/*
+
+# Allow anyone to start dbus without password
+echo "\nALL ALL=NOPASSWD: /opt/gow/startdbus" >> /etc/sudoers
 
 # Fix bwarp perms for flatpaks
 chmod u+s /usr/bin/bwrap
