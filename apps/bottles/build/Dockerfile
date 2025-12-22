@@ -4,6 +4,7 @@ ARG BASE_APP_IMAGE
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+ARG DEBIAN_FRONTEND=noninteractive
 ARG CORE_PACKAGES=" \
     dbus \
     flatpak \
@@ -18,7 +19,6 @@ apt-get update
 apt-get install -y --no-install-recommends $CORE_PACKAGES
 # Clean
 apt-get update
-apt-get remove -y foot
 apt-get autoremove -y
 apt-get clean
 rm -rf \
@@ -35,7 +35,6 @@ chmod u+s /usr/bin/bwrap
 service dbus start
 flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install -y --noninteractive --system com.usebottles.bottles
-flatpak override --system com.usebottles.bottles --filesystem=home
 
 _INSTALL_BOTTLES
 
