@@ -71,20 +71,26 @@ RUN \
 
 # 
 # Replace launch scripts
-COPY --chmod=777 scripts/launch-comp.sh scripts/startup.sh /opt/gow/
-COPY --chmod=777 scripts/startdbus.sh /opt/gow/startdbus
+COPY scripts/launch-comp.sh scripts/startup.sh /opt/gow/
+COPY scripts/startdbus.sh /opt/gow/startdbus
+
+# fix permissions 
+RUN chown root:root /opt/gow/launch-comp.sh /opt/gow/startup.sh /opt/gow/startdbus && \
+    chmod 755 /opt/gow/launch-comp.sh /opt/gow/startup.sh /opt/gow/startdbus
 
 #
 # Include default xfce config
-COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
+COPY --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
 
 # 
 # Fix locals
 COPY scripts/locale /etc/default/locale
 
 # 
-# Allow anyone to start dbus without password
-RUN echo "\nALL ALL=NOPASSWD: /opt/gow/startdbus" >> /etc/sudoers
+# Allow dbus start without password (sudo fix)
+RUN echo "retro ALL=(root) NOPASSWD: /opt/gow/startdbus" \
+    > /etc/sudoers.d/startdbus && \
+    chmod 440 /etc/sudoers.d/startdbus
 
 # 
 # Fix bwarp perms for flatpaks
