@@ -41,7 +41,7 @@ function launch_scummvm {
   SCUMMVM_FILE=`ls ${ISO_MOUNT_LOCATION}/*.scummvm`
 
   # Launch the game
-  retroarch -L ~/.config/retroarch/cores/scummvm_libretro.so ${ISO_MOUNT_LOCATION}/${SCUMMVM_FILE}
+  retroarch -L ~/.config/retroarch/cores/scummvm_libretro.so ${SCUMMVM_FILE}
 
   # Unmount (if we mounted the ISO)
   if [[ "${ROM_FILE}" == "${ISO_MOUNT_LOCATION}" ]]; then

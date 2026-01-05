@@ -92,6 +92,10 @@ command: /Applications/launchers/rom_launcher.sh ps3 "{file.path}"
 
 ISOs are supported! Just use the above `rom_launcher.sh` script.
 
+**NOTES**:
+- Mounting ISOs to a folder requires FUSE (Filesystem in Userspace) to be setup on the host system.
+- You must set `"Privileged": true` in the `.toml` configuration file for mounting the ISO to work properly!
+
 ### ScummVM
 
 ScummVM will work with zip files if you use the `rom_launcher.sh` script!
@@ -120,6 +124,10 @@ You must first prepare the zip file for this to work correctly:
               series_id: maniac
           ```
         `tentacle` would be what you would put on the first line of the `*.scummvm` file 
+
+**NOTES**:
+- Mounting ISOs to a folder requires FUSE (Filesystem in Userspace) to be setup on the host system.
+- You must set `"Privileged": true` in the `.toml` configuration file for mounting zip files to work properly!
 
 ## Customization
 
