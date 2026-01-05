@@ -98,7 +98,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
 
   # shellcheck disable=SC2086
-  /usr/games/gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
