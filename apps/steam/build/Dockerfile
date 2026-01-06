@@ -5,13 +5,11 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:25.04 AS bwrap-builder
+FROM fedora:43 AS bwrap-builder
 
-ENV DEBIAN_FRONTEND=non-interactive
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends git meson ca-certificates dpkg-dev && \
+RUN dnf install -y git meson ca-certificates dpkg-dev && \
     git clone https://github.com/containers/bubblewrap && \
     cd bubblewrap && \
     ./ci/builddeps.sh && \
@@ -24,43 +22,25 @@ RUN apt-get update -y && \
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
-ARG DEBIAN_FRONTEND=noninteractive
+RUN <<_INSTALL_STEAM
+#!/bin/bash
+set -e
 
-ARG REQUIRED_PACKAGES=" \
-    steam \
-    dbus-daemon dbus-system-bus-common dbus-session-bus-common whoopsie network-manager bluez \
-    ibus curl pkexec xz-utils zenity file xdg-user-dirs xdg-utils pciutils lsb-release mesa-utils \
-    libfontconfig1:i386 libfontconfig1:amd64 libfreetype6 libfreetype6:i386 \
-"
+# Taken from https://docs.fedoraproject.org/en-US/gaming/proton/
+dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
+dnf config-manager setopt fedora-cisco-openh264.enabled=1
 
-ARG AVOID_PACKAGES=" \
-    nvidia-driver-libs- nvidia-vulkan-icd- \
-"
+# Install Steam
+dnf install -y steam
 
-RUN apt-get update -y && \
-    apt-get install -y python3-six software-properties-common && \
-    # \
-    # Install steam (Steam is 32-bit only) \
-    dpkg --add-architecture i386 && \
-    add-apt-repository multiverse && \
-    apt-get update -y && \
-    apt-get install -y $REQUIRED_PACKAGES $AVOID_PACKAGES && \
-    # \
-    # Fix steam updater UI font file \
-    ln -s /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/ttf-dejavu && \
-    # \
-    # Cleanup \
-    apt-get remove -y python3-six software-properties-common && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
-# fix NetworkManager not picking up devices
-RUN touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+# Additional packages
+dnf install -y NetworkManager bluez ibus pkexec file pciutils lsb-release
 
-# skip annoying debian dialog
-RUN rm /usr/bin/zenity && ln -s /usr/bin/true /usr/bin/zenity
-
-# refresh system font cache. For font warnings on startup see: https://github.com/ValveSoftware/steam-runtime/issues/482
-RUN fc-cache -f -v
+# Cleanup
+# We'll be using a custom steam startup script, the default `steam` script that comes from Fedora was failing
+rm $(which steam)
+dnf clean all
+_INSTALL_STEAM
 
 # create symlink for improved decky loader compatibility
 RUN ln -sf "$HOME" /home/deck
@@ -73,6 +53,7 @@ COPY --chmod=777 steamos-session-select /usr/bin/steamos-session-select
 COPY --chmod=777 jupiter-biosupdate /usr/bin/jupiter-biosupdate
 COPY --chmod=777 jupiter-biosupdate /usr/bin/steamos-polkit-helpers/jupiter-biosupdate
 COPY --chmod=777 scripts/steamos-dbus-watchdog.sh /usr/local/bin/steamos-dbus-watchdog.sh
+COPY --chmod=777 scripts/steam.sh /usr/games/steam
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
