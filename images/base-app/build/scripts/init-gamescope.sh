@@ -2,4 +2,4 @@
 
 set -e
 
-chown "${UNAME}":"${UNAME}" /usr/games/gamescope
+chown "${UNAME}":"${UNAME}" $(which gamescope)
