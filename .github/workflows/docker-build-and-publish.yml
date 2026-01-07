@@ -176,8 +176,32 @@ jobs:
           else
             echo "==> Found existing buildx cache for branch build, using image ${build_from_cache_image}"
           fi
-          
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+
+          if [[ !"${{ needs.prepare.outputs.is_fork }}" ]]; then
+            echo "==> Setting variables for branch build"
+
+            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
+              echo "has_docker_token=true" >> $GITHUB_OUTPUT
+              echo "==> Pushing to Docker Hub"
+            fi
+
+            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+              REGISTRY_IMAGE="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}"
+              if [ "$IMAGES" = "" ]; then
+                IMAGES="${REGISTRY_IMAGE}"
+              else
+                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
+              fi
+
+              echo "has_github_token=true" >> $GITHUB_OUTPUT
+              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
+              echo "cache_to=type=registry,ref=${build_to_cache_image},mode=max"  >> $GITHUB_OUTPUT
+              echo "==> Pushing to GitHub Container Registry"
+            fi
+
+            BUILDX_OUTPUT="type=registry"
+          else
             echo "==> Setting variables for pull request build"
             # we only use local tags for PR builds
             IMAGES="localhost:5000/${{ inputs.image_name }}"
@@ -206,32 +230,6 @@ jobs:
               echo "base_app_image_name=${base_app_image_name}" >> $GITHUB_OUTPUT
             fi
           fi
-          
-          if [[ "${{ github.repository }}" == "games-on-whales/gow" ]]; then
-            echo "==> Setting variables for branch build"
-
-            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
-              echo "has_docker_token=true" >> $GITHUB_OUTPUT
-              echo "==> Pushing to Docker Hub"
-            fi
-
-            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-              REGISTRY_IMAGE="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}"
-              if [ "$IMAGES" = "" ]; then
-                IMAGES="${REGISTRY_IMAGE}"
-              else
-                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
-              fi
-
-              echo "has_github_token=true" >> $GITHUB_OUTPUT
-              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
-              echo "cache_to=type=registry,ref=${build_to_cache_image},mode=max"  >> $GITHUB_OUTPUT
-              echo "==> Pushing to GitHub Container Registry"
-            fi
-
-            BUILDX_OUTPUT="type=registry"
-          fi
 
           echo "images=${IMAGES}"  >> $GITHUB_OUTPUT
           echo "buildx_outputs=${BUILDX_OUTPUT}" >> $GITHUB_OUTPUT
@@ -243,7 +241,7 @@ jobs:
 
       - name: Download base image artifact
         id: download-base-image-artifact
-        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != '' }}
+        if: ${{ needs.prepare.outputs.is_fork && steps.prep.outputs.base_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
           name: docker-${{ steps.prep.outputs.base_image_name }}-${{ env.PLATFORM_PAIR }}.tar
@@ -256,7 +254,7 @@ jobs:
       
       - name: Download base-app image artifact
         id: download-base-app-image-artifact
-        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != '' }}
+        if: ${{ needs.prepare.outputs.is_fork && steps.prep.outputs.base_app_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
           name: docker-${{ steps.prep.outputs.base_app_image_name }}-${{ env.PLATFORM_PAIR }}.tar
@@ -312,7 +310,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Load base image
-        if: github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != ''
+        if: needs.prepare.outputs.is_fork && steps.prep.outputs.base_image_name != ''
         run: |
           set -e
           echo "==> Loading base image from artifact"
@@ -322,7 +320,7 @@ jobs:
           docker push "${{ inputs.base_image }}"
 
       - name: Load base-app image
-        if: github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != ''
+        if: needs.prepare.outputs.is_fork && steps.prep.outputs.base_app_image_name != ''
         run: |
           set -e
           echo "==> Loading base-app image from artifact"
@@ -349,7 +347,7 @@ jobs:
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
       - name: Upload docker image as artifact
-        if: github.event_name == 'pull_request'
+        if: ${{ needs.prepare.outputs.is_fork }}
         uses: actions/upload-artifact@v4
         with:
           name: docker-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}.tar
@@ -361,7 +359,7 @@ jobs:
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
       - name: Cleanup buildx cache
-        if: github.event_name == 'pull_request'
+        if: ${{ needs.prepare.outputs.is_fork }}
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
@@ -370,7 +368,7 @@ jobs:
         run: echo "${{ inputs.image_name }} > ${{ steps.docker_build.outputs.digest }}"
 
       - name: Export digest
-        if: github.event_name != 'pull_request'
+        if: ${{ !needs.prepare.outputs.is_fork }}
         id: export-digest
         run: |
           mkdir -p /tmp/digests
@@ -379,7 +377,7 @@ jobs:
           echo "hash=${digest#sha256:}" >> $GITHUB_OUTPUT
 
       - name: Upload digest
-        if: github.event_name != 'pull_request'
+        if: ${{ !needs.prepare.outputs.is_fork }}
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
