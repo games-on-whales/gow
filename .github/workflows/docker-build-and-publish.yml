@@ -176,32 +176,8 @@ jobs:
           else
             echo "==> Found existing buildx cache for branch build, using image ${build_from_cache_image}"
           fi
-
-          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            echo "==> Setting variables for branch build"
-
-            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
-              echo "has_docker_token=true" >> $GITHUB_OUTPUT
-              echo "==> Pushing to Docker Hub"
-            fi
-
-            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-              REGISTRY_IMAGE="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}"
-              if [ "$IMAGES" = "" ]; then
-                IMAGES="${REGISTRY_IMAGE}"
-              else
-                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
-              fi
-
-              echo "has_github_token=true" >> $GITHUB_OUTPUT
-              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
-              echo "cache_to=type=registry,ref=${build_to_cache_image},mode=max"  >> $GITHUB_OUTPUT
-              echo "==> Pushing to GitHub Container Registry"
-            fi
-
-            BUILDX_OUTPUT="type=registry"
-          else
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "==> Setting variables for pull request build"
             # we only use local tags for PR builds
             IMAGES="localhost:5000/${{ inputs.image_name }}"
@@ -229,6 +205,32 @@ jobs:
               base_app_image_name=$(echo "${{ inputs.base_app_image }}" | sed 's|.*/||; s|:.*||')
               echo "base_app_image_name=${base_app_image_name}" >> $GITHUB_OUTPUT
             fi
+          fi
+          
+          if [[ "${{ github.repository }}" == "games-on-whales/gow" ]]; then
+            echo "==> Setting variables for branch build"
+
+            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
+              echo "has_docker_token=true" >> $GITHUB_OUTPUT
+              echo "==> Pushing to Docker Hub"
+            fi
+
+            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+              REGISTRY_IMAGE="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}"
+              if [ "$IMAGES" = "" ]; then
+                IMAGES="${REGISTRY_IMAGE}"
+              else
+                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
+              fi
+
+              echo "has_github_token=true" >> $GITHUB_OUTPUT
+              echo "cache_from=type=registry,ref=${build_from_cache_image}"  >> $GITHUB_OUTPUT
+              echo "cache_to=type=registry,ref=${build_to_cache_image},mode=max"  >> $GITHUB_OUTPUT
+              echo "==> Pushing to GitHub Container Registry"
+            fi
+
+            BUILDX_OUTPUT="type=registry"
           fi
 
           echo "images=${IMAGES}"  >> $GITHUB_OUTPUT
