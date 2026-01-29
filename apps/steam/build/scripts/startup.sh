@@ -6,7 +6,9 @@ source /opt/gow/bash-lib/utils.sh
 gow_log "Steam startup.sh"
 
 # Recursively creating Steam necessary folders (https://github.com/ValveSoftware/steam-for-linux/issues/6492)
-mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
+mkdir -p "$HOME/.local/share/Steam/ubuntu12_32/steam-runtime"
+export WINEPREFIX="$HOME/.local/share/WolfSteam/pfx"
+export STEAM_COMPAT_DATA_PATH="$WINEPREFIX"
 
 # Use the new big picture mode by default
 STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-bigpicture"}

@@ -1,15 +1,16 @@
 #!/bin/bash
 # Custom steam startup script, the default `steam` script that comes from Fedora was failing
 
-STEAMDIR="${$HOME/.local/share}/Steam"
+STEAMDIR="${HOME}/.local/share/Steam"
+STEAMDIR_LEGACY="${HOME}/.steam/steam"
 echo "Steam directory: $STEAMDIR"
 
 if [[ ! -f "$STEAMDIR/steam.sh" ]]; then
     mkdir -p "$STEAMDIR"
     cd "$STEAMDIR"
     tar xJf /usr/lib/steam/bootstraplinux_ubuntu12_32.tar.xz
-    mkdir -p ~/.steam
-    ln -fns "$STEAMDIR" ~/.steam/steam
+    mkdir -p "$STEAMDIR_LEGACY"
+    ln -fns "$STEAMDIR" "$STEAMDIR_LEGACY"
 fi
 
 
