@@ -1,0 +1,396 @@
+Video
+Audio
+Input
+Boot
+General
+  ShowStatusBar: false
+  Rewind: false
+  RunAhead: false
+  AutoSaveMemory: true
+  HomebrewMode: false
+  ForceInterpreter: false
+Rewind
+  Length: 100
+  Frequency: 10
+Paths
+  Home
+  Firmware
+  Saves: /home/.local/share/ares/saves/
+  Screenshots: /home/.local/share/ares/screenshots/
+  Debugging: /home/.local/share/ares/debug_logs/
+  ArcadeRoms
+  SuperFamicom
+    GameBoy
+    BSMemory
+    SufamiTurbo
+DebugServer
+  Port: 9123
+  Enabled: false
+  UseIPv4: false
+Nintendo64
+  ExpansionPak: true
+  ControllerPakBankString: 32KiB (Default)
+  Visible: true
+  Path
+GameBoyAdvance
+  Player: false
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+MegaDrive
+  TMSS: false
+  Visible: true
+  Path
+Recent
+  Game-1
+  Game-2
+  Game-3
+  Game-4
+  Game-5
+  Game-6
+  Game-7
+  Game-8
+  Game-9
+VirtualPad1
+  Pad.Up: ;;
+  Pad.Down: ;;
+  Pad.Left: ;;
+  Pad.Right: ;;
+  Select: ;;
+  Start: ;;
+  A..South: ;;
+  B..East: ;;
+  X..West: ;;
+  Y..North: ;;
+  L-Bumper: ;;
+  R-Bumper: ;;
+  L-Trigger: ;;
+  R-Trigger: ;;
+  L-Stick..Click: ;;
+  R-Stick..Click: ;;
+  L-Up: ;;
+  L-Down: ;;
+  L-Left: ;;
+  L-Right: ;;
+  R-Up: ;;
+  R-Down: ;;
+  R-Left: ;;
+  R-Right: ;;
+  Rumble: ;;
+VirtualMouse1
+  X: ;;
+  Y: ;;
+  Left: ;;
+  Middle: ;;
+  Right: ;;
+  Extra: ;;
+VirtualPad2
+  Pad.Up: ;;
+  Pad.Down: ;;
+  Pad.Left: ;;
+  Pad.Right: ;;
+  Select: ;;
+  Start: ;;
+  A..South: ;;
+  B..East: ;;
+  X..West: ;;
+  Y..North: ;;
+  L-Bumper: ;;
+  R-Bumper: ;;
+  L-Trigger: ;;
+  R-Trigger: ;;
+  L-Stick..Click: ;;
+  R-Stick..Click: ;;
+  L-Up: ;;
+  L-Down: ;;
+  L-Left: ;;
+  L-Right: ;;
+  R-Up: ;;
+  R-Down: ;;
+  R-Left: ;;
+  R-Right: ;;
+  Rumble: ;;
+VirtualMouse2
+  X: ;;
+  Y: ;;
+  Left: ;;
+  Middle: ;;
+  Right: ;;
+  Extra: ;;
+VirtualPad3
+  Pad.Up: ;;
+  Pad.Down: ;;
+  Pad.Left: ;;
+  Pad.Right: ;;
+  Select: ;;
+  Start: ;;
+  A..South: ;;
+  B..East: ;;
+  X..West: ;;
+  Y..North: ;;
+  L-Bumper: ;;
+  R-Bumper: ;;
+  L-Trigger: ;;
+  R-Trigger: ;;
+  L-Stick..Click: ;;
+  R-Stick..Click: ;;
+  L-Up: ;;
+  L-Down: ;;
+  L-Left: ;;
+  L-Right: ;;
+  R-Up: ;;
+  R-Down: ;;
+  R-Left: ;;
+  R-Right: ;;
+  Rumble: ;;
+VirtualMouse3
+  X: ;;
+  Y: ;;
+  Left: ;;
+  Middle: ;;
+  Right: ;;
+  Extra: ;;
+VirtualPad4
+  Pad.Up: ;;
+  Pad.Down: ;;
+  Pad.Left: ;;
+  Pad.Right: ;;
+  Select: ;;
+  Start: ;;
+  A..South: ;;
+  B..East: ;;
+  X..West: ;;
+  Y..North: ;;
+  L-Bumper: ;;
+  R-Bumper: ;;
+  L-Trigger: ;;
+  R-Trigger: ;;
+  L-Stick..Click: ;;
+  R-Stick..Click: ;;
+  L-Up: ;;
+  L-Down: ;;
+  L-Left: ;;
+  L-Right: ;;
+  R-Up: ;;
+  R-Down: ;;
+  R-Left: ;;
+  R-Right: ;;
+  Rumble: ;;
+VirtualMouse4
+  X: ;;
+  Y: ;;
+  Left: ;;
+  Middle: ;;
+  Right: ;;
+  Extra: ;;
+VirtualPad5
+  Pad.Up: ;;
+  Pad.Down: ;;
+  Pad.Left: ;;
+  Pad.Right: ;;
+  Select: ;;
+  Start: ;;
+  A..South: ;;
+  B..East: ;;
+  X..West: ;;
+  Y..North: ;;
+  L-Bumper: ;;
+  R-Bumper: ;;
+  L-Trigger: ;;
+  R-Trigger: ;;
+  L-Stick..Click: ;;
+  R-Stick..Click: ;;
+  L-Up: ;;
+  L-Down: ;;
+  L-Left: ;;
+  L-Right: ;;
+  R-Up: ;;
+  R-Down: ;;
+  R-Left: ;;
+  R-Right: ;;
+  Rumble: ;;
+VirtualMouse5
+  X: ;;
+  Y: ;;
+  Left: ;;
+  Middle: ;;
+  Right: ;;
+  Extra: ;;
+Hotkey
+  ToggleFullscreen: ;;
+  TogglePseudo-Fullscreen: ;;
+  ToggleMouseCapture: ;;
+  ToggleKeyboardCapture: ;;
+  FastForward: ;;
+  ToggleFastForward: ;;
+  Rewind: ;;
+  FrameAdvance: ;;
+  CaptureScreenshot: ;;
+  SaveState: ;;
+  LoadState: ;;
+  DecrementStateSlot: ;;
+  IncrementStateSlot: ;;
+  PauseEmulation: ;;
+  ResetSystem: ;;
+  ReloadCurrentGame: ;;
+  QuitEmulator: ;;
+  MuteAudio: ;;
+  IncreaseAudio: ;;
+  DecreaseAudio: ;;
+Arcade
+  Visible: true
+  Path
+Atari2600
+  Visible: true
+  Path
+WonderSwan
+  Visible: true
+  Path
+WonderSwanColor
+  Visible: true
+  Path
+PocketChallengeV2
+  Visible: true
+  Path
+ColecoVision
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+MyVision
+  Visible: true
+  Path
+MSX
+  Visible: true
+  Path
+  Firmware
+    BIOS.Japan
+MSX2
+  Visible: true
+  Path
+  Firmware
+    MAIN.Japan
+    SUB.Japan
+PCEngine
+  Visible: true
+  Path
+PCEngineCD
+  Visible: true
+  Path
+  Firmware
+    System-Card-1.0.Japan
+    System-Card-3.0.Japan
+    System-Card-3.0.US
+    Games-Express.Japan
+LaserActiveNECPAC
+  Visible: true
+  Path
+  Firmware
+    PAC-N10.US
+    PAC-N1.Japan
+    PCE-LP1.Japan
+    System-Card-1.0.Japan
+    Games-Express.Japan
+SuperGrafx
+  Visible: true
+  Path
+SuperGrafxCD
+  Visible: true
+  Path
+  Firmware
+    Arcade-Card.Japan
+Famicom
+  Visible: true
+  Path
+FamicomDiskSystem
+  Visible: true
+  Path
+  Firmware
+    BIOS.Japan
+SuperFamicom
+  Visible: true
+  Path
+Nintendo64DD
+  Visible: true
+  Path
+  Firmware
+    BIOS.Japan
+    BIOS.US
+    BIOS.DEV
+GameBoy
+  Visible: true
+  Path
+GameBoyColor
+  Visible: true
+  Path
+SG-1000
+  Visible: true
+  Path
+SC-3000
+  Visible: true
+  Path
+MasterSystem
+  Visible: true
+  Path
+  Firmware
+    BIOS.US
+    BIOS.Japan
+    BIOS.Europe
+GameGear
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+Mega32X
+  Visible: true
+  Path
+MegaCD
+  Visible: true
+  Path
+  Firmware
+    BIOS.US
+    BIOS.Japan
+    BIOS.Europe
+MegaCD32X
+  Visible: true
+  Path
+LaserActiveSEGAPAC
+  Visible: true
+  Path
+  Firmware
+    BIOS.US
+    BIOS.Japan
+NeoGeoAES
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+NeoGeoMVS
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+NeoGeoPocket
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+NeoGeoPocketColor
+  Visible: true
+  Path
+  Firmware
+    BIOS.World
+PlayStation
+  Visible: true
+  Path
+  Firmware
+    BIOS.US
+    BIOS.Japan
+    BIOS.Europe
+ZXSpectrum
+  Visible: true
+  Path
+ZXSpectrum128
+  Visible: true
+  Path

@@ -1,6 +1,7 @@
 collection: Applications
 launch: {file.path}
 files:
+  /Applications/launchers/ares.sh
   /Applications/launchers/cemu.sh
   /Applications/launchers/retroarch.sh
   /Applications/launchers/pcsx2.sh
@@ -11,6 +12,12 @@ files:
   /Applications/launchers/rpcs3.sh
   /bin/Install_RPCS3_Firmware.sh
   /usr/bin/kitty
+  
+
+game: Emulators - Ares
+release: 2025-12-23
+file: /Applications/launchers/ares.sh
+description: Ares is a free and open-source multi-system emulator that is a descendant of Bsnes. It is notable for its high-accuracy emulation and impressive Nintendo 64 compatibility. It currently supports Linux, FreeBSD, MacOS, and Windows. 
 
 game: Bash Console
 file: /usr/bin/kitty
