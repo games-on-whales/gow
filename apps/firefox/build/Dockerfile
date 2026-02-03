@@ -6,27 +6,11 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG REQUIRED_PACKAGES=" \
-    libpci3 \
     firefox \
-    libavcodec-extra \
-    ubuntu-restricted-extras \
 "
 
-COPY <<_APT_PIN /etc/apt/preferences.d/mozilla-firefox
-Package: *
-Pin: release o=LP-PPA-mozillateam
-Pin-Priority: 1001
-_APT_PIN
-
-RUN <<_INSTALL_PACKAGES
-apt-get update
-apt-get install -y --no-install-recommends software-properties-common gpg-agent
-add-apt-repository ppa:mozillateam/ppa
-apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
-apt-get remove -y software-properties-common gpg-agent
-apt-get autoremove -y
-rm -rf /var/lib/apt/lists/*
-_INSTALL_PACKAGES
+RUN dnf install -y $REQUIRED_PACKAGES && \
+    dnf clean all
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 

@@ -12,7 +12,7 @@ function launcher() {
     gow_log "[Gamescope] - Starting: \`$@\`"
 
     GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
-    /usr/games/gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- "$@"
+    gamescope "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- "$@"
   elif [ -n "$RUN_SWAY" ]; then
     gow_log "[Sway] - Starting: \`$@\`"
 

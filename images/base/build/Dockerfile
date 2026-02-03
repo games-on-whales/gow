@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM ubuntu:25.04
+FROM fedora:43
 
 # Configure default user and set env
 # The users UID and GID will be set on container startup
@@ -19,21 +19,16 @@ ARG TARGETARCH TARGETVARIANT
 ARG GOSU_VERSION=1.14
 
 RUN <<_INSTALL_PACKAGES
+#!/bin/bash
 set -e
-echo "**** Update apt database ****"
-apt-get update
-
-echo "**** Install certificates ****"
-apt-get install -y --reinstall --no-install-recommends \
-    ca-certificates
 
 echo "**** Install base packages ****"
-apt-get install -y --no-install-recommends \
-    fuse \
-    libnss3 \
-    wget \
-    curl \
-    jq
+dnf -y install \
+        ca-certificates \
+        fuse \
+        wget \
+        curl \
+        jq
 
 echo "**** Install gosu ****"
 wget --progress=dot:giga \
@@ -45,8 +40,7 @@ echo "**** Verify gosu works ****"
 gosu nobody true && echo "Working!"
 
 echo "**** Section cleanup ****"
-rm -rf \
-    /var/lib/apt/lists/*
+dnf clean all
 
 echo
 _INSTALL_PACKAGES
