@@ -1,5 +1,15 @@
 Video
 Audio
+  Driver: PulseAudio
+  Device
+  Frequency: 0
+  Latency: 0
+  Exclusive: false
+  Blocking: true
+  Dynamic: false
+  Mute: false
+  Volume: 1.0
+  Balance: 0.0
 Input
 Boot
 General
