@@ -6,10 +6,11 @@ FROM ${BASE_APP_IMAGE}
 
 ARG CORE_PACKAGES=" \
     dbus \
-    flatpak \
     python3 \
+    software-properties-common \
     "
-
+ARG EXTRA_REPOS="universe"
+ARG ADDITIONAL_PACKAGES="kodi"
 RUN <<_INSTALL_KODI
 
 set -e
@@ -18,6 +19,10 @@ apt-get update
 apt-get install -y --no-install-recommends $CORE_PACKAGES
 # Clean
 apt-get update
+add-apt-repository -y $EXTRA_REPOS
+apt-get update
+apt install -y $ADDITIONAL_PACKAGES
+
 apt-get remove -y foot
 apt-get autoremove -y
 apt-get clean
@@ -30,9 +35,7 @@ rm -rf \
 # Fix bwarp perms for flatpaks
 chmod u+s /usr/bin/bwrap
 service dbus start
-flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak install -y --noninteractive --system tv.kodi.Kodi
-flatpak override --system tv.kodi.Kodi --filesystem=home
+
 
 _INSTALL_KODI
 
