@@ -15,9 +15,9 @@ Rewind
 Paths
   Home
   Firmware
-  Saves: /home/.local/share/ares/saves/
-  Screenshots: /home/.local/share/ares/screenshots/
-  Debugging: /home/.local/share/ares/debug_logs/
+  Saves: /home/retro/.local/share/ares/saves/
+  Screenshots: /home/retro/.local/share/ares/screenshots/
+  Debugging: /home/retro/.local/share/ares/debug_logs/
   ArcadeRoms
   SuperFamicom
     GameBoy
