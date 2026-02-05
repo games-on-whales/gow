@@ -170,7 +170,7 @@ RUN apt-get update -y && \
 
 # Replace launch scripts
 COPY --chmod=777 scripts/startup.sh /opt/gow/
-COPY --chmod=777 --chown=retro:retro config/hyprlandd.conf /cfg/hypr/hyprlandd.conf
+COPY --chmod=777 --chown=retro:retro config/hyprland.conf /cfg/hypr/hyprland.conf
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source=$IMAGE_SOURCE
