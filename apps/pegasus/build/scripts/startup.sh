@@ -115,4 +115,19 @@ XENIA_CFG_DIR=$HOME/.config/xenia-canary
 mkdir -p $XENIA_CFG_DIR
 # (Add more config copy/setup here if needed in the future)
 
+#########################################
+# Configure ares
+#########################################
+ARES_CFG_DIR=$HOME/.local/share/ares
+ARES_SAVE_DIR=$HOME/.local/share/ares/saves
+ARES_SCREENSHOT_DIR=$HOME/.local/share/ares/screenshots
+ARES_DEBUG_LOG_DIR=$HOME/.local/share/ares/debug_logs
+
+gow_log "Ares-emu - Configure"
+mkdir -p "$ARES_CFG_DIR"
+cp -u /cfg/ares/settings.bml "$ARES_CFG_DIR/settings.bml"
+mkdir -p "$ARES_SAVE_DIR"
+mkdir -p "$ARES_SCREENSHOT_DIR"
+mkdir -p "$ARES_DEBUG_LOG_DIR"
+
 launcher /bin/pegasus.sh
