@@ -6,7 +6,9 @@ source /opt/gow/bash-lib/utils.sh
 gow_log "Steam startup.sh"
 
 # Recursively creating Steam necessary folders (https://github.com/ValveSoftware/steam-for-linux/issues/6492)
-mkdir -p "$HOME/.steam/ubuntu12_32/steam-runtime"
+mkdir -p "$HOME/.local/share/Steam/ubuntu12_32/steam-runtime"
+export WINEPREFIX="$HOME/.local/share/WolfSteam/pfx"
+export STEAM_COMPAT_DATA_PATH="$WINEPREFIX"
 
 # Use the new big picture mode by default
 STEAM_STARTUP_FLAGS=${STEAM_STARTUP_FLAGS:-"-bigpicture"}
@@ -98,7 +100,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
 
   # shellcheck disable=SC2086
-  /usr/games/gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
@@ -118,7 +120,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
 
   # Start Steam
   # shellcheck disable=SC2086
-  dbus-run-session -- /usr/games/steam ${STEAM_STARTUP_FLAGS}
+  dbus-run-session -- steam ${STEAM_STARTUP_FLAGS}
 
 elif [ -n "$RUN_SWAY" ]; then
   # Start IBus to enable showing the steam on-screen keyboard
@@ -130,8 +132,8 @@ elif [ -n "$RUN_SWAY" ]; then
 
   # Start Steam
   source /opt/gow/launch-comp.sh
-  launcher /usr/games/steam ${STEAM_STARTUP_FLAGS}
+  launcher steam ${STEAM_STARTUP_FLAGS}
 else
   # shellcheck disable=SC2086
-  exec /usr/games/steam ${STEAM_STARTUP_FLAGS}
+  exec steam ${STEAM_STARTUP_FLAGS}
 fi
