@@ -30,7 +30,7 @@ ARG ADDITIONAL_PACKAGES=" \
     xfce4-docklike-plugin \
     xarchiver \
     mousepad \
-    zip unzip p7zip-full \
+    zip unzip p7zip-full cabextract \
     gnome-software gnome-software-plugin-flatpak \
     "
 # 
