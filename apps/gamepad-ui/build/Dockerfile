@@ -90,6 +90,7 @@ COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-
 COPY --chmod=777 scripts/gamepadui.sh /bin/gamepadui.sh
 COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
 COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
+COPY configs/gamepadui.json /opt/gow/gamepadui.json
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
