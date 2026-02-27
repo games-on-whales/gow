@@ -20,7 +20,7 @@ icon_png_path = "https://raw.githubusercontent.com/HashimHS/gow/refs/heads/gamep
 ```
 Restart Wolf.
 
-# Manual lutris configuration
+# Manual directory configuration
 Mount your lutris config and game directories. Paths are same as WolfLutris. Check the relevant directories at [startup-10-create-dirs.sh](build/scripts/startup-10-create-dirs.sh)
 
 Proper documentation is coming soon (I would appreciate any help through PR)...
