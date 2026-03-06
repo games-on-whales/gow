@@ -3,4 +3,11 @@ set -e
 source /opt/gow/bash-lib/utils.sh
 
 gow_log "Starting dolphin-emu with DISPLAY=${DISPLAY}"
-/Applications/dolphin-emu.AppImage --appimage-extract-and-run
+
+if [[ $# -gt 0 ]]; then
+  # Pass all arguments to Dolphin (ES-DE already passes -b -e ROM)
+  /Applications/dolphin-emu.AppImage --appimage-extract-and-run "$@"
+else
+  # Launch Dolphin GUI
+  /Applications/dolphin-emu.AppImage --appimage-extract-and-run
+fi
