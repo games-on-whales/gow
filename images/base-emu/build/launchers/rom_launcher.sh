@@ -66,7 +66,7 @@ declare -A EMULATOR_COMMAND=( \
 ["gb"]="retroarch --fullscreen -L ~/.config/retroarch/cores/gambatte_libretro.so \"${ROM}\"" \
 ["gbc"]="retroarch --fullscreen -L ~/.config/retroarch/cores/gambatte_libretro.so \"${ROM}\"" \
 ["gba"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mgba_libretro.so \"${ROM}\"" \
-["gc"]="/Applications/dolphin-emu.AppImage --appimage-extract-and-run --batch --exec=\"${ROM}\"" \
+["gc"]="/Applications/launchers/dolphin-emu --batch --exec=\"${ROM}\"" \
 ["genesis"]="retroarch --fullscreen -L ~/.config/retroarch/cores/picodrive_libretro.so \"${ROM}\"" \
 ["megacd"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["model2"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mame_libretro.so \"${ROM}\"" \
@@ -78,22 +78,22 @@ declare -A EMULATOR_COMMAND=( \
 ["ngpc"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_ngp_libretro.so \"${ROM}\"" \
 ["psp"]="retroarch --fullscreen -L ~/.config/retroarch/cores/ppsspp_libretro.so \"${ROM}\"" \
 ["psx"]="retroarch --fullscreen -L ~/.config/retroarch/cores/pcsx_rearmed_libretro.so \"${ROM}\"" \
-["ps2"]="/Applications/pcsx2-emu.AppImage --appimage-extract-and-run \"${ROM}\"" \
-["ps3"]="launch_ps3  \"${ROM}\"" \
+["ps2"]="/Applications/launchers/pcsx2 \"${ROM}\"" \
+["ps3"]="/Applications/launchers/rpcs3 \"${ROM}\"" \
 ["saturn"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_saturn_libretro.so \"${ROM}\"" \
 ["sega32x"]="retroarch --fullscreen -L ~/.config/retroarch/cores/picodrive_libretro.so \"${ROM}\"" \
 ["segacd"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["scummvm"]="launch_scummvm \"${ROM}\"" \
 ["snes"]="retroarch --fullscreen -L ~/.config/retroarch/cores/snes9x_libretro.so \"${ROM}\"" \
 ["snes_widescreen"]="retroarch --fullscreen -L ~/.config/retroarch/cores/bsnes_hd_beta_libretro.so \"${ROM}\"" \
-["switch"]="/Applications/launchers/citron.sh -f -g \"${ROM}\"" \
+["switch"]="/Applications/launchers/citron -f -g \"${ROM}\"" \
 ["virtualboy"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_vb_libretro.so \"${ROM}\"" \
-["wii"]="/Applications/dolphin-emu.AppImage --appimage-extract-and-run --batch --exec=\"${ROM}\"" \
-["wiiu"]="/Applications/cemu-emu.AppImage --appimage-extract-and-run -f -g \"${ROM}\"" \
+["wii"]="/Applications/launchers/dolphin-emu --batch --exec=\"${ROM}\"" \
+["wiiu"]="/Applications/launchers/cemu -f -g \"${ROM}\"" \
 ["wonderswan"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
 ["wonderswancolor"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_wswan_libretro.so \"${ROM}\"" \
-["xbox"]="/Applications/xemu-emu.AppImage --appimage-extract-and-run -full-screen -dvd_path \"${ROM}\"" \
-["xbox360"]="/Applications/launchers/xenia.sh --fullscreen \"${ROM}\"" \
+["xbox"]="/Applications/launchers/xemu -full-screen -dvd_path \"${ROM}\"" \
+["xbox360"]="/Applications/launchers/xenia --fullscreen \"${ROM}\"" \
 )
 
 echo "Running command: ${EMULATOR_COMMAND[${EMULATOR}]}"
