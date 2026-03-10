@@ -81,8 +81,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
 
-RUN echo 3$LUTRIS_VERSION && \
-    curl -fsSL -o /tmp/lutris.deb \
+RUN curl -fsSL -o /tmp/lutris.deb \
         "https://github.com/lutris/lutris/releases/download/v${LUTRIS_VERSION}/lutris_${LUTRIS_VERSION}_all.deb" && \
     dpkg -i /tmp/lutris.deb && \
     rm -f /tmp/lutris.deb && \
