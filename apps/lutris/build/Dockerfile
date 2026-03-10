@@ -1,13 +1,41 @@
 ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
+######################################
+# Same as Steam, here we build a patched bubblewrap
+# that works with CAP_SYS_ADMIN in containers.
+# bwrap detects explicit capabilities and aborts; this patch removes that check.
+FROM ubuntu:25.04 AS bwrap-builder
+
+ENV DEBIAN_FRONTEND=non-interactive
+WORKDIR /root
+COPY ignore_capabilities.patch /root/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends git meson ca-certificates dpkg-dev && \
+    git clone https://github.com/containers/bubblewrap && \
+    cd bubblewrap && \
+    ./ci/builddeps.sh && \
+    patch -p1 < ../ignore_capabilities.patch && \
+    meson _builddir && \
+    meson compile -C _builddir
+
+######################################
+
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+# Hardcoded the version to prevent image builder using cached old packages when newer version comes out
+ARG LUTRIS_VERSION=0.5.22
+
 ARG DEBIAN_FRONTEND=noninteractive
 
-# The following list of packages is informed by these articles;
+# The following list of packages was informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
 #   - https://github.com/lutris/docs/blob/master/WineDependencies.md
+#
+# Also added libegl1:i386 which is required for winegstreamer.so (32-bit)
+# to load inside the pressure-vessel sniper runtime.
+# Without it, Wine's quartz.dll crashes during DirectShow initialization,
+# causing Themida-protected games to raise SIGTRAP via direct Linux syscall.
 ARG REQUIRED_PACKAGES=" \
      cabextract \
      curl \
@@ -21,6 +49,7 @@ ARG REQUIRED_PACKAGES=" \
      libdbus-1-3:i386 \
      libfreetype6:i386 \
      libgl1:i386 \
+     libegl1:i386 \
      libsdl2-2.0-0:i386 \
      libsqlite3-0:i386 \
      libvulkan1 \
@@ -52,15 +81,15 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
 
-RUN <<_INSTALL_LUTRIS
-#!/bin/bash
-set -e
-source /opt/gow/bash-lib/utils.sh
+RUN echo 3$LUTRIS_VERSION && \
+    curl -fsSL -o /tmp/lutris.deb \
+        "https://github.com/lutris/lutris/releases/download/v${LUTRIS_VERSION}/lutris_${LUTRIS_VERSION}_all.deb" && \
+    dpkg -i /tmp/lutris.deb && \
+    rm -f /tmp/lutris.deb && \
+    rm -rf /var/lib/apt/lists/*
 
-github_download "lutris/lutris" ".assets[]|select(.name|endswith(\".deb\")).browser_download_url" "lutris.deb"
-dpkg -i lutris.deb
-rm lutris.deb
-_INSTALL_LUTRIS
+# Replace system bwrap with patched version that works with CAP_SYS_ADMIN
+COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
