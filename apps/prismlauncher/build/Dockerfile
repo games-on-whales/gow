@@ -15,9 +15,9 @@ ARG REQUIRED_PACKAGES=" \
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    # Get PrismLauncher from makedeb \
-    wget -qO - "https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub" | gpg --dearmor | tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null && \
-    echo "deb [signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | tee /etc/apt/sources.list.d/prebuilt-mpr.list && \
+    # Get PrismLauncher from updated community source (https://prismlauncher.org/download/linux/) \
+    wget https://prism-launcher-for-debian.github.io/repo/prismlauncher.gpg -O /usr/share/keyrings/prismlauncher-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/prismlauncher-archive-keyring.gpg] https://prism-launcher-for-debian.github.io/repo $(. /etc/os-release; echo "${UBUNTU_CODENAME:-${DEBIAN_CODENAME:-${VERSION_CODENAME}}}") main" | tee /etc/apt/sources.list.d/prismlauncher.list && \
     apt update && \
     apt install -y prismlauncher && \
     # Cleanup \
