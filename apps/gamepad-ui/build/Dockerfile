@@ -1,5 +1,25 @@
 ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
+######################################
+# Same as Steam, here we build a patched bubblewrap
+# that works with CAP_SYS_ADMIN in containers.
+# bwrap detects explicit capabilities and aborts; this patch removes that check.
+FROM ubuntu:25.04 AS bwrap-builder
+
+ENV DEBIAN_FRONTEND=non-interactive
+WORKDIR /root
+COPY ignore_capabilities.patch /root/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends git meson ca-certificates dpkg-dev && \
+    git clone https://github.com/containers/bubblewrap && \
+    cd bubblewrap && \
+    ./ci/builddeps.sh && \
+    patch -p1 < ../ignore_capabilities.patch && \
+    meson _builddir && \
+    meson compile -C _builddir
+
+######################################
+
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
@@ -23,6 +43,7 @@ ARG LUTRIS_PACKAGES=" \
      libdbus-1-3:i386 \
      libfreetype6:i386 \
      libgl1:i386 \
+     libegl1:i386 \
      libsdl2-2.0-0:i386 \
      libsqlite3-0:i386 \
      libvulkan1 \
@@ -72,14 +93,18 @@ dpkg -i lutris.deb
 rm lutris.deb
 _INSTALL_LUTRIS
 
+# Replace system bwrap with patched version that works with CAP_SYS_ADMIN
+COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
+
 # Install Lutris Gamepad UI
 ENV APPIMAGE_URL="https://github.com/HashimHS/lutris-gamepad-ui/releases/latest/download/lutris-gamepad-ui-x64.AppImage"
 ENV APPIMAGE_NAME="lutris-gamepad-ui.AppImage"
 ENV APP_DIR="/opt/gow/app"
 
 # Download and extract AppImage
-RUN curl -L ${APPIMAGE_URL} -o /tmp/app.AppImage && \
-    chmod +x /tmp/app.AppImage && \
+COPY --chmod=777 app.AppImage /tmp/app.AppImage
+# RUN curl -L ${APPIMAGE_URL} -o /tmp/app.AppImage && \
+RUN chmod +x /tmp/app.AppImage && \
     /tmp/app.AppImage --appimage-extract && \
     mv squashfs-root ${APP_DIR} && \
     rm -rf /tmp/app.AppImage && \
