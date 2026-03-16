@@ -6,9 +6,9 @@ icon_png_path = "https://raw.githubusercontent.com/HashimHS/gow/refs/heads/gamep
 type = 'docker'
 name = 'WolfGamepad-UI'
 image = 'docker.io/hashimhs/gamepadui:latest'
-env = ['GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
+env = [ 'RUN_GAMESCOPE=1', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
 devices = []
-mounts = []
+mounts = ['lutris:/var/lutris:rw']
 ports = []
 base_create_json = '''{
   "HostConfig": {
