@@ -10,7 +10,7 @@ An open-source. simple, TV-friendly, gamepad-navigable frontend for the Lutris g
 # Easy Setup
 If you already have the [WolfLutris](https://games-on-whales.github.io/wildlife/apps/lutris/) app configured. Edit the app profile in the .toml file by changing the image to:
 ```
-image = 'docker.io/hashimhs/gamepadui:alpha'
+image = 'docker.io/hashimhs/gamepadui:latest'
 ```
 
 Optionally change the title and icon:
@@ -24,7 +24,3 @@ Restart Wolf.
 Mount your lutris config and game directories by adding it in the .toml config file. Paths are same as the WolfLutris app. Check the relevant directories at [startup-10-create-dirs.sh](build/scripts/startup-10-create-dirs.sh)
 
 Proper documentation is coming soon (I would appreciate any help through PR)...
-
-# Current limitations
-- You can not open lutris from the Gamepad UI.
-- In-game overlay does not pop up when pressing the home button while in-game. The in-game overlay provides options to pause/resume (freeze game state) or forcefully close the game.

@@ -5,7 +5,7 @@ icon_png_path = "https://raw.githubusercontent.com/HashimHS/gow/refs/heads/gamep
 [apps.runner]
 type = 'docker'
 name = 'WolfGamepad-UI'
-image = 'localhost/gamepadui:edge'
+image = 'docker.io/hashimhs/gamepadui:latest'
 env = ['GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
 devices = []
 mounts = []

@@ -13,4 +13,10 @@ done
 gow_log "[start] Starting LUTRIS-GAMEPAD-UI"
 
 source /opt/gow/launch-comp.sh
+
+# Use gamescope by default unless an explicit compositor mode is provided.
+if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
+    export RUN_GAMESCOPE=1
+fi
+
 launcher /bin/gamepadui.sh

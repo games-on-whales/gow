@@ -7,6 +7,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
+# The following list of packages is informed by these articles;
+#   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
+#   - https://github.com/lutris/docs/blob/master/WineDependencies.md
 ARG LUTRIS_PACKAGES=" \
      cabextract \
      curl \
@@ -70,7 +73,7 @@ rm lutris.deb
 _INSTALL_LUTRIS
 
 # Install Lutris Gamepad UI
-ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/latest/download/lutris-gamepad-ui-x64.AppImage"
+ENV APPIMAGE_URL="https://github.com/HashimHS/lutris-gamepad-ui/releases/latest/download/lutris-gamepad-ui-x64.AppImage"
 ENV APPIMAGE_NAME="lutris-gamepad-ui.AppImage"
 ENV APP_DIR="/opt/gow/app"
 
