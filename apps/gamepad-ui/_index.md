@@ -8,19 +8,30 @@ An open-source. simple, TV-friendly, gamepad-navigable frontend for the Lutris g
 [lutris-gamepad-ui](https://github.com/andrew-ld/lutris-gamepad-ui)
 
 # Easy Setup
-If you already have the [WolfLutris](https://games-on-whales.github.io/wildlife/apps/lutris/) app configured. Edit the app profile in the .toml file by changing the image to:
-```
-image = 'docker.io/hashimhs/gamepadui:latest'
-```
+Add the app profile in the .toml file:
+```toml
+    [[profiles.apps]]
+    icon_png_path = 'https://raw.githubusercontent.com/HashimHS/gow/refs/heads/gamepadui/apps/gamepad-ui/assets/icon.png'
+    start_virtual_compositor = true
+    title = 'Gamepad UI'
 
-Optionally change the title and icon:
-```
-title = 'Gamepad UI'
-icon_png_path = "https://raw.githubusercontent.com/HashimHS/gow/refs/heads/gamepadui/apps/gamepad-ui/assets/icon.png"
+        [profiles.apps.runner]
+        base_create_json = '''{
+  "HostConfig": {
+    "IpcMode": "host",
+    "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+    "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "Privileged": false,
+    "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+  }
+}
+'''
+        devices = []
+        env = [ 'RUN_GAMESCOPE=1', 'GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/' ]
+        image = 'docker.io/hashimhs/gamepadui:latest'
+        mounts = ['lutris:/var/lutris:rw']
+        name = 'WolfGamepad-UI'
+        ports = []
+        type = 'docker'
 ```
 Restart Wolf.
-
-# Manual directory configuration
-Mount your lutris config and game directories by adding it in the .toml config file. Paths are same as the WolfLutris app. Check the relevant directories at [startup-10-create-dirs.sh](build/scripts/startup-10-create-dirs.sh)
-
-Proper documentation is coming soon (I would appreciate any help through PR)...
