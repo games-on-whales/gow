@@ -36,6 +36,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # to load inside the pressure-vessel sniper runtime.
 # Without it, Wine's quartz.dll crashes during DirectShow initialization,
 # causing Themida-protected games to raise SIGTRAP via direct Linux syscall.
+#
+# Also added libavfilter10:i386 which is required for gstreamer-1.0/libgstlibav.so (32-bit)
+# which is required by some games in decoding WMV/WMA assets
 ARG REQUIRED_PACKAGES=" \
      cabextract \
      curl \
@@ -54,6 +57,7 @@ ARG REQUIRED_PACKAGES=" \
      libsqlite3-0:i386 \
      libvulkan1 \
      libvulkan1:i386 \
+     libavfilter10:i386 \
      mesa-utils \
      mesa-vulkan-drivers \
      mesa-vulkan-drivers:i386 \
