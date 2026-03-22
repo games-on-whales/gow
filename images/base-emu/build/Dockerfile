@@ -149,9 +149,8 @@ echo "**** Downloading Citron Emulator AppImage ****"
 # TODO: check why this is failing
 #forgejo_download "https://git.citron-emu.org/citron-emu/Citron" "citron.AppImage" "x86_64"
 
-#echo "**** Downloading Xenia Canary ****"
-# TODO: now it's `.xz`, needs fixing..
-#github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
+echo "**** Downloading Xenia Canary ****"
+github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.xz" "" ""
 
 echo "**** Extracting Xenia Canary ****"
 mkdir -p xenia-canary
