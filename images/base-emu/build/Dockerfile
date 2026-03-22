@@ -34,6 +34,7 @@ RUN \
             libaio1t64 \
             libglu1-mesa \
             libusb-1.0-0 \
+            xz-utils \
             && \
 	# Cleanup \
 		apt-get autoremove -y && \
