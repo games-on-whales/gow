@@ -154,8 +154,8 @@ github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.xz"
 
 echo "**** Extracting Xenia Canary ****"
 mkdir -p xenia-canary
-tar -xf xenia_canary_linux.tar.gz -C xenia-canary
-rm xenia_canary_linux.tar.gz
+tar -xf xenia_canary_linux.tar.xz -C xenia-canary
+rm xenia_canary_linux.tar.xz
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
