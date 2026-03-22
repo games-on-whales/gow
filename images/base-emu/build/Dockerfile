@@ -19,6 +19,7 @@ RUN \
             ffmpeg \
             gpg-agent \
             jq \
+            xz-utils \
             libdbus-1-3 \
             libegl1 \
             libglu1-mesa-dev \
@@ -143,18 +144,19 @@ echo "**** Downloading CEMU AppImage ****"
 github_download "cemu-project/Cemu" "cemu-emu.AppImage" "" "/latest"
 
 echo "**** Downloading Dolphin AppImage ****"
-github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"anylinux-x86_64\"))"
 
-echo "**** Downloading Citron Emulator AppImage ****"
-forgejo_download "https://git.citron-emu.org/citron/emulator" "citron.AppImage" "x86_64"
+# 2026-02-16 no source available
+# echo "**** Downloading Citron Emulator AppImage ****"
+# forgejo_download "https://git.citron-emu.org/citron/emulator" "citron.AppImage" "x86_64"
 
 echo "**** Downloading Xenia Canary ****"
-github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.gz" "" ""
+github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.xz" "" "/latest"
 
 echo "**** Extracting Xenia Canary ****"
 mkdir -p xenia-canary
-tar -xf xenia_canary_linux.tar.gz -C xenia-canary
-rm xenia_canary_linux.tar.gz
+tar -xf xenia_canary_linux.tar.xz -C xenia-canary
+rm xenia_canary_linux.tar.xz
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
