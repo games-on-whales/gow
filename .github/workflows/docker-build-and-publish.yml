@@ -197,7 +197,12 @@ jobs:
             # Order here matters, outputting this after `ghcr.io` means that later one we'll build images on top of
             # the Github registry. This is useful because Docker Hub has introduced a lot of rate limits
             if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-              IMAGES="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
+              REGISTRY_IMAGE="docker.io/${{ needs.prepare.outputs.dockerhub_namespace }}/${{ inputs.image_name }}"
+              if [ "$IMAGES" = "" ]; then
+                IMAGES="${REGISTRY_IMAGE}"
+              else
+                IMAGES="$IMAGES,${REGISTRY_IMAGE}"
+              fi
               echo "has_docker_token=true" >> $GITHUB_OUTPUT
               echo "==> Pushing to Docker Hub"
             fi
