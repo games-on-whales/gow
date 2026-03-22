@@ -85,6 +85,7 @@ declare -A EMULATOR_COMMAND=( \
 ["segacd"]="retroarch --fullscreen -L ~/.config/retroarch/cores/genesis_plus_gx_libretro.so \"${ROM}\"" \
 ["scummvm"]="launch_scummvm \"${ROM}\"" \
 ["snes"]="retroarch --fullscreen -L ~/.config/retroarch/cores/snes9x_libretro.so \"${ROM}\"" \
+["snes-ares"]="/Applications/ares-emu.AppImage --appimage-extract-and-run --fullscreen --system \"Super Famicom\" \"${ROM}\"" \
 ["snes_widescreen"]="retroarch --fullscreen -L ~/.config/retroarch/cores/bsnes_hd_beta_libretro.so \"${ROM}\"" \
 ["switch"]="/Applications/launchers/citron.sh -f -g \"${ROM}\"" \
 ["virtualboy"]="retroarch --fullscreen -L ~/.config/retroarch/cores/mednafen_vb_libretro.so \"${ROM}\"" \

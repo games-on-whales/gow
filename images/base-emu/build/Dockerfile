@@ -139,11 +139,14 @@ github_download "xemu-project/xemu" "xemu-emu.AppImage" "|select(.name|contains(
 echo "**** Downloading RPCS3 AppImage ****"
 github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage" "" "/latest"
 
+echo "**** Downloading Ares emu AppImage ****"
+github_download "pkgforge-dev/ares-emu-appimage" "ares-emu.AppImage" "|select(.name|contains(\"x86_64\"))" "/latest"
+
 echo "**** Downloading CEMU AppImage ****"
 github_download "cemu-project/Cemu" "cemu-emu.AppImage" "" "/latest"
 
 echo "**** Downloading Dolphin AppImage ****"
-github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"dwarfs-x86_64\"))"
+github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"x86_64\"))" "/latest"
 
 echo "**** Downloading Citron Emulator AppImage ****"
 forgejo_download "https://git.citron-emu.org/citron/emulator" "citron.AppImage" "x86_64"
