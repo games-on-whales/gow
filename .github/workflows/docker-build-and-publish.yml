@@ -440,6 +440,7 @@ jobs:
       
       - name: Create Docker Hub manifest list and push
         if: needs.docker.outputs.has_docker_token != ''
+        continue-on-error: true
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("docker.io"))) | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
@@ -453,6 +454,7 @@ jobs:
 
       - name: Inspect Docker Hub image
         if: needs.docker.outputs.has_docker_token != ''
+        continue-on-error: true
         run: |
           echo "Inspecting Docker Hub image:"
           docker buildx imagetools inspect gameonwhales/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
