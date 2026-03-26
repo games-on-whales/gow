@@ -10,7 +10,7 @@ for file in /opt/gow/startup.d/* ; do
     fi
 done
 
-gow_log "[start] Starting LUTRIS-GAMEPAD-UI"
+gow_log "[start] Starting Gamepad-UI"
 
 source /opt/gow/launch-comp.sh
 
@@ -18,5 +18,7 @@ source /opt/gow/launch-comp.sh
 if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
     export RUN_GAMESCOPE=1
 fi
+# Enable standalone UI behavior by default in container deployments.
+export STANDALONE_SESSION=${STANDALONE_SESSION:-1}
 
-launcher /bin/gamepadui.sh
+launcher /opt/gow/app/AppRun

@@ -23,14 +23,29 @@ RUN apt-get update -y && \
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+# Hardcoded the version to prevent image builder using cached old packages when newer version comes out
+ARG LUTRIS_VERSION=0.5.22
+ARG GAMEPAD_UI_VERSION=v0.1.32
+
 ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
-# The following list of packages is informed by these articles;
+# The following list of packages was informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
 #   - https://github.com/lutris/docs/blob/master/WineDependencies.md
+#
+# Also added libegl1:i386 which is required for winegstreamer.so (32-bit)
+# to load inside the pressure-vessel sniper runtime.
+# Without it, Wine's quartz.dll crashes during DirectShow initialization,
+# causing Themida-protected games to raise SIGTRAP via direct Linux syscall.
+#
+# Also added libavfilter10:i386 which is required for gstreamer-1.0/libgstlibav.so (32-bit)
+# which is required by some games in decoding WMV/WMA assets
+#
+# Also added fonts-noto-color-emoji for Gamepad-UI to show symbols on top bar.
 ARG LUTRIS_PACKAGES=" \
+     fonts-noto-color-emoji \
      cabextract \
      curl \
      fluid-soundfont-gs \
@@ -48,6 +63,7 @@ ARG LUTRIS_PACKAGES=" \
      libsqlite3-0:i386 \
      libvulkan1 \
      libvulkan1:i386 \
+     libavfilter10:i386 \
      mesa-utils \
      mesa-vulkan-drivers \
      mesa-vulkan-drivers:i386 \
@@ -83,28 +99,25 @@ RUN dpkg --add-architecture i386 && \
 # Cleanup \
     apt-get autoremove -y
 
-RUN <<_INSTALL_LUTRIS
-#!/bin/bash
-set -e
-source /opt/gow/bash-lib/utils.sh
-
-github_download "lutris/lutris" ".assets[]|select(.name|endswith(\".deb\")).browser_download_url" "lutris.deb"
-dpkg -i lutris.deb
-rm lutris.deb
-_INSTALL_LUTRIS
+RUN curl -fsSL -o /tmp/lutris.deb \
+        "https://github.com/lutris/lutris/releases/download/v${LUTRIS_VERSION}/lutris_${LUTRIS_VERSION}_all.deb" && \
+    dpkg -i /tmp/lutris.deb && \
+    rm -f /tmp/lutris.deb && \
+    rm -rf /var/lib/apt/lists/*
 
 # Replace system bwrap with patched version that works with CAP_SYS_ADMIN
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 # Install Lutris Gamepad UI
-ENV APPIMAGE_URL="https://github.com/HashimHS/lutris-gamepad-ui/releases/latest/download/lutris-gamepad-ui-x64.AppImage"
+ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/download/${GAMEPAD_UI_VERSION}/lutris-gamepad-ui-x64.AppImage"
+#ENV APPIMAGE_URL="https://github.com/HashimHS/lutris-gamepad-ui/releases/latest/download/lutris-gamepad-ui-x64.AppImage"
 ENV APPIMAGE_NAME="lutris-gamepad-ui.AppImage"
 ENV APP_DIR="/opt/gow/app"
 
 # Download and extract AppImage
-COPY --chmod=777 app.AppImage /tmp/app.AppImage
-# RUN curl -L ${APPIMAGE_URL} -o /tmp/app.AppImage && \
-RUN chmod +x /tmp/app.AppImage && \
+#COPY --chmod=777 release.AppImage /tmp/app.AppImage
+RUN curl -LJ ${APPIMAGE_URL} -o /tmp/app.AppImage && \
+    chmod +x /tmp/app.AppImage && \
     /tmp/app.AppImage --appimage-extract && \
     mv squashfs-root ${APP_DIR} && \
     rm -rf /tmp/app.AppImage && \
@@ -115,7 +128,6 @@ RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
-COPY --chmod=777 scripts/gamepadui.sh /bin/gamepadui.sh
 COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
 COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
 COPY configs/gamepadui.json /opt/gow/gamepadui.json
