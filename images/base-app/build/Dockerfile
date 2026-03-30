@@ -58,8 +58,13 @@ ARG REQUIRED_PACKAGES="\
     "
 
 RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository -y ppa:kisak/kisak-mesa && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
     $REQUIRED_PACKAGES && \
+    apt-get remove -y --purge software-properties-common && \
+    rm -f /etc/apt/sources.list.d/kisak-ubuntu-kisak-mesa-*.sources && \
     rm -rf /var/lib/apt/lists/*
 
 # Some games with native Linux ports require en_US.UTF-8
