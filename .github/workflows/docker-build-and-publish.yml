@@ -24,6 +24,11 @@ on:
         default: "linux/amd64"
         type: string
         required: false
+      variant:
+        description: "Image variant (e.g. 'fedora'). Affects build dir and tag suffix."
+        type: string
+        required: false
+        default: ""
     outputs:
       image_tag:
         description: "The highest-priority tag assigned to the built image"
@@ -137,16 +142,16 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Cache buildx layers locally
-        if: github.event_name == 'pull_request'
-        uses: actions/cache@v4
+        if: ${{ needs.prepare.outputs.is_fork == 'true' }}
+        uses: actions/cache@v5
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}-pr-${{ github.event.number }}
+          key: ${{ runner.os }}-buildx-${{ inputs.image_name }}${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}-${{ env.PLATFORM_PAIR }}-pr-${{ github.event.number }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}-
+            ${{ runner.os }}-buildx-${{ inputs.image_name }}${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}-${{ env.PLATFORM_PAIR }}-
 
       # Set derived configuration variables:
       # - images: images to build (docker and/or github)
@@ -164,9 +169,10 @@ jobs:
           IMAGES=""
           CURRENT_PLATFORM="${{ contains(matrix.platform, 'arm64') && 'arm64' || 'x86' }}"
 
-          upstream_build_from_cache_image="ghcr.io/games-on-whales/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
-          build_from_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
-          build_to_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache-${CURRENT_PLATFORM}"
+          VARIANT_SUFFIX="${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}"
+          upstream_build_from_cache_image="ghcr.io/games-on-whales/${{ inputs.image_name }}:buildcache${VARIANT_SUFFIX}-${CURRENT_PLATFORM}"
+          build_from_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache${VARIANT_SUFFIX}-${CURRENT_PLATFORM}"
+          build_to_cache_image="ghcr.io/${{ needs.prepare.outputs.ghcr_namespace }}/${{ inputs.image_name }}:buildcache${VARIANT_SUFFIX}-${CURRENT_PLATFORM}"
 
           echo "==> Testing if build cache ${build_from_cache_image} exists"
           docker buildx imagetools inspect "${build_from_cache_image}" 2>/dev/null || build_cache_missing=1
@@ -177,7 +183,7 @@ jobs:
             echo "==> Found existing buildx cache for branch build, using image ${build_from_cache_image}"
           fi
 
-          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+          if [[ "${{ needs.prepare.outputs.is_fork }}" == "false" ]]; then
             echo "==> Setting variables for branch build"
 
             if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -248,7 +254,7 @@ jobs:
 
       - name: Download base image artifact
         id: download-base-image-artifact
-        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != '' }}
+        if: ${{ needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
           name: docker-${{ steps.prep.outputs.base_image_name }}-${{ env.PLATFORM_PAIR }}.tar
@@ -261,7 +267,7 @@ jobs:
       
       - name: Download base-app image artifact
         id: download-base-app-image-artifact
-        if: ${{ github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != '' }}
+        if: ${{ needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_app_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
           name: docker-${{ steps.prep.outputs.base_app_image_name }}-${{ env.PLATFORM_PAIR }}.tar
@@ -274,50 +280,52 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           # list of Docker images to use as base name for tags
           images: ${{ steps.prep.outputs.images }}
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}
-            type=edge,branch=master
-            type=ref,event=branch
-            type=sha
-          flavor: latest=auto #latest will point to last semver version (stable)
+            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora' || '' }}
+            ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora-43' || '' }}
+          flavor: |
+            latest=auto
 
       # Prepare for multi-arch
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: all
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
-          install: true
           version: latest
           driver-opts: image=moby/buildkit:master${{ github.event_name == 'pull_request' && ',network=host' || '' }}
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != ''
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
         if: steps.prep.outputs.has_github_token != ''
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Load base image
-        if: github.event_name == 'pull_request' && steps.prep.outputs.base_image_name != ''
+        if: needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_image_name != ''
         run: |
           set -e
           echo "==> Loading base image from artifact"
@@ -327,7 +335,7 @@ jobs:
           docker push "${{ inputs.base_image }}"
 
       - name: Load base-app image
-        if: github.event_name == 'pull_request' && steps.prep.outputs.base_app_image_name != ''
+        if: needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_app_image_name != ''
         run: |
           set -e
           echo "==> Loading base-app image from artifact"
@@ -338,11 +346,11 @@ jobs:
 
       - name: Build and Push
         id: docker_build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build
-          file: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build/Dockerfile
+          context: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+          file: ./${{ inputs.docker_path }}/${{ inputs.image_name }}/build${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}/Dockerfile
           platforms: ${{ matrix.platform }}
           outputs: ${{ steps.prep.outputs.buildx_outputs }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -354,10 +362,10 @@ jobs:
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
       - name: Upload docker image as artifact
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        if: ${{ needs.prepare.outputs.is_fork == 'true' }}
+        uses: actions/upload-artifact@v7
         with:
-          name: docker-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          name: docker-${{ inputs.image_name }}${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}-${{ env.PLATFORM_PAIR }}.tar
           path: /tmp/${{ inputs.image_name }}-*.tar
           if-no-files-found: error
           retention-days: 1
@@ -366,7 +374,7 @@ jobs:
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
       - name: Cleanup buildx cache
-        if: github.event_name == 'pull_request'
+        if: ${{ needs.prepare.outputs.is_fork == 'true' }}
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
@@ -375,7 +383,7 @@ jobs:
         run: echo "${{ inputs.image_name }} > ${{ steps.docker_build.outputs.digest }}"
 
       - name: Export digest
-        if: github.event_name != 'pull_request'
+        if: ${{ needs.prepare.outputs.is_fork == 'false' }}
         id: export-digest
         run: |
           mkdir -p /tmp/digests
@@ -384,10 +392,10 @@ jobs:
           echo "hash=${digest#sha256:}" >> $GITHUB_OUTPUT
 
       - name: Upload digest
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        if: ${{ needs.prepare.outputs.is_fork == 'false' }}
+        uses: actions/upload-artifact@v7
         with:
-          name: digests-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
+          name: digests-${{ inputs.variant != '' && format('{0}-', inputs.variant) || '' }}${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
           path: /tmp/digests/*
           if-no-files-found: error
           overwrite: true
@@ -399,44 +407,48 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     needs: [ prepare, docker ]
-    if: github.event_name != 'pull_request'
+    if: ${{ needs.prepare.outputs.is_fork == 'false' }}
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: /tmp/digests
-          pattern: digests-${{ inputs.image_name }}-*
+          pattern: digests-${{ inputs.variant != '' && format('{0}-', inputs.variant) || '' }}${{ inputs.image_name }}-*
           merge-multiple: true
 
       - name: Login to Docker Hub
         if: needs.docker.outputs.has_docker_token != ''
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
         if: needs.docker.outputs.has_github_token != ''
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ needs.docker.outputs.images }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}
-            type=edge,branch=master
-            type=ref,event=branch
-            type=sha
+            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora' || '' }}
+            ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora-43' || '' }}
+          flavor: |
+            latest=auto
 
       - name: Create ghcr manifest list and push
         if: needs.docker.outputs.has_github_token != ''

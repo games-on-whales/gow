@@ -88,3 +88,79 @@ jobs:
       platforms: "${{ matrix.image.platforms }}"
     secrets: inherit
 
+  # ========== Fedora variant ==========
+  base-fedora:
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      docker_path: "images"
+      image_name: "base"
+      variant: "fedora"
+      platforms: "linux/amd64"
+    secrets: inherit
+
+  base-app-fedora:
+    needs: [ base-fedora ]
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      docker_path: "images"
+      image_name: "base-app"
+      variant: "fedora"
+      base_image: "${{ needs.base-fedora.outputs.image_tag }}"
+      platforms: "linux/amd64"
+    secrets: inherit
+
+  base-emu-fedora:
+    needs: [ base-fedora, base-app-fedora ]
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      docker_path: "images"
+      image_name: "base-emu"
+      variant: "fedora"
+      base_image: "${{ needs.base-fedora.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-app-fedora.outputs.image_tag }}"
+      platforms: "linux/amd64"
+    secrets: inherit
+
+  emus-fedora:
+    needs: [ base-fedora, base-app-fedora, base-emu-fedora ]
+    strategy:
+      matrix:
+        image:
+          - { name: pegasus, platforms: "linux/amd64" }
+          - { name: es-de,   platforms: "linux/amd64" }
+      fail-fast: false
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      docker_path: "apps"
+      image_name: "${{ matrix.image.name }}"
+      variant: "fedora"
+      base_image: "${{ needs.base-fedora.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-emu-fedora.outputs.image_tag }}"
+      platforms: "${{ matrix.image.platforms }}"
+    secrets: inherit
+
+  apps-fedora:
+    needs: [ base-fedora, base-app-fedora ]
+    strategy:
+      matrix:
+        image:
+          - { name: pulseaudio,            docker_path: images, platforms: "linux/amd64" }
+          - { name: retroarch,             docker_path: apps,   platforms: "linux/amd64" }
+          - { name: firefox,               docker_path: apps,   platforms: "linux/amd64" }
+          - { name: steam,                 docker_path: apps,   platforms: "linux/amd64" }
+          - { name: lutris,                docker_path: apps,   platforms: "linux/amd64" }
+          - { name: heroic-games-launcher, docker_path: apps,   platforms: "linux/amd64" }
+          - { name: prismlauncher,         docker_path: apps,   platforms: "linux/amd64" }
+          - { name: kodi,                  docker_path: apps,   platforms: "linux/amd64" }
+          - { name: xfce,                  docker_path: apps,   platforms: "linux/amd64" }
+      fail-fast: false
+    uses: ./.github/workflows/docker-build-and-publish.yml
+    with:
+      docker_path: "${{ matrix.image.docker_path }}"
+      image_name: "${{ matrix.image.name }}"
+      variant: "fedora"
+      base_image: "${{ needs.base-fedora.outputs.image_tag }}"
+      base_app_image: "${{ needs.base-app-fedora.outputs.image_tag }}"
+      platforms: "${{ matrix.image.platforms }}"
+    secrets: inherit
+
