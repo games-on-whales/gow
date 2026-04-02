@@ -4,9 +4,9 @@ ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 # Same as Steam, here we build a patched bubblewrap
 # that works with CAP_SYS_ADMIN in containers.
 # bwrap detects explicit capabilities and aborts; this patch removes that check.
-FROM ubuntu:25.04 AS bwrap-builder
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
-ENV DEBIAN_FRONTEND=non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
 RUN apt-get update -y && \

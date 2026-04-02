@@ -5,7 +5,7 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM fedora:43 AS bwrap-builder
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
