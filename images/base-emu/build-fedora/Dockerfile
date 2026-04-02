@@ -27,7 +27,7 @@ RUN dnf install -y \
     qt5-qtbase \
     qt6-qtbase \
     wget \
-    xorg-x11-server-utils \
+    xrandr \
     libaio \
     libusb1 \
     xz \

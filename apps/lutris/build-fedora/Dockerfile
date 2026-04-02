@@ -41,7 +41,7 @@ RUN dnf install -y \
     freetype.i686 \
     mesa-libGL.i686 \
     mesa-libEGL.i686 \
-    SDL2.i686 \
+    sdl2-compat.i686 \
     sqlite-libs.i686 \
     vulkan-loader vulkan-loader.i686 \
     mesa-vulkan-drivers mesa-vulkan-drivers.i686 \
@@ -59,7 +59,7 @@ RUN dnf install -y \
     vulkan-tools \
     wine wine.i686 \
     winetricks \
-    xorg-x11-server-utils \
+    xrandr \
     zenity \
     lutris \
     && dnf clean all

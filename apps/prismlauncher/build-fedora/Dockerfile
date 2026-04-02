@@ -7,8 +7,6 @@ FROM ${BASE_APP_IMAGE}
 # PrismLauncher is available in Fedora repos via COPR
 RUN dnf install -y \
     java-21-openjdk \
-    java-17-openjdk \
-    java-1.8.0-openjdk \
     wget \
     && dnf copr enable -y g3tchoo/prismlauncher \
     && dnf install -y prismlauncher \
