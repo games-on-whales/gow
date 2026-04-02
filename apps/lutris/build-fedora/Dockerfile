@@ -3,7 +3,7 @@ ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora
 ######################################
 # Same as Steam, here we build a patched bubblewrap
 # that works with CAP_SYS_ADMIN in containers.
-FROM fedora:43 AS bwrap-builder
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
