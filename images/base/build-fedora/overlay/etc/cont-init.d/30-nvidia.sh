@@ -32,19 +32,19 @@ if [ -d /usr/nvidia ]; then
 
   if [ -d /usr/nvidia/lib/gbm ]; then
     gow_log "[nvidia] Add gbm backend"
-    mkdir -p /usr/lib/x86_64-linux-gnu/gbm/
-    cp /usr/nvidia/lib/gbm/* /usr/lib/x86_64-linux-gnu/gbm/
+    mkdir -p /usr/lib64/gbm/
+    cp /usr/nvidia/lib/gbm/* /usr/lib64/gbm/
   fi
 # Check if there's libnvidia-allocator.so.1
-elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
+elif [ -e /usr/lib64/libnvidia-allocator.so.1 ]; then
   gow_log "Nvidia driver detected, assuming it's using the nvidia driver volume"
   ldconfig
 
   # Create a symlink to the nvidia-drm_gbm.so (if not present)
-  if [ ! -e /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so ]; then
+  if [ ! -e /usr/lib64/gbm/nvidia-drm_gbm.so ]; then
     gow_log "Creating symlink to nvidia-drm_gbm.so"
-    mkdir -p /usr/lib/x86_64-linux-gnu/gbm
-    ln -sv ../libnvidia-allocator.so.1 /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so
+    mkdir -p /usr/lib64/gbm
+    ln -sv ../libnvidia-allocator.so.1 /usr/lib64/gbm/nvidia-drm_gbm.so
   fi
 
   # Create json config files
