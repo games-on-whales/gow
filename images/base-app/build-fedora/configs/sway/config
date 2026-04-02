@@ -1,0 +1,114 @@
+# Users can easily add custom configuration in the home folder
+include /home/retro/.config/sway/custom-cfg
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod1
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+# Your preferred terminal emulator
+set $term foot
+# Your preferred application launcher
+# Note: pass the final command to swaymsg so that the resulting window can be opened
+# on the original workspace that the command was run on.
+set $menu dmenu_path | dmenu | xargs swaymsg exec --
+
+include /etc/sway/config-vars.d/*
+
+### Output configuration
+#
+# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+# output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+#
+# Example configuration:
+#
+#   output HDMI-A-1 resolution 1920x1080 position 1920,0
+#
+# You can get the names of your outputs by running: swaymsg -t get_outputs
+
+### Key bindings
+#
+# Basics:
+#
+    # Start a terminal
+    bindsym $mod+Return exec kitty
+
+    # Kill focused window
+    # Cemu doesn't have a close button on some of its menus (sway doesn't support those button types yet)
+    bindsym $mod+Shift+q kill
+    bindsym Alt+F4 kill
+
+    # Start your launcher
+    # bindsym $mod+d exec $menu
+
+    # Drag floating windows by holding down $mod and left mouse button.
+    # Resize them with right mouse button + $mod.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    floating_modifier $mod normal
+
+    # Reload the configuration file
+    bindsym $mod+Shift+c reload
+
+    # Exit sway (logs you out of your Wayland session)
+    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+
+# Resizing containers:
+#
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    # Ditto, with arrow keys
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+# bindsym $mod+r mode "resize"
+
+include /etc/sway/config.d/*
+
+# Font, borders, and gaps
+    gaps inner 4
+    gaps outer -4
+    gaps top -2
+    gaps bottom 0
+    default_border pixel 2
+    default_floating_border pixel 2
+
+# Colours
+    client.background n/a #434c5e n/a
+    client.focused #4C566A #434c5e #eceff4 #434c5e #434c5e
+    client.focused_inactive #3b4252 #3b4252 #eceff4 #3b4252 #3b4252
+    client.unfocused #3b4252 #3b4252 #eceff4 #3b4252 #3b4252
+    client.urgent #4C566A #434c5e #eceff4 #434c5e #434c5e
+
+bar swaybar_command waybar
+
+# App fixes
+# You can get more info about windows at runtime with `swaymsg -t get_tree`
+# Steam big picture fix (force windowing mode)
+for_window [class="steam"] fullscreen disabled
+# Force steam games in fullscreen mode
+for_window [class="steam_app_.*"] fullscreen enabled
+# Force ES-DE to start windowed
+for_window [class="es-de"] fullscreen disabled
+
+# Need to autostart something after this line, for example:
+# see: launch-comp.sh
