@@ -8,10 +8,8 @@ ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 RUN dnf install -y \
     gstreamer1-plugins-base \
-    fuseiso \
     fuse-zip \
     openssl-libs \
-    compat-openssl11 \
     && dnf clean all
 
 # Setup ISO mounting location

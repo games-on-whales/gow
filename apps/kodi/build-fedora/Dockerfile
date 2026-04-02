@@ -23,7 +23,6 @@ dnf clean all
 
 # Fix bwrap perms for flatpaks
 chmod u+s /usr/bin/bwrap
-service dbus start
 
 _INSTALL_KODI
 
