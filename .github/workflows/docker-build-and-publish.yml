@@ -286,16 +286,15 @@ jobs:
           images: ${{ steps.prep.outputs.images }}
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}
-            type=edge,branch=master
-            type=ref,event=branch
-            type=sha
+            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora' || '' }}
             ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora-43' || '' }}
           flavor: |
             latest=auto
-            suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }},onlatest=false
 
       # Prepare for multi-arch
       - name: Set up QEMU
@@ -397,7 +396,7 @@ jobs:
         if: ${{ needs.prepare.outputs.is_fork == 'false' }}
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ inputs.image_name }}${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}-${{ env.PLATFORM_PAIR }}
+          name: digests-${{ inputs.variant != '' && format('{0}-', inputs.variant) || '' }}${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
           path: /tmp/digests/*
           if-no-files-found: error
           overwrite: true
@@ -415,7 +414,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: /tmp/digests
-          pattern: digests-${{ inputs.image_name }}${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}-*
+          pattern: digests-${{ inputs.variant != '' && format('{0}-', inputs.variant) || '' }}${{ inputs.image_name }}-*
           merge-multiple: true
 
       - name: Login to Docker Hub
@@ -442,16 +441,15 @@ jobs:
         with:
           images: ${{ needs.docker.outputs.images }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}
-            type=edge,branch=master
-            type=ref,event=branch
-            type=sha
+            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
+            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora' || '' }}
             ${{ inputs.variant == 'fedora' && 'type=raw,value=fedora-43' || '' }}
           flavor: |
             latest=auto
-            suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }},onlatest=false
 
       - name: Create ghcr manifest list and push
         if: needs.docker.outputs.has_github_token != ''
