@@ -17,7 +17,7 @@ RUN dnf install -y \
     wine wine.i686 \
     winetricks \
     alsa-plugins-pulseaudio.i686 \
-    SDL2.i686 \
+    sdl2-compat.i686 \
     dbus-libs.i686 \
     sqlite-libs.i686 \
     zenity \
