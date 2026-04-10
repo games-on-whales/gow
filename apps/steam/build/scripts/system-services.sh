@@ -20,7 +20,7 @@ if [ ! -f "$HOME/homebrew/services/PluginLoader" ]; then
   gow_log "Installing Decky Loader"
   mkdir -p "$HOME/.steam/steam/"
   touch "$HOME/.steam/.cef-enable-remote-debugging"
-  ln -s "$HOME/.steam/compatibilitytools.d" "$HOME/.steam/steam/compatibilitytools.d"
+  ln -fs --no-target-directory "$HOME/.steam/compatibilitytools.d" "$HOME/.steam/steam/compatibilitytools.d"
   mkdir -p "$HOME/homebrew/services/"
   github_download "SteamDeckHomebrew/decky-loader" ".assets[]|select(.name|(\"PluginLoader\")).browser_download_url" "PluginLoader"
   chmod +x PluginLoader
