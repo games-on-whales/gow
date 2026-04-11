@@ -23,10 +23,10 @@ RUN dnf install -y \
     xarchiver \
     mousepad \
     zip unzip p7zip \
-    gnome-software gnome-software-plugin-flatpak \
+    gnome-software \
     # Browser \
     firefox \
-    && dnf remove -y foot 2>/dev/null || true \
+    && { dnf remove -y foot 2>/dev/null || true; } \
     && dnf clean all
 
 # Remove xscreensaver autostart if present
