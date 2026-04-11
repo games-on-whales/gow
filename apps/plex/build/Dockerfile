@@ -6,53 +6,24 @@ FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Plex HTPC on Linux is only officially distributed via Flathub, but the
-# underlying artifact is a plain tarball hosted at artifacts.plex.tv. We
-# resolve the current version by parsing the upstream Flathub manifest at
-# build time, so new upstream releases are picked up automatically when the
-# Flathub bot bumps the manifest.
+# Plex HTPC on Linux is only officially distributed via Flathub — Plex does
+# not publish any .deb/.rpm/AppImage, and the raw tarball at artifacts.plex.tv
+# is behind Cloudflare bot-management that blocks standard HTTP clients. The
+# only reliable install path is therefore `flatpak install` at build time.
 RUN <<_INSTALL_PLEX_HTPC
 set -e
 apt-get update
 apt-get install -y --no-install-recommends \
-    ca-certificates curl bzip2 \
-    libasound2t64 libva2 libva-drm2 libva-x11-2 libvdpau1 libegl1 libgl1 \
-    libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
-    libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 \
-    libxcb-xkb1 libxkbcommon-x11-0 libnss3 libfontconfig1 libdbus-1-3
+    ca-certificates flatpak xdg-desktop-portal
 
-TARBALL_URL=$(curl -fsSL \
-    https://raw.githubusercontent.com/flathub/tv.plex.PlexHTPC/master/tv.plex.PlexHTPC.yml \
-    | grep -oE 'https://artifacts\.plex\.tv/plex-htpc-stable/[^ ]+-linux-x86_64\.tar\.bz2' \
-    | head -n1)
+# bwrap needs to be setuid inside the container runtime; other apps in this
+# repo do the same thing for their flatpak flows.
+chmod u+s /usr/bin/bwrap
 
-if [ -z "$TARBALL_URL" ]; then
-    echo "Failed to resolve Plex HTPC tarball URL from Flathub manifest" >&2
-    exit 1
-fi
+flatpak remote-add --system --if-not-exists \
+    flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-echo "Downloading Plex HTPC from $TARBALL_URL"
-mkdir -p /opt/plex-htpc
-curl -fsSL "$TARBALL_URL" -o /tmp/plex-htpc.tar.bz2
-tar -xjf /tmp/plex-htpc.tar.bz2 -C /opt/plex-htpc
-rm -f /tmp/plex-htpc.tar.bz2
-
-# Tarball may extract into a single top-level directory — flatten it.
-if [ ! -f /opt/plex-htpc/Plex.sh ]; then
-    INNER=$(find /opt/plex-htpc -mindepth 1 -maxdepth 1 -type d | head -n1)
-    if [ -n "$INNER" ] && [ -f "$INNER/Plex.sh" ]; then
-        mv "$INNER"/* /opt/plex-htpc/
-        rmdir "$INNER"
-    fi
-fi
-
-if [ ! -x /opt/plex-htpc/Plex.sh ]; then
-    echo "Plex.sh launcher missing from tarball layout" >&2
-    ls -la /opt/plex-htpc >&2
-    exit 1
-fi
-
-ln -sf /opt/plex-htpc/Plex.sh /usr/local/bin/plex-htpc
+flatpak install --system -y --noninteractive flathub tv.plex.PlexHTPC
 
 apt-get autoremove -y
 rm -rf /var/lib/apt/lists/*
