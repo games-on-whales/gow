@@ -35,12 +35,21 @@ function launcher() {
   export QT_AUTO_SCREEN_SCALE_FACTOR=1
   export QT_ENABLE_HIGHDPI_SCALING=1
   export DISPLAY=:0
-  export $(dbus-launch)
   export REAL_WAYLAND_DISPLAY=$WAYLAND_DISPLAY
   export GTK_THEME=Arc-Dark:dark
   unset WAYLAND_DISPLAY
 
+  local xfce_start_cmd=""
+  if command -v startxfce4 >/dev/null 2>&1; then
+    xfce_start_cmd="startxfce4"
+  elif command -v xfce4-session >/dev/null 2>&1; then
+    xfce_start_cmd="xfce4-session"
+  else
+    gow_log "[start] XFCE session launcher not found (expected startxfce4 or xfce4-session)"
+    return 1
+  fi
+
   #
   # Start Xwayland and xfce4
-  dbus-run-session -- bash -E -c "WAYLAND_DISPLAY=\$REAL_WAYLAND_DISPLAY Xwayland :0 & sleep 2 && startxfce4"
+  dbus-run-session -- bash -E -c "WAYLAND_DISPLAY=\$REAL_WAYLAND_DISPLAY Xwayland :0 & sleep 2 && exec ${xfce_start_cmd}"
 }
