@@ -1,2 +1,3 @@
 #!/bin/bash
-service dbus start
+mkdir -p /var/run/dbus
+dbus-daemon --system --fork --nosyslog
