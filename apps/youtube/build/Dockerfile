@@ -30,8 +30,8 @@ set -e
 apt-get update
 apt-get install -y --no-install-recommends $REQUIRED_PACKAGES ca-certificates curl jq
 
-URL=$(curl -fsSL https://api.github.com/repos/FreeTubeApp/FreeTube/releases/latest \
-    | jq -r '.assets[] | select(.name | test("amd64\\.deb$")) | .browser_download_url' \
+URL=$(curl -fsSL "https://api.github.com/repos/FreeTubeApp/FreeTube/releases?per_page=1" \
+    | jq -r '.[0].assets[] | select(.name | test("amd64\\.deb$")) | .browser_download_url' \
     | head -n1)
 
 if [ -z "$URL" ] || [ "$URL" = "null" ]; then

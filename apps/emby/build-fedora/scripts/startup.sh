@@ -2,4 +2,4 @@
 set -e
 
 source /opt/gow/launch-comp.sh
-launcher /usr/local/bin/emby-theater
+launcher /usr/bin/emby-theater

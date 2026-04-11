@@ -28,29 +28,20 @@ ARG REQUIRED_PACKAGES=" \
 RUN <<_INSTALL_EMBY
 set -e
 apt-get update
-apt-get install -y --no-install-recommends $REQUIRED_PACKAGES ca-certificates curl jq tar
+apt-get install -y --no-install-recommends $REQUIRED_PACKAGES ca-certificates curl jq
 
 URL=$(curl -fsSL https://api.github.com/repos/MediaBrowser/emby-theater-electron/releases/latest \
-    | jq -r '.assets[] | select(.name | test("linux.*x64.*\\.tar\\.gz$")) | .browser_download_url' \
+    | jq -r '.assets[] | select(.name | test("^emby-theater-deb_.*_amd64\\.deb$")) | .browser_download_url' \
     | head -n1)
 
 if [ -z "$URL" ] || [ "$URL" = "null" ]; then
-    echo "Failed to resolve Emby Theater tarball URL" >&2
+    echo "Failed to resolve Emby Theater .deb download URL" >&2
     exit 1
 fi
 
-mkdir -p /opt/emby-theater
-curl -fsSL -o /tmp/emby-theater.tar.gz "$URL"
-tar -xzf /tmp/emby-theater.tar.gz -C /opt/emby-theater --strip-components=1
-rm -f /tmp/emby-theater.tar.gz
-
-BIN=$(find /opt/emby-theater -maxdepth 2 -type f \( -name 'emby-theater' -o -name 'embytheater' \) | head -n1)
-if [ -z "$BIN" ]; then
-    echo "Could not locate emby-theater binary inside tarball" >&2
-    exit 1
-fi
-ln -sf "$BIN" /usr/local/bin/emby-theater
-chmod +x "$BIN"
+curl -fsSL -o /tmp/emby-theater.deb "$URL"
+apt-get install -y /tmp/emby-theater.deb
+rm -f /tmp/emby-theater.deb
 
 apt-get autoremove -y
 rm -rf /var/lib/apt/lists/*
