@@ -27,8 +27,8 @@ dnf install -y \
     curl \
     jq
 
-URL=$(curl -fsSL https://api.github.com/repos/FreeTubeApp/FreeTube/releases/latest \
-    | jq -r '.assets[] | select(.name | test("x86_64\\.rpm$")) | .browser_download_url' \
+URL=$(curl -fsSL "https://api.github.com/repos/FreeTubeApp/FreeTube/releases?per_page=1" \
+    | jq -r '.[0].assets[] | select(.name | test("amd64\\.rpm$")) | .browser_download_url' \
     | head -n1)
 
 if [ -z "$URL" ] || [ "$URL" = "null" ]; then

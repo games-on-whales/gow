@@ -2,4 +2,4 @@
 set -e
 
 source /opt/gow/launch-comp.sh
-launcher /usr/bin/plex-htpc
+launcher /usr/local/bin/plex-htpc
