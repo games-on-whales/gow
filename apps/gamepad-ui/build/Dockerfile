@@ -25,7 +25,7 @@ FROM ${BASE_APP_IMAGE}
 
 # Hardcoded the version to prevent image builder using cached old packages when newer version comes out
 ARG LUTRIS_VERSION=0.5.22
-ARG GAMEPAD_UI_VERSION=v0.1.32
+ARG GAMEPAD_UI_VERSION=v0.1.33
 
 ARG DEBIAN_FRONTEND=noninteractive
 # see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
