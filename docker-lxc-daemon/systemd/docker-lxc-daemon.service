@@ -1,0 +1,38 @@
+[Unit]
+Description=Docker-compatible LXC daemon for Games on Whales
+Documentation=https://github.com/games-on-whales/docker-lxc-daemon
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/docker-lxc-daemon \
+    --socket=/var/run/docker.sock \
+    --lxcpath=/var/lib/lxc \
+    --statepath=/var/lib/docker-lxc-daemon
+
+# Restart on failure, but not too aggressively
+Restart=on-failure
+RestartSec=5s
+
+# The daemon must run as root to create containers and manage networking
+User=root
+Group=root
+
+# Give the socket group ownership to 'docker' if it exists, so non-root
+# users in the docker group can connect exactly as with the real Docker daemon.
+ExecStartPost=/bin/sh -c 'getent group docker && chown root:docker /var/run/docker.sock || true'
+
+# Ensure state directory exists
+RuntimeDirectory=docker-lxc-daemon
+StateDirectory=docker-lxc-daemon
+LogsDirectory=docker-lxc-daemon
+
+# Security hardening — we still need broad capabilities for container management
+# but can lock down everything else.
+NoNewPrivileges=no
+ProtectHome=no
+ProtectSystem=no
+
+[Install]
+WantedBy=multi-user.target
