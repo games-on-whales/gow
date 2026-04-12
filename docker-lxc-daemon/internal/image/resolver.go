@@ -34,6 +34,7 @@ type Kind int
 const (
 	KindDistro Kind = iota // pure OS image — resolved directly from LXC download template
 	KindApp                // application image — base distro + package install
+	KindOCI                // arbitrary OCI/Docker image — pulled via skopeo + umoci
 )
 
 // Resolve parses a Docker image reference and returns a ResolvedImage.
@@ -81,8 +82,14 @@ func Resolve(ref, arch string) (*ResolvedImage, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("image: %q is not a known distro or app image; "+
-		"add it to the app registry or use a supported distro image", ref)
+	// 3. Fall through to OCI image — will be pulled via skopeo + umoci.
+	_, tag = parseRef(ref)
+	return &ResolvedImage{
+		Ref:                   ref,
+		Kind:                  KindOCI,
+		Arch:                  arch,
+		TemplateContainerName: ociTemplateName(ref),
+	}, nil
 }
 
 // parseRef splits "name:tag", "name" (defaults tag to "latest"),
@@ -121,6 +128,11 @@ func templateName(distro, release string) string {
 // appTemplateName returns the LXC container name for an app image template.
 func appTemplateName(app, tag string) string {
 	return fmt.Sprintf("__template_app_%s_%s", sanitize(app), sanitize(tag))
+}
+
+// ociTemplateName returns the LXC container name for an OCI image template.
+func ociTemplateName(ref string) string {
+	return "__template_oci_" + sanitize(ref)
 }
 
 // sanitize replaces characters that are not safe in an LXC container name.

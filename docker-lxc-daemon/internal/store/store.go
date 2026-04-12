@@ -58,6 +58,12 @@ type ImageRecord struct {
 	Arch         string    `json:"arch"`          // "amd64"
 	TemplateName string    `json:"template_name"` // LXC container used as clone source
 	Created      time.Time `json:"created"`
+	// OCI image metadata (populated only for OCI-pulled images).
+	OCIEntrypoint []string `json:"oci_entrypoint,omitempty"`
+	OCICmd        []string `json:"oci_cmd,omitempty"`
+	OCIEnv        []string `json:"oci_env,omitempty"`
+	OCIWorkingDir string   `json:"oci_working_dir,omitempty"`
+	OCIPorts      []string `json:"oci_ports,omitempty"`
 }
 
 type state struct {

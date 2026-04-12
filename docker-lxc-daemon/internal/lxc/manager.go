@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/games-on-whales/docker-lxc-daemon/internal/image"
+	"github.com/games-on-whales/docker-lxc-daemon/internal/oci"
 	"github.com/games-on-whales/docker-lxc-daemon/internal/store"
 	liblxc "github.com/lxc/go-lxc"
 )
@@ -85,6 +86,8 @@ func (m *Manager) PullImage(ref, arch string, progress func(string)) error {
 		return m.pullDistro(resolved, progress)
 	case image.KindApp:
 		return m.pullApp(resolved, progress)
+	case image.KindOCI:
+		return m.pullOCI(resolved, progress)
 	}
 	return fmt.Errorf("manager: unknown image kind")
 }
@@ -206,6 +209,69 @@ func (m *Manager) pullApp(r *image.ResolvedImage, progress func(string)) error {
 		Arch:         r.Arch,
 		TemplateName: r.TemplateContainerName,
 		Created:      time.Now(),
+	})
+}
+
+// pullOCI pulls an arbitrary OCI/Docker image via skopeo + umoci, unpacks it
+// to a rootfs, and creates an LXC template container from it.
+func (m *Manager) pullOCI(r *image.ResolvedImage, progress func(string)) error {
+	ociStoreDir := filepath.Join(filepath.Dir(m.lxcPath), "docker-lxc-daemon", "oci")
+
+	cfg, rootfsPath, err := oci.Pull(ociStoreDir, r.Ref, progress)
+	if err != nil {
+		return fmt.Errorf("manager: oci pull: %w", err)
+	}
+
+	// Create the LXC template container directory and move the rootfs into it.
+	progress("Creating LXC template from OCI rootfs")
+	templateDir := filepath.Join(m.lxcPath, r.TemplateContainerName)
+	templateRootfs := filepath.Join(templateDir, "rootfs")
+	if err := os.MkdirAll(templateDir, 0o755); err != nil {
+		return fmt.Errorf("manager: mkdir template: %w", err)
+	}
+
+	// Move the unpacked rootfs into the LXC container directory.
+	if err := os.Rename(rootfsPath, templateRootfs); err != nil {
+		// Rename fails across filesystems; fall back to copy.
+		out, cpErr := exec.Command("cp", "-a", rootfsPath, templateRootfs).CombinedOutput()
+		if cpErr != nil {
+			return fmt.Errorf("manager: copy rootfs: %s: %w", out, cpErr)
+		}
+	}
+
+	// Write a minimal LXC config for the template.
+	minimalConfig := fmt.Sprintf(`lxc.include = /usr/share/lxc/config/common.conf
+lxc.arch = linux64
+lxc.rootfs.path = dir:%s
+lxc.uts.name = %s
+`, templateRootfs, r.TemplateContainerName)
+
+	configPath := filepath.Join(templateDir, "config")
+	if err := os.WriteFile(configPath, []byte(minimalConfig), 0o644); err != nil {
+		return fmt.Errorf("manager: write template config: %w", err)
+	}
+
+	// Write resolv.conf into rootfs.
+	resolvPath := filepath.Join(templateRootfs, "etc", "resolv.conf")
+	os.Remove(resolvPath)
+	os.MkdirAll(filepath.Dir(resolvPath), 0o755)
+	os.WriteFile(resolvPath, []byte("nameserver 8.8.8.8\nnameserver 1.1.1.1\n"), 0o644)
+
+	// Clean up the OCI layout/bundle now that rootfs is in place.
+	oci.Cleanup(ociStoreDir, r.Ref)
+
+	progress("Image ready")
+	return m.store.AddImage(&store.ImageRecord{
+		ID:            "oci_" + oci.SafeDirName(r.Ref),
+		Ref:           r.Ref,
+		Arch:          r.Arch,
+		TemplateName:  r.TemplateContainerName,
+		Created:       time.Now(),
+		OCIEntrypoint: cfg.Entrypoint,
+		OCICmd:        cfg.Cmd,
+		OCIEnv:        cfg.Env,
+		OCIWorkingDir: cfg.WorkingDir,
+		OCIPorts:      cfg.Ports,
 	})
 }
 

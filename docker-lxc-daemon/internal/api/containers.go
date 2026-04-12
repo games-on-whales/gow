@@ -54,11 +54,23 @@ func (h *Handler) createContainer(w http.ResponseWriter, r *http.Request) {
 		name = id[:12]
 	}
 
-	// Apply default command from the app image registry if no explicit
-	// Cmd or Entrypoint was provided.
+	// Apply defaults from the image when no explicit Cmd/Entrypoint provided.
+	entrypoint := req.Entrypoint
 	cmd := req.Cmd
-	if len(cmd) == 0 && len(req.Entrypoint) == 0 {
-		if imgRec := h.store.GetImage(normalizeImageRef(req.Image)); imgRec != nil {
+	env := req.Env
+	if imgRec := h.store.GetImage(normalizeImageRef(req.Image)); imgRec != nil {
+		// OCI image defaults.
+		if len(entrypoint) == 0 && len(imgRec.OCIEntrypoint) > 0 {
+			entrypoint = imgRec.OCIEntrypoint
+		}
+		if len(cmd) == 0 && len(imgRec.OCICmd) > 0 {
+			cmd = imgRec.OCICmd
+		}
+		if len(env) == 0 && len(imgRec.OCIEnv) > 0 {
+			env = imgRec.OCIEnv
+		}
+		// App registry defaults (if no OCI config and no user-provided cmd).
+		if len(entrypoint) == 0 && len(cmd) == 0 {
 			if resolved, err := image.Resolve(imgRec.Ref, "amd64"); err == nil && resolved.App != nil && resolved.App.DefaultCmd != "" {
 				cmd = []string{"/bin/sh", "-c", resolved.App.DefaultCmd}
 			}
@@ -66,9 +78,9 @@ func (h *Handler) createContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cfg := lxc.ContainerConfig{
-		Entrypoint:  req.Entrypoint,
+		Entrypoint:  entrypoint,
 		Cmd:         cmd,
-		Env:         req.Env,
+		Env:         env,
 		MemoryBytes: req.HostConfig.Memory,
 		CPUShares:   req.HostConfig.CPUShares,
 	}
@@ -102,9 +114,9 @@ func (h *Handler) createContainer(w http.ResponseWriter, r *http.Request) {
 		Image:   req.Image,
 		ImageID: normalizeImageRef(req.Image),
 		Created: time.Now(),
-		Entrypoint: req.Entrypoint,
+		Entrypoint: entrypoint,
 		Cmd:     cmd,
-		Env:     req.Env,
+		Env:     env,
 		Labels:  req.Labels,
 	}
 	for _, m := range cfg.Mounts {
