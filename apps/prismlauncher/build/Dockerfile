@@ -17,7 +17,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     # Get PrismLauncher from updated community source (https://prismlauncher.org/download/linux/) \
     wget https://prism-launcher-for-debian.github.io/repo/prismlauncher.gpg -O /usr/share/keyrings/prismlauncher-archive-keyring.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/prismlauncher-archive-keyring.gpg] https://prism-launcher-for-debian.github.io/repo $(. /etc/os-release; echo "${UBUNTU_CODENAME:-${DEBIAN_CODENAME:-${VERSION_CODENAME}}}") main" | tee /etc/apt/sources.list.d/prismlauncher.list && \
+    echo "deb [signed-by=/usr/share/keyrings/prismlauncher-archive-keyring.gpg] https://prism-launcher-for-debian.github.io/repo noble main" | tee /etc/apt/sources.list.d/prismlauncher.list && \
     apt update && \
     apt install -y prismlauncher && \
     # Cleanup \
