@@ -32,6 +32,95 @@ RUN <<_BUILD_SDL_JSTEST
 _BUILD_SDL_JSTEST
 
 #################################
+# Build patched Xwayland: neutralizes the hardcoded xwl_output_fake_modes
+# table so Xwayland advertises only the modes the Wayland compositor
+# announces via wl_output.mode. Unlocks arbitrary native resolutions
+# (e.g. 2256x1504) and per-player tile sizes for party/split-screen mode.
+#
+# Pulls the latest upstream xwayland-* stable tag at build time. The patch
+# targets the sentinel symbol `xwl_output_fake_modes` rather than line
+# numbers, so it survives upstream refactors. Build fails loudly if the
+# sentinel is gone.
+FROM ${BASE_IMAGE} AS xwayland-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      meson \
+      ninja-build \
+      pkg-config \
+      ca-certificates \
+      curl \
+      git \
+      xutils-dev \
+      xtrans-dev \
+      libxfont-dev \
+      libxkbfile-dev \
+      libxcvt-dev \
+      libepoxy-dev \
+      libpixman-1-dev \
+      libdrm-dev \
+      libgbm-dev \
+      libegl-dev \
+      libgles-dev \
+      libwayland-dev \
+      wayland-protocols \
+      libxkbcommon-dev \
+      libtirpc-dev \
+      nettle-dev \
+      libei-dev \
+      libdecor-0-dev \
+      libaudit-dev \
+      libsystemd-dev \
+      x11proto-dev \
+      python3-mako \
+      xfonts-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+RUN <<_BUILD_XWAYLAND
+    set -e
+
+    LATEST_TAG=$(git ls-remote --tags --refs --sort='version:refname' \
+      https://gitlab.freedesktop.org/xorg/xserver.git 'refs/tags/xwayland-*' \
+      | awk -F/ '{print $NF}' \
+      | grep -E '^xwayland-[0-9]+(\.[0-9]+)+$' \
+      | tail -1)
+    test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
+    echo "Building $LATEST_TAG"
+
+    curl -fsSL -o xwayland.tar.xz \
+      "https://xorg.freedesktop.org/archive/individual/xserver/${LATEST_TAG}.tar.xz"
+    tar xf xwayland.tar.xz
+    cd "${LATEST_TAG}"
+
+    TARGET=hw/xwayland/xwayland-output.c
+    BEFORE=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET")
+    test "$BEFORE" -ge 1 || { echo "Sentinel ARRAY_SIZE(xwl_output_fake_modes) not found in $TARGET — upstream structure may have changed, refresh the patch."; exit 1; }
+    sed -i 's/ARRAY_SIZE(xwl_output_fake_modes)/0/g' "$TARGET"
+    AFTER=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET")
+    test "$AFTER" -eq 0 || { echo "sed transformation incomplete (still $AFTER matches)"; exit 1; }
+    echo "Neutralized $BEFORE fake-mode iteration site(s)"
+
+    meson setup build . \
+      -Dprefix=/usr/local \
+      -Dipv6=true \
+      -Dxvfb=false \
+      -Dxdmcp=false \
+      -Dxcsecurity=true \
+      -Ddri3=true \
+      -Dglamor=true \
+      -Dlibdecor=true \
+      -Dxkb_dir=/usr/share/X11/xkb \
+      -Dxkb_output_dir=/var/lib/xkb
+    ninja -C build
+    DESTDIR=/out ninja -C build install
+_BUILD_XWAYLAND
+
+#################################
 FROM ${BASE_IMAGE}
 
 ARG GAMESCOPE_VERSION="3.15.14"
@@ -66,6 +155,14 @@ RUN apt-get update -y && \
     apt-get remove -y --purge software-properties-common && \
     rm -f /etc/apt/sources.list.d/kisak-ubuntu-kisak-mesa-*.sources && \
     rm -rf /var/lib/apt/lists/*
+
+# Install patched Xwayland into /usr/local (wins over distro /usr/bin/Xwayland
+# via PATH order) and shadow /usr/bin/Xwayland via symlink so anything that
+# hardcodes the distro path also gets the patched binary. See the
+# xwayland-builder stage above for the patch details.
+COPY --from=xwayland-builder /out/usr/local /usr/local
+RUN ln -sf /usr/local/bin/Xwayland /usr/bin/Xwayland && \
+    Xwayland -version 2>&1 | head -2
 
 # Some games with native Linux ports require en_US.UTF-8
 # to be generated regardless of user locale settings
