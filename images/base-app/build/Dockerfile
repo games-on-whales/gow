@@ -82,7 +82,7 @@ RUN apt-get update -y && \
 WORKDIR /build
 
 RUN <<_BUILD_XWAYLAND
-    set -e
+    set -eux
 
     LATEST_TAG=$(git ls-remote --tags --refs --sort='version:refname' \
       https://gitlab.freedesktop.org/xorg/xserver.git 'refs/tags/xwayland-*' \
@@ -92,16 +92,21 @@ RUN <<_BUILD_XWAYLAND
     test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
     echo "Building $LATEST_TAG"
 
-    curl -fsSL -o xwayland.tar.xz \
+    curl -fSL --retry 3 -o xwayland.tar.xz \
       "https://xorg.freedesktop.org/archive/individual/xserver/${LATEST_TAG}.tar.xz"
+    ls -la xwayland.tar.xz
     tar xf xwayland.tar.xz
     cd "${LATEST_TAG}"
+    pwd
 
     TARGET=hw/xwayland/xwayland-output.c
-    BEFORE=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET")
+    ls -la "$TARGET"
+    BEFORE=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET" || true)
+    echo "BEFORE sentinel count: $BEFORE"
     test "$BEFORE" -ge 1 || { echo "Sentinel ARRAY_SIZE(xwl_output_fake_modes) not found in $TARGET — upstream structure may have changed, refresh the patch."; exit 1; }
     sed -i 's/ARRAY_SIZE(xwl_output_fake_modes)/0/g' "$TARGET"
-    AFTER=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET")
+    AFTER=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET" || true)
+    echo "AFTER sentinel count: $AFTER"
     test "$AFTER" -eq 0 || { echo "sed transformation incomplete (still $AFTER matches)"; exit 1; }
     echo "Neutralized $BEFORE fake-mode iteration site(s)"
 
