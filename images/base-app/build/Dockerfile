@@ -67,6 +67,7 @@ RUN apt-get update -y && \
       libgbm-dev \
       libegl-dev \
       libgles-dev \
+      mesa-common-dev \
       libwayland-dev \
       wayland-protocols \
       libxkbcommon-dev \
