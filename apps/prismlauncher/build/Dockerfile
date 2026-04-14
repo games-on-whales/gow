@@ -22,7 +22,7 @@ set -e
 source /opt/gow/bash-lib/utils.sh
 
 github_download "PrismLauncher/PrismLauncher" \
-  ".assets[]|select(.name|test(\"Linux-Qt6-Portable.*\\.tar\\.gz$\")).browser_download_url" \
+  ".assets[]|select(.name|contains(\"Linux-Qt6-Portable\"))|select(.name|endswith(\".tar.gz\")).browser_download_url" \
   "PrismLauncher-portable.tar.gz"
 
 mkdir -p /opt/prismlauncher
