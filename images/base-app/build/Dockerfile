@@ -59,6 +59,8 @@ RUN apt-get update -y && \
       libxfont-dev \
       libxkbfile-dev \
       libxcvt-dev \
+      libxshmfence-dev \
+      libbsd-dev \
       libepoxy-dev \
       libpixman-1-dev \
       libdrm-dev \
