@@ -53,7 +53,7 @@ COPY --chmod=777 steamos-session-select /usr/bin/steamos-session-select
 COPY --chmod=777 jupiter-biosupdate /usr/bin/jupiter-biosupdate
 COPY --chmod=777 jupiter-biosupdate /usr/bin/steamos-polkit-helpers/jupiter-biosupdate
 COPY --chmod=777 scripts/steamos-dbus-watchdog.sh /usr/local/bin/steamos-dbus-watchdog.sh
-COPY --chmod=777 scripts/steam.sh /usr/games/steam
+COPY --chmod=777 scripts/steam.sh /usr/bin/steam
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
