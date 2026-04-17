@@ -63,8 +63,5 @@ COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2
 # Fix Sway cap_sys_nice=ep
 RUN setcap -r /usr/sbin/sway
 
-# Add /usr/games/ to $PATH in order to be able to run gamescope
-ENV PATH="/usr/games/:${PATH}"
-
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
