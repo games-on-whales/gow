@@ -2,4 +2,7 @@
 
 set -e
 
-chown "${UNAME}":"${UNAME}" $(which gamescope)
+GAMESCOPE_BIN=$(command -v gamescope || true)
+if [ -n "$GAMESCOPE_BIN" ]; then
+    chown "${UNAME}":"${UNAME}" "$GAMESCOPE_BIN"
+fi
