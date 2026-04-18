@@ -95,10 +95,11 @@ RUN <<_BUILD_XWAYLAND
     test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
     echo "Building $LATEST_TAG"
 
-    curl -fSL --retry 3 -o xwayland.tar.xz \
-      "https://xorg.freedesktop.org/archive/individual/xserver/${LATEST_TAG}.tar.xz"
-    ls -la xwayland.tar.xz
-    tar xf xwayland.tar.xz
+    # Fetch sources from the same host the ls-remote above talked to.
+    # xorg.freedesktop.org's archive mirror has gone down intermittently
+    # and taken CI with it; gitlab.freedesktop.org hosts the same tags.
+    git clone --depth 1 --branch "${LATEST_TAG}" \
+      https://gitlab.freedesktop.org/xorg/xserver.git "${LATEST_TAG}"
     cd "${LATEST_TAG}"
     pwd
 
