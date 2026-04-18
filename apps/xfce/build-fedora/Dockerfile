@@ -29,6 +29,16 @@ RUN dnf install -y \
     && rm -f /etc/xdg/autostart/xscreensaver.desktop \
     && dnf clean all
 
+# The xfce-polkit authentication agent (pulled in by @xfce-desktop-environment)
+# calls polkit_unix_session_new_for_process_sync() at startup, which requires
+# systemd-logind. The Fedora image runs as a plain PID-1 entrypoint — no
+# logind — so xfce-polkit dies with:
+#   CRITICAL: polkit_agent_listener_register_with_options:
+#            assertion 'POLKIT_IS_SUBJECT (subject)' failed
+# and XFCE shows a user-visible "PolicyKitAgent" error dialog. Wolf streaming
+# doesn't need interactive privilege prompts, so suppress the autostart.
+RUN printf '\nHidden=true\n' >> /etc/xdg/autostart/xfce-polkit.desktop
+
 # Register Flathub as a system remote and pre-seed AppStream metadata so
 # gnome-software surfaces flatpak apps on first launch (without this the
 # Software manager only shows rpm results and hides flathub entirely).
