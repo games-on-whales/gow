@@ -123,7 +123,8 @@ RUN <<_BUILD_XWAYLAND
       -Dglamor=true \
       -Dlibdecor=true \
       -Dxkb_dir=/usr/share/X11/xkb \
-      -Dxkb_output_dir=/var/lib/xkb
+      -Dxkb_output_dir=/var/lib/xkb \
+      -Dxkb_bin_dir=/usr/bin
     ninja -C build
     DESTDIR=/out ninja -C build install
 _BUILD_XWAYLAND
@@ -171,6 +172,10 @@ RUN apt-get update -y && \
 COPY --from=xwayland-builder /out/usr/local /usr/local
 RUN ln -sf /usr/local/bin/Xwayland /usr/bin/Xwayland && \
     Xwayland -version 2>&1 | head -2
+# Xwayland writes compiled keymaps to /var/lib/xkb at runtime. The app
+# processes run as uid 1000 (retro), not root, so the directory needs
+# to be world-writable or keymap compilation fails with EACCES.
+RUN install -d -m 1777 /var/lib/xkb
 
 # Some games with native Linux ports require en_US.UTF-8
 # to be generated regardless of user locale settings
