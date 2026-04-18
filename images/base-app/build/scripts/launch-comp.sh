@@ -12,7 +12,10 @@ function launcher() {
     gow_log "[Gamescope] - Starting: \`$@\`"
 
     GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
-    "$(command -v gamescope)" "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- "$@"
+    # -w/-h pin the internal (XWayland) mode list to the output resolution so
+    # apps don't pick a standard preset (e.g. 1440p) that gamescope then
+    # letterboxes into a non-16:9 output.
+    "$(command -v gamescope)" "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- "$@"
   elif [ -n "$RUN_SWAY" ]; then
     gow_log "[Sway] - Starting: \`$@\`"
 

@@ -100,7 +100,10 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
 
   # shellcheck disable=SC2086
-  "${GAMESCOPE_BIN}" -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  # -w/-h pin the internal (XWayland) mode list to the output resolution so
+  # games don't pick a standard preset (e.g. 1440p) that gamescope then
+  # letterboxes into a non-16:9 output.
+  "${GAMESCOPE_BIN}" -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
