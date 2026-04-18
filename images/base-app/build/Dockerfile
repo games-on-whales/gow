@@ -150,7 +150,7 @@ ARG REQUIRED_PACKAGES="\
     fonts-noto-cjk \
     locales \
     gamescope \
-    xwayland kitty nano \
+    xwayland libei1 kitty nano \
     waybar fonts-font-awesome xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     "
 
