@@ -95,10 +95,11 @@ RUN <<_BUILD_XWAYLAND
     test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
     echo "Building $LATEST_TAG"
 
-    curl -fSL --retry 3 -o xwayland.tar.xz \
-      "https://xorg.freedesktop.org/archive/individual/xserver/${LATEST_TAG}.tar.xz"
-    ls -la xwayland.tar.xz
-    tar xf xwayland.tar.xz
+    # Fetch sources from the same host the ls-remote above talked to.
+    # xorg.freedesktop.org's archive mirror has gone down intermittently
+    # and taken CI with it; gitlab.freedesktop.org hosts the same tags.
+    git clone --depth 1 --branch "${LATEST_TAG}" \
+      https://gitlab.freedesktop.org/xorg/xserver.git "${LATEST_TAG}"
     cd "${LATEST_TAG}"
     pwd
 
@@ -123,7 +124,8 @@ RUN <<_BUILD_XWAYLAND
       -Dglamor=true \
       -Dlibdecor=true \
       -Dxkb_dir=/usr/share/X11/xkb \
-      -Dxkb_output_dir=/var/lib/xkb
+      -Dxkb_output_dir=/var/lib/xkb \
+      -Dxkb_bin_dir=/usr/bin
     ninja -C build
     DESTDIR=/out ninja -C build install
 _BUILD_XWAYLAND
@@ -150,7 +152,7 @@ ARG REQUIRED_PACKAGES="\
     fonts-noto-cjk \
     locales \
     gamescope \
-    xwayland kitty nano \
+    xwayland libei1 kitty nano \
     waybar fonts-font-awesome xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     "
 
@@ -171,6 +173,10 @@ RUN apt-get update -y && \
 COPY --from=xwayland-builder /out/usr/local /usr/local
 RUN ln -sf /usr/local/bin/Xwayland /usr/bin/Xwayland && \
     Xwayland -version 2>&1 | head -2
+# Xwayland writes compiled keymaps to /var/lib/xkb at runtime. The app
+# processes run as uid 1000 (retro), not root, so the directory needs
+# to be world-writable or keymap compilation fails with EACCES.
+RUN install -d -m 1777 /var/lib/xkb
 
 # Some games with native Linux ports require en_US.UTF-8
 # to be generated regardless of user locale settings
