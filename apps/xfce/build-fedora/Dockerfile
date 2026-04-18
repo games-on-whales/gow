@@ -4,33 +4,44 @@ ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+# NOTE: do not insert `# ... \` comments between continued lines — bash treats
+# them as a comment that swallows the continuation, which breaks `dnf install`.
 RUN dnf install -y \
-    # Core \
-    wget \
-    dbus-x11 \
-    flatpak \
-    sudo \
-    # Desktop environment \
-    @xfce-desktop-environment \
-    xfce4-settings \
-    papirus-icon-theme arc-theme \
-    at-spi2-core \
-    # Additional apps \
-    xfce4-terminal \
-    xfce4-taskmanager \
-    xfce4-whiskermenu-plugin \
-    xfce4-docklike-plugin \
-    xarchiver \
-    mousepad \
-    zip unzip p7zip \
-    gnome-software \
-    # Browser \
-    firefox \
+        wget \
+        dbus-x11 \
+        flatpak \
+        sudo \
+        @xfce-desktop-environment \
+        xfce4-settings \
+        papirus-icon-theme arc-theme \
+        at-spi2-core \
+        xfce4-terminal \
+        xfce4-taskmanager \
+        xfce4-whiskermenu-plugin \
+        xfce4-docklike-plugin \
+        xarchiver \
+        mousepad \
+        zip unzip p7zip \
+        gnome-software \
+        dconf \
+        firefox \
     && { dnf remove -y foot 2>/dev/null || true; } \
+    && rm -f /etc/xdg/autostart/xscreensaver.desktop \
     && dnf clean all
 
-# Remove xscreensaver autostart if present
-RUN rm -f /etc/xdg/autostart/xscreensaver.desktop
+# Register Flathub as a system remote and pre-seed AppStream metadata so
+# gnome-software surfaces flatpak apps on first launch (without this the
+# Software manager only shows rpm results and hides flathub entirely).
+RUN flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo \
+    && flatpak remote-modify --enable flathub \
+    && flatpak --system update --appstream --noninteractive || true
+
+# Make gnome-software prefer flatpak over rpm for app installs.
+RUN mkdir -p /etc/dconf/db/local.d /etc/dconf/profile \
+    && printf 'user-db:user\nsystem-db:local\n' > /etc/dconf/profile/user \
+    && printf "[org/gnome/software]\npackaging-format-preference=['flatpak', 'rpm']\n" \
+        > /etc/dconf/db/local.d/00-gnome-software-prefer-flatpak \
+    && dconf update
 
 # Replace launch scripts
 COPY --chmod=777 scripts/launch-comp.sh scripts/startup.sh /opt/gow/
