@@ -16,15 +16,20 @@ steamos-dbus-watchdog.sh &
 gow_log "*** D-Bus Watchdog started ***"
 
 STEAMDIR="${HOME}/.local/share/Steam"
-STEAMDIR_LEGACY="${HOME}/.steam/steam"
+STEAMDIR_LEGACY="${HOME}/.steam/debian-installation"
+# Is the user coming from an Ubuntu installation?
+if [ -d "$STEAMDIR_LEGACY" ]; then
+  gow_log "*** Steam Legacy detected, moving steamapps to the new location ***"
+  rm -r $STEAMDIR
+  mv "$STEAMDIR_LEGACY" "$STEAMDIR"
+  rm -r ${HOME}/.steam/
+fi
 
 # Install Decky Loader
 if [ ! -f "$HOME/homebrew/services/PluginLoader" ]; then
   gow_log "Installing Decky Loader"
   mkdir -p "$STEAMDIR"
   touch "$STEAMDIR/.cef-enable-remote-debugging"
-  ln -fs --no-target-directory "$STEAMDIR/compatibilitytools.d" "$STEAMDIR_LEGACY/compatibilitytools.d"
-  ln -fs --no-target-directory "$STEAMDIR_LEGACY/steamapps" "$STEAMDIR/steamapps"
   echo "Steam directory: $STEAMDIR"
   mkdir -p "$HOME/homebrew/services/"
   github_download "SteamDeckHomebrew/decky-loader" ".assets[]|select(.name|(\"PluginLoader\")).browser_download_url" "PluginLoader"
