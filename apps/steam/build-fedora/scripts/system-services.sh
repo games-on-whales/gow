@@ -20,9 +20,14 @@ STEAMDIR_LEGACY="${HOME}/.steam/debian-installation"
 # Is the user coming from an Ubuntu installation?
 if [ -d "$STEAMDIR_LEGACY" ]; then
   gow_log "*** Steam Legacy detected, moving steamapps to the new location ***"
-  rm -r $STEAMDIR
+  # -rf: on a fresh Fedora profile $STEAMDIR may not exist yet; rm -r
+  # aborted the cont-init script with "No such file or directory" and
+  # Steam never started (black screen → session killed). Same for the
+  # legacy /.steam/ cleanup below, which may also be gone after prior
+  # failed runs.
+  rm -rf "$STEAMDIR"
   mv "$STEAMDIR_LEGACY" "$STEAMDIR"
-  rm -r ${HOME}/.steam/
+  rm -rf "${HOME}/.steam/"
 fi
 
 # Install Decky Loader
