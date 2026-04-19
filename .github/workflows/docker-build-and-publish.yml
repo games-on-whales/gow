@@ -353,19 +353,28 @@ jobs:
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
-      # Smoke-test the image we just built. On PRs the build wrote a tarball
-      # (buildx `type=docker,dest=...`) rather than loading it into the local
-      # docker daemon, so we have to `docker load` it first. Runs structural
-      # + init + per-image smoke via bin/test-image.sh. See bin/test-image.sh
-      # for what gets checked.
+      # Smoke-test the image we just built. Two ingest paths because the
+      # build step's `outputs` differs by source:
+      #   * fork PR (is_fork=true)  -> buildx wrote /tmp/<name>-<plat>.tar,
+      #                                so `docker load` brings it into the
+      #                                local daemon.
+      #   * main-repo PR / branch   -> buildx pushed straight to the registry
+      #     push (is_fork=false)       with type=registry, nothing local,
+      #                                so `docker pull` fetches it back.
+      # Either way we then invoke bin/test-image.sh, which runs the 3-layer
+      # harness (structural + init + per-image smoke).
       - name: Smoke test image
-        if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          tarball="/tmp/${{ inputs.image_name }}-${PLATFORM_PAIR}.tar"
-          echo "==> Loading ${tarball} into local docker"
-          docker load -i "${tarball}"
           tag='${{ fromJSON(steps.meta.outputs.json).tags[0] }}'
+          if [[ "${{ needs.prepare.outputs.is_fork }}" == "true" ]]; then
+            tarball="/tmp/${{ inputs.image_name }}-${PLATFORM_PAIR}.tar"
+            echo "==> Loading ${tarball} into local docker (fork PR)"
+            docker load -i "${tarball}"
+          else
+            echo "==> Pulling ${tag} from registry"
+            docker pull "${tag}"
+          fi
           echo "==> Smoke testing ${tag}"
           ./bin/test-image.sh \
             "${{ inputs.image_name }}" \
