@@ -116,7 +116,13 @@ if [ -n "$RUN_GAMESCOPE" ]; then
 
   # Start IBus to enable showing the steam on-screen keyboard
   /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
-  # Launch mango
+  # Launch mango.
+  # NOTE: on the Ubuntu base-app, `mangoapp` is not installed (upstream
+  # MangoHud's release tarball ships only mangohud + mangoplot). On the
+  # Fedora base-app, `mangoapp` is part of the mangohud RPM. Bash will
+  # print "command not found" on Ubuntu and carry on; the gamescope stats
+  # overlay is silently disabled there. See images/base-app/build/Dockerfile
+  # (_INSTALL_MANGO block) for the full context.
   mangoapp &
 
   # Start Steam

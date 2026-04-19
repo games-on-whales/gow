@@ -215,6 +215,16 @@ _INSTALL_SWAY
 #################################
 # Install MangoHuD
 #################################
+# The upstream release tarball ships only `mangohud` and `mangoplot`;
+# `mangoapp` is an opt-in meson build (`-Dmangoapp=true`) and is NOT in
+# the prebuilt package. Steam's startup script calls `mangoapp &` to show
+# the gamescope stats overlay -- on this Ubuntu image it silently no-ops
+# because the binary isn't present. The Fedora variant gets mangoapp for
+# free via Fedora's `mangohud` RPM (built with -Dmangoapp=true), so we
+# accept the Ubuntu gap rather than add a from-source MangoHud build
+# stage here. If the overlay becomes important, swap this block for a
+# `FROM base AS mangohud-builder` stage matching the xwayland/sdl-jstest
+# pattern above.
 RUN <<_INSTALL_MANGO
 #!/bin/bash
 set -e
