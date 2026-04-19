@@ -353,6 +353,25 @@ jobs:
           cache-from: ${{ steps.prep.outputs.cache_from }}
           cache-to: ${{ steps.prep.outputs.cache_to }}
 
+      # Smoke-test the image we just built. On PRs the build wrote a tarball
+      # (buildx `type=docker,dest=...`) rather than loading it into the local
+      # docker daemon, so we have to `docker load` it first. Runs structural
+      # + init + per-image smoke via bin/test-image.sh. See bin/test-image.sh
+      # for what gets checked.
+      - name: Smoke test image
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          tarball="/tmp/${{ inputs.image_name }}-${PLATFORM_PAIR}.tar"
+          echo "==> Loading ${tarball} into local docker"
+          docker load -i "${tarball}"
+          tag='${{ fromJSON(steps.meta.outputs.json).tags[0] }}'
+          echo "==> Smoke testing ${tag}"
+          ./bin/test-image.sh \
+            "${{ inputs.image_name }}" \
+            "${tag}" \
+            --docker-path "${{ inputs.docker_path }}"
+
       - name: Upload docker image as artifact
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
