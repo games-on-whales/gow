@@ -93,12 +93,15 @@ assert_shared_ok() {
     bad "ldd clean: $bin (not executable)"
     return 1
   fi
-  local missing
+  local missing missing_count
   missing=$(ldd "$bin" 2>&1 | grep -E 'not found' || true)
   if [[ -z "$missing" ]]; then
     ok "ldd clean: $bin"
   else
-    bad "ldd clean: $bin ($(printf '%s' "$missing" | wc -l) missing)"
+    # `wc -l` counts newlines; use grep -c on the same pattern so a single
+    # unterminated line still reports as 1, not 0.
+    missing_count=$(printf '%s\n' "$missing" | grep -c 'not found')
+    bad "ldd clean: $bin ($missing_count missing)"
     printf '%s\n' "$missing" | sed 's/^/     | /' >&2
   fi
 }
