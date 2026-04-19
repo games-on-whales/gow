@@ -21,6 +21,7 @@ Add the app profile in the .toml file:
     "IpcMode": "host",
     "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
     "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+    "Ulimits": [{"Name":"nofile", "Hard":524288, "Soft":524288}],
     "Privileged": false,
     "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
   }
