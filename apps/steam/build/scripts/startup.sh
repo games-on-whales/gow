@@ -56,6 +56,8 @@ export GTK_IM_MODULE=Steam
 
 
 if [ -n "$RUN_GAMESCOPE" ]; then
+  GAMESCOPE_BIN="$(command -v gamescope)"
+
   # Enable support for xwayland isolation per-game in Steam
   # Note: This breaks without the additional steamdeck flags
   #export STEAM_MULTIPLE_XWAYLANDS=1
@@ -101,7 +103,7 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   # -w/-h pin the internal (XWayland) mode list to the output resolution so
   # games don't pick a standard preset (e.g. 1440p) that gamescope then
   # letterboxes into a non-16:9 output.
-  /usr/games/gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  "${GAMESCOPE_BIN}" -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
