@@ -6,14 +6,12 @@
 source /smoke-common/lib.sh
 
 assert_has pegasus-fe
+# ldd clean catches the real "pegasus was built against libssl1.1 and we
+# forgot to pull the .deb" regression that the image was guarding against.
+# A separate ldconfig check for libssl.so.1.1 was unreliable (the version
+# suffix changes between ubuntu .debs), so lean on the authoritative
+# ldd-against-the-actual-binary signal instead.
 assert_shared_ok "$(command -v pegasus-fe)"
 assert_path /bin/pegasus.sh /media/iso_mount
-
-# The Dockerfile pulls libssl1.1 because pegasus was built against it.
-if ldconfig -p | grep -q 'libssl.so.1.1'; then
-  ok "libssl1.1 is on the loader path"
-else
-  bad "libssl1.1 is on the loader path"
-fi
 
 smoke_report
