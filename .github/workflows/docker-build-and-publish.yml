@@ -376,10 +376,18 @@ jobs:
             docker pull "${tag}"
           fi
           echo "==> Smoke testing ${tag}"
+          # Variant (e.g. "fedora") picks a different per-image smoke file
+          # (tests/smoke-${variant}.sh). Layer 1+2 always run; Layer 3 is
+          # skipped if no variant-specific smoke file exists yet.
+          variant_flag=()
+          if [[ -n "${{ inputs.variant }}" ]]; then
+            variant_flag=(--variant "${{ inputs.variant }}")
+          fi
           ./bin/test-image.sh \
             "${{ inputs.image_name }}" \
             "${tag}" \
-            --docker-path "${{ inputs.docker_path }}"
+            --docker-path "${{ inputs.docker_path }}" \
+            "${variant_flag[@]}"
 
       - name: Upload docker image as artifact
         if: github.event_name == 'pull_request'

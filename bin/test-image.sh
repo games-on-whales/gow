@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Smoke-test a built GOW image.
 #
-# Usage: bin/test-image.sh <image-name> <image-tag> [--docker-path images|apps]
+# Usage: bin/test-image.sh <image-name> <image-tag> \
+#          [--docker-path images|apps] [--variant <name>] [--keep-logs]
 #
 # Runs three layers of validation against the already-built image:
 #
@@ -10,10 +11,16 @@
 #                     /etc/cont-init.d/*.sh script as root, then exits.
 #                     Catches regressions in user/device/nvidia setup.
 #   3. Image smoke -- runs <image-path>/tests/smoke.sh inside the container
-#                     (bind-mounted at /tests), with a 120s timeout. This is
+#                     (bind-mounted at /smoke), with a 180s timeout. This is
 #                     where per-image assertions live (binary versions,
 #                     shared-lib resolution, etc.). Skipped with a warning
 #                     if the image has no tests/smoke.sh.
+#
+# When a variant is passed (e.g. `--variant fedora`), the harness looks for
+# `tests/smoke-<variant>.sh` instead of `tests/smoke.sh` -- Fedora lays
+# packages out differently enough (Xwayland in /usr/bin, no /var/lib/xkb,
+# mangoapp-not-mangoplot, etc.) that one-size-fits-all assertions don't
+# work. Layer 3 is skipped for a variant that has no dedicated smoke file.
 #
 # The harness sets XDG_RUNTIME_DIR and HOME to match what Wolf passes at
 # runtime -- without these the base entrypoint chown's a non-existent path
@@ -23,11 +30,13 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<EOF
-Usage: $0 <image-name> <image-tag> [--docker-path images|apps] [--keep-logs]
+Usage: $0 <image-name> <image-tag> \\
+         [--docker-path images|apps] [--variant <name>] [--keep-logs]
 
 Examples:
   $0 base    ghcr.io/games-on-whales/base:edge
   $0 firefox localhost:5000/firefox:pr-42 --docker-path apps
+  $0 base-app ghcr.io/games-on-whales/base-app:fedora --variant fedora
 EOF
   exit 64
 }
@@ -38,10 +47,12 @@ IMAGE_TAG="$2"
 shift 2
 
 DOCKER_PATH=""
+VARIANT=""
 KEEP_LOGS=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --docker-path) DOCKER_PATH="$2"; shift 2;;
+    --variant)     VARIANT="$2";     shift 2;;
     --keep-logs)   KEEP_LOGS=1;      shift;;
     -h|--help)     usage;;
     *) echo "!! unknown argument: $1" >&2; usage;;
@@ -144,9 +155,16 @@ else
 fi
 
 # ---- layer 3: per-image smoke --------------------------------------------
-SMOKE="$IMG_DIR/tests/smoke.sh"
+# Variant (e.g. fedora) uses its own smoke file; the default smoke file
+# is Ubuntu-specific and will fire false-FAILs on other base distros.
+if [[ -n "$VARIANT" ]]; then
+  SMOKE_NAME="smoke-${VARIANT}.sh"
+else
+  SMOKE_NAME="smoke.sh"
+fi
+SMOKE="$IMG_DIR/tests/$SMOKE_NAME"
 if [[ -f "$SMOKE" ]]; then
-  step "Layer 3 -- image smoke ($DOCKER_PATH/$IMAGE_NAME/tests/smoke.sh)"
+  step "Layer 3 -- image smoke ($DOCKER_PATH/$IMAGE_NAME/tests/$SMOKE_NAME)"
 
   # smoke.sh and the shared lib.sh are bind-mounted read-only; image stays
   # untouched. The entrypoint still runs cont-init.d before handing control
@@ -158,7 +176,7 @@ if [[ -f "$SMOKE" ]]; then
         -v "$REPO_ROOT/bin/tests:/smoke-common:ro" \
         -v "$IMG_DIR/tests:/smoke:ro" \
         "$IMAGE_TAG" \
-        '/smoke/smoke.sh' \
+        "/smoke/${SMOKE_NAME}" \
         >"$SMOKE_LOG" 2>&1; then
     pass "image smoke exits clean"
     dump "$SMOKE_LOG"
@@ -168,8 +186,12 @@ if [[ -f "$SMOKE" ]]; then
     dump "$SMOKE_LOG"
   fi
 else
-  step "Layer 3 -- SKIPPED (no $DOCKER_PATH/$IMAGE_NAME/tests/smoke.sh)"
-  printf '   |  add one to exercise image-specific binaries + shared libs\n'
+  step "Layer 3 -- SKIPPED (no $DOCKER_PATH/$IMAGE_NAME/tests/$SMOKE_NAME)"
+  if [[ -n "$VARIANT" ]]; then
+    printf '   |  no variant-specific smoke file -- add one to exercise %s-specific assertions\n' "$VARIANT"
+  else
+    printf '   |  add one to exercise image-specific binaries + shared libs\n'
+  fi
 fi
 
 # ---- result --------------------------------------------------------------
