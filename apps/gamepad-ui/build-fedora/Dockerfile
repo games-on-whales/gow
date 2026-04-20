@@ -32,8 +32,6 @@ RUN dnf install -y \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
 # Install Wine, 32-bit libs, Python deps, and Lutris dependencies
-# TODO: Add dependencies for gamepad-ui
-# TODO: See if equivalents of libegl1:i386 and libavfilter10:i386 are needed
 RUN dnf install -y --allowerasing \
     cabextract \
     curl \
