@@ -28,7 +28,7 @@ if [ ! -h "$STEAMDIR_LEGACY" ]; then
   rm -rf "$STEAMDIR"
   mv "$STEAMDIR_LEGACY" "$STEAMDIR"
   rm -rf "${HOME}/.steam/steam"
-  ln -fs ${STEAMDIR} ${STEAMDIR_LEGACY}
+  ln -fs --no-target-directory ${STEAMDIR} ${STEAMDIR_LEGACY}
 fi
 
 # Install Decky Loader
