@@ -18,7 +18,7 @@ gow_log "*** D-Bus Watchdog started ***"
 STEAMDIR="${HOME}/.local/share/Steam"
 STEAMDIR_LEGACY="${HOME}/.steam/steam"
 # Is the user coming from an Ubuntu installation?
-if [ ! -h "$STEAMDIR_LEGACY" ]; then
+if [ -d "${HOME}/.steam" ] && [ ! -h "$STEAMDIR_LEGACY" ]; then
   gow_log "*** Steam Legacy detected, moving steamapps to the new location ***"
   # -rf: on a fresh Fedora profile $STEAMDIR may not exist yet; rm -r
   # aborted the cont-init script with "No such file or directory" and
