@@ -5,9 +5,9 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:25.04 AS bwrap-builder
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
-ENV DEBIAN_FRONTEND=non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
 RUN apt-get update -y && \
