@@ -34,7 +34,7 @@ RUN dnf install -y \
 # Install Wine, 32-bit libs, Python deps, and Lutris dependencies
 # TODO: Add dependencies for gamepad-ui
 # TODO: See if equivalents of libegl1:i386 and libavfilter10:i386 are needed
-RUN dnf install -y \
+RUN dnf install -y --allowerasing \
     cabextract \
     curl \
     fluid-soundfont-gm \
@@ -68,6 +68,8 @@ RUN dnf install -y \
     xrandr \
     zenity \
     lutris \
+    ffmpeg ffmpeg-libs libavcodec-freeworld \
+    ffmpeg-libs.i686 libavcodec-freeworld.i686 \
     && dnf clean all
 
 # Replace system bwrap with patched version that works with CAP_SYS_ADMIN
