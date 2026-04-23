@@ -7,7 +7,13 @@ source /opt/gow/bash-lib/utils.sh
 mkdir -p /run/dbus
 dbus-daemon --system --fork --nosyslog
 gow_log "*** DBus started ***"
-bluetoothd --nodetach &
+# On Fedora the bluez package installs bluetoothd at
+# /usr/libexec/bluetooth/bluetoothd (not on $PATH). Debian/Ubuntu put it
+# under /usr/sbin, which /is/ on $PATH. Resolve via command -v first,
+# fall back to the known Fedora location so this survives either base.
+BLUETOOTHD="$(command -v bluetoothd || true)"
+: "${BLUETOOTHD:=/usr/libexec/bluetooth/bluetoothd}"
+"$BLUETOOTHD" --nodetach &
 gow_log "*** Bluez started ***"
 NetworkManager
 gow_log "*** NetworkManager started ***"

@@ -12,18 +12,24 @@ ARG REQUIRED_PACKAGES=" \
     ubuntu-restricted-extras \
 "
 
-COPY <<_APT_PIN /etc/apt/preferences.d/mozilla-firefox
-Package: *
-Pin: release o=LP-PPA-mozillateam
-Pin-Priority: 1001
-_APT_PIN
-
+# Install firefox from Mozilla's official apt repo rather than the Ubuntu
+# archive (which ships a snap shim that will not run in a container) or
+# ppa:mozillateam/ppa (which dropped plucky support -- the PPA advertises
+# the suite but publishes an empty Packages index). Same approach as the
+# xfce image.
 RUN <<_INSTALL_PACKAGES
+set -e
 apt-get update
-apt-get install -y --no-install-recommends software-properties-common gpg-agent
-add-apt-repository ppa:mozillateam/ppa
+apt-get install -y --no-install-recommends wget ca-certificates
+install -d -m 0755 /etc/apt/keyrings
+wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg \
+     -O /etc/apt/keyrings/packages.mozilla.org.asc
+echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" \
+     > /etc/apt/sources.list.d/mozilla.list
+printf 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n' \
+     > /etc/apt/preferences.d/mozilla
+apt-get update
 apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
-apt-get remove -y software-properties-common gpg-agent
 apt-get autoremove -y
 rm -rf /var/lib/apt/lists/*
 _INSTALL_PACKAGES
