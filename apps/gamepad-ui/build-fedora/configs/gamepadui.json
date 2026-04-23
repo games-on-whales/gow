@@ -1,0 +1,13 @@
+{
+  "remote_desktop_manager.token": "22636500-aa41-4d9c-a1c8-b1aebc5cf78f",
+  "app_config": {
+    "zoomFactor": 1.3,
+    "showRecentlyPlayed": true,
+    "showHiddenGames": true,
+    "doubleConfirmPowerManagement": false,
+    "gamepadAutorepeatMs": 300,
+    "useRemoteDesktopPortal": false,
+    "showRunnerIcon": false,
+    "keepGamesRunningOnQuit": false
+  }
+}
