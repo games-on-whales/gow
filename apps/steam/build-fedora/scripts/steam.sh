@@ -9,8 +9,20 @@ if [[ ! -f "$STEAMDIR/steam.sh" ]]; then
     mkdir -p "$STEAMDIR"
     cd "$STEAMDIR"
     tar xJf /usr/lib/steam/bootstraplinux_ubuntu12_32.tar.xz
-    mkdir -p "$STEAMDIR_LEGACY"
-    ln -fns "$STEAMDIR" "$STEAMDIR_LEGACY"
+fi
+
+# Ensure ~/.steam/steam is a symlink to the real Steam directory.
+# Note: do NOT mkdir -p "$STEAMDIR_LEGACY" before this. If the legacy path
+# exists as a real directory, `ln -sfn` cannot replace it and silently
+# nests the link inside as ".steam/steam/Steam", which then fools the
+# migration guard in cont-init/system-services.sh into firing on every boot.
+mkdir -p "$(dirname "$STEAMDIR_LEGACY")"
+if [ -L "$STEAMDIR_LEGACY" ] || [ ! -e "$STEAMDIR_LEGACY" ]; then
+    ln -sfn "$STEAMDIR" "$STEAMDIR_LEGACY"
+elif [ -d "$STEAMDIR_LEGACY" ] && [ -z "$(ls -A "$STEAMDIR_LEGACY" 2>/dev/null)" ]; then
+    rmdir "$STEAMDIR_LEGACY" && ln -sfn "$STEAMDIR" "$STEAMDIR_LEGACY"
+else
+    echo "WARN: $STEAMDIR_LEGACY is a non-empty real directory; refusing to replace with symlink. Manual cleanup required."
 fi
 
 
