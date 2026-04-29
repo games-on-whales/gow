@@ -23,9 +23,6 @@ FROM ${BASE_APP_IMAGE}
 ARG LUTRIS_VERSION=0.5.22
 ARG GAMEPAD_UI_VERSION=v0.1.34
 
-# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
-ENV APPIMAGE_EXTRACT_AND_RUN=1
-
 # Install RPM Fusion for wine and multimedia codecs
 RUN dnf install -y \
     https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
@@ -76,6 +73,8 @@ COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/
 # Install Lutris Gamepad UI
 ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/download/${GAMEPAD_UI_VERSION}/lutris-gamepad-ui-x64.AppImage"
 ENV APP_DIR="/opt/gow/app"
+# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # Download and extract AppImage
 #COPY --chmod=777 release.AppImage /tmp/app.AppImage

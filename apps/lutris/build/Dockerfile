@@ -28,8 +28,6 @@ ARG LUTRIS_VERSION=0.5.22
 ARG GAMEPAD_UI_VERSION=v0.1.34
 
 ARG DEBIAN_FRONTEND=noninteractive
-# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
-ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # The following list of packages was informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
@@ -109,6 +107,8 @@ COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/
 # Install Lutris Gamepad UI
 ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/download/${GAMEPAD_UI_VERSION}/lutris-gamepad-ui-x64.AppImage"
 ENV APP_DIR="/opt/gow/app"
+# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # Download and extract AppImage
 RUN curl -LJ ${APPIMAGE_URL} -o /tmp/app.AppImage && \
@@ -117,7 +117,6 @@ RUN curl -LJ ${APPIMAGE_URL} -o /tmp/app.AppImage && \
     mv squashfs-root ${APP_DIR} && \
     rm -rf /tmp/app.AppImage && \
     chown -R 1000:1000 ${APP_DIR}
-
 
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
