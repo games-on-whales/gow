@@ -7,7 +7,13 @@ source /opt/gow/bash-lib/utils.sh
 mkdir -p /run/dbus
 dbus-daemon --system --fork --nosyslog
 gow_log "*** DBus started ***"
-bluetoothd --nodetach &
+# On Fedora the bluez package installs bluetoothd at
+# /usr/libexec/bluetooth/bluetoothd (not on $PATH). Debian/Ubuntu put it
+# under /usr/sbin, which /is/ on $PATH. Resolve via command -v first,
+# fall back to the known Fedora location so this survives either base.
+BLUETOOTHD="$(command -v bluetoothd || true)"
+: "${BLUETOOTHD:=/usr/libexec/bluetooth/bluetoothd}"
+"$BLUETOOTHD" --nodetach &
 gow_log "*** Bluez started ***"
 NetworkManager
 gow_log "*** NetworkManager started ***"
@@ -16,18 +22,24 @@ steamos-dbus-watchdog.sh &
 gow_log "*** D-Bus Watchdog started ***"
 
 STEAMDIR="${HOME}/.local/share/Steam"
-STEAMDIR_LEGACY="${HOME}/.steam/debian-installation"
+STEAMDIR_LEGACY="${HOME}/.steam/steam"
 # Is the user coming from an Ubuntu installation?
-if [ -d "$STEAMDIR_LEGACY" ]; then
-  gow_log "*** Steam Legacy detected, moving steamapps to the new location ***"
-  # -rf: on a fresh Fedora profile $STEAMDIR may not exist yet; rm -r
-  # aborted the cont-init script with "No such file or directory" and
-  # Steam never started (black screen → session killed). Same for the
-  # legacy /.steam/ cleanup below, which may also be gone after prior
-  # failed runs.
-  rm -rf "$STEAMDIR"
-  mv "$STEAMDIR_LEGACY" "$STEAMDIR"
-  rm -rf "${HOME}/.steam/"
+#
+# Guards (all must hold) so this only fires for a real legacy migration and
+# never clobbers an already-migrated profile or a bind-mounted $STEAMDIR:
+#   1. legacy path exists as a real directory, not the post-migration symlink
+#   2. it actually contains game data (steamapps/)
+#   3. the new location does not already contain game data
+if [ -d "$STEAMDIR_LEGACY" ] && [ ! -L "$STEAMDIR_LEGACY" ] \
+   && [ -d "$STEAMDIR_LEGACY/steamapps" ] \
+   && [ ! -d "$STEAMDIR/steamapps" ]; then
+  gow_log "*** Steam Legacy detected, migrating steamapps to the new location ***"
+  mkdir -p "$STEAMDIR"
+  # cp -aT then rm: works when $STEAMDIR is a bind mount (mv across
+  # filesystems would fail) and avoids the destructive `rm -rf $STEAMDIR`
+  # that previously wiped login state on every restart.
+  cp -aT "$STEAMDIR_LEGACY" "$STEAMDIR"
+  rm -rf "${HOME}/.steam"
 fi
 
 # Install Decky Loader
