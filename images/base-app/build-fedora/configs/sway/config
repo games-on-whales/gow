@@ -101,6 +101,8 @@ include /etc/sway/config.d/*
 
 bar swaybar_command waybar
 
+exec mako
+
 # App fixes
 # You can get more info about windows at runtime with `swaymsg -t get_tree`
 # Steam big picture fix (force windowing mode)
