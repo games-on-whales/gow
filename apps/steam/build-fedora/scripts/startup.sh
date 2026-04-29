@@ -20,7 +20,21 @@ export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 # Note: Ubuntus Mangoapp doesn't support Presets, so disable this for now
 #export STEAM_MANGOAPP_PRESETS_SUPPORTED=1
 export STEAM_USE_MANGOAPP=1
-export MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
+# Check if MANGOHUD_CONFIGFILE is not set already by Wolf
+if [ -z "${MANGOHUD_CONFIGFILE:-}" ]; then
+    # Not set
+    export MANGOHUD_CONFIGFILE="$(mktemp /tmp/mangohud.XXXXXXXX)"
+
+    # Initially write no_display to our config file
+    # so we don't get mangoapp showing up before Steam initializes
+    # on OOBE and stuff.
+    mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
+    echo "position=top-right" > "$MANGOHUD_CONFIGFILE"
+    echo "no_display" >> "$MANGOHUD_CONFIGFILE"
+else
+    # Respect Wolf setting
+    export MANGOHUD_CONFIGFILE
+fi
 # Enable horizontal mangoapp bar
 export STEAM_MANGOAPP_HORIZONTAL_SUPPORTED=1
 
@@ -31,13 +45,6 @@ export STEAM_USE_DYNAMIC_VRS=1
 export RADV_FORCE_VRS_CONFIG_FILE=$(mktemp /tmp/radv_vrs.XXXXXXXX)
 # To expose vram info from radv
 export WINEDLLOVERRIDES=dxgi=n
-
-# Initially write no_display to our config file
-# so we don't get mangoapp showing up before Steam initializes
-# on OOBE and stuff.
-mkdir -p "$(dirname "$MANGOHUD_CONFIGFILE")"
-echo "position=top-right" > "$MANGOHUD_CONFIGFILE"
-echo "no_display" >> "$MANGOHUD_CONFIGFILE"
 
 # Prepare our initial VRS config file
 # for dynamic VRS in Mesa.
