@@ -44,7 +44,7 @@ ARG REQUIRED_PACKAGES="\
     gamescope \
     sway \
     xorg-x11-server-Xwayland kitty nano \
-    waybar default-fonts xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
+    waybar mako default-fonts xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     mangohud \
     sdl2-compat ncurses \
     dbus-daemon \
