@@ -25,8 +25,11 @@ FROM ${BASE_APP_IMAGE}
 
 # Hardcoded the version to prevent image builder using cached old packages when newer version comes out
 ARG LUTRIS_VERSION=0.5.22
+ARG GAMEPAD_UI_VERSION=v0.1.34
 
 ARG DEBIAN_FRONTEND=noninteractive
+# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 
 # The following list of packages was informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
@@ -39,7 +42,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 #
 # Also added libavfilter10:i386 which is required for gstreamer-1.0/libgstlibav.so (32-bit)
 # which is required by some games in decoding WMV/WMA assets
+#
+# Also added fonts-noto-color-emoji for Gamepad-UI to show symbols on top bar.
 ARG REQUIRED_PACKAGES=" \
+     fonts-noto-color-emoji \
      cabextract \
      curl \
      fluid-soundfont-gs \
@@ -79,11 +85,17 @@ ARG REQUIRED_PACKAGES=" \
      winetricks \
      x11-xserver-utils \
      zenity \
+     libfuse2 \
+     libfuse2t64 \
+     libgstreamer-gl1.0-0 \
     "
+
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+# Cleanup \
+    apt-get autoremove -y
 
 RUN curl -fsSL -o /tmp/lutris.deb \
         "https://github.com/lutris/lutris/releases/download/v${LUTRIS_VERSION}/lutris_${LUTRIS_VERSION}_all.deb" && \
@@ -94,12 +106,26 @@ RUN curl -fsSL -o /tmp/lutris.deb \
 # Replace system bwrap with patched version that works with CAP_SYS_ADMIN
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
+# Install Lutris Gamepad UI
+ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/download/${GAMEPAD_UI_VERSION}/lutris-gamepad-ui-x64.AppImage"
+ENV APP_DIR="/opt/gow/app"
+
+# Download and extract AppImage
+RUN curl -LJ ${APPIMAGE_URL} -o /tmp/app.AppImage && \
+    chmod +x /tmp/app.AppImage && \
+    /tmp/app.AppImage --appimage-extract && \
+    mv squashfs-root ${APP_DIR} && \
+    rm -rf /tmp/app.AppImage && \
+    chown -R 1000:1000 ${APP_DIR}
+
+
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
 COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
 COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
+COPY configs/gamepadui.json /opt/gow/gamepadui.json
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
