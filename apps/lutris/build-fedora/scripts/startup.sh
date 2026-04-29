@@ -20,7 +20,6 @@ if [ ${WOLF_LUTRIS_GAMEPAD_UI_ENABLE:-1} -eq 1 ]; then
     if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
         export RUN_GAMESCOPE=1
     fi
-    export STANDALONE_SESSION=${STANDALONE_SESSION:-1}
     launcher /opt/gow/app/AppRun
 else
     launcher "${LUTRIS}" "${LUTRIS_ARGS[@]}"
