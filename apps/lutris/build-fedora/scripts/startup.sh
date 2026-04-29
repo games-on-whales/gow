@@ -23,7 +23,7 @@ if [ ${WOLF_LUTRIS_GAMEPAD_UI_ENABLE:-1} -eq 1 ]; then
     launcher /opt/gow/app/AppRun
 else
     if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
-        export RUN_SWaY=1
+        export RUN_SWAY=1
     fi
     launcher "${LUTRIS}" "${LUTRIS_ARGS[@]}"
 fi
