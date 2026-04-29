@@ -47,6 +47,7 @@ ARG REQUIRED_PACKAGES="\
     waybar mako default-fonts xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     mangohud \
     sdl2-compat ncurses \
+    procps-ng \
     dbus-daemon \
     "
 
