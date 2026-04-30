@@ -65,6 +65,18 @@ RUN fc-cache -f -v
 # create symlink for improved decky loader compatibility
 RUN ln -sf "$HOME" /home/deck
 
+# Bake Decky Loader at build time. Previously system-services.sh fetched
+# the latest release on every container start via api.github.com, which
+# rate-limited (60 unauth req/h per IP) and broke cont-init smoke tests
+# and fresh-user logins non-deterministically. Pinning + baking removes
+# the runtime API dependency. Bump DECKY_LOADER_VERSION to update.
+ARG DECKY_LOADER_VERSION=v3.2.3
+RUN mkdir -p /opt/decky && \
+    curl -fsSL --retry 3 --retry-delay 2 \
+      -o /opt/decky/PluginLoader \
+      "https://github.com/SteamDeckHomebrew/decky-loader/releases/download/${DECKY_LOADER_VERSION}/PluginLoader" && \
+    chmod 755 /opt/decky/PluginLoader
+
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh
 COPY --chmod=777 steamos-update /usr/bin/steamos-update

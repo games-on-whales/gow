@@ -50,16 +50,19 @@ if [ -d "$STEAMDIR_LEGACY" ] && [ ! -L "$STEAMDIR_LEGACY" ]; then
   exit 1
 fi
 
-# Install Decky Loader
+# Install Decky Loader. The PluginLoader binary is baked into the image
+# at /opt/decky/PluginLoader during build (see Dockerfile), so this
+# first-run install is offline and deterministic — the cont-init smoke
+# test no longer depends on the GitHub releases API rate limit, and
+# fresh user containers do not roll the rate-limit dice on every start.
 if [ ! -f "$HOME/homebrew/services/PluginLoader" ]; then
   gow_log "Installing Decky Loader"
   mkdir -p "$STEAMDIR"
   touch "$STEAMDIR/.cef-enable-remote-debugging"
   echo "Steam directory: $STEAMDIR"
   mkdir -p "$HOME/homebrew/services/"
-  github_download "SteamDeckHomebrew/decky-loader" ".assets[]|select(.name|(\"PluginLoader\")).browser_download_url" "PluginLoader"
-  chmod +x PluginLoader
-  mv PluginLoader "$HOME/homebrew/services"
+  cp /opt/decky/PluginLoader "$HOME/homebrew/services/PluginLoader"
+  chmod +x "$HOME/homebrew/services/PluginLoader"
 fi
 
 # Start Decky Loader
