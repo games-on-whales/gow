@@ -23,23 +23,31 @@ gow_log "*** D-Bus Watchdog started ***"
 
 STEAMDIR="${HOME}/.local/share/Steam"
 STEAMDIR_LEGACY="${HOME}/.steam/steam"
-# Is the user coming from an Ubuntu installation?
+# Detect (but do not auto-migrate) an Ubuntu-layout legacy install.
 #
-# Guards (all must hold) so this only fires for a real legacy migration and
-# never clobbers an already-migrated profile or a bind-mounted $STEAMDIR:
-#   1. legacy path exists as a real directory, not the post-migration symlink
-#   2. it actually contains game data (steamapps/)
-#   3. the new location does not already contain game data
-if [ -d "$STEAMDIR_LEGACY" ] && [ ! -L "$STEAMDIR_LEGACY" ] \
-   && [ -d "$STEAMDIR_LEGACY/steamapps" ] \
-   && [ ! -d "$STEAMDIR/steamapps" ]; then
-  gow_log "*** Steam Legacy detected, migrating steamapps to the new location ***"
-  mkdir -p "$STEAMDIR"
-  # cp -aT then rm: works when $STEAMDIR is a bind mount (mv across
-  # filesystems would fail) and avoids the destructive `rm -rf $STEAMDIR`
-  # that previously wiped login state on every restart.
-  cp -aT "$STEAMDIR_LEGACY" "$STEAMDIR"
-  rm -rf "${HOME}/.steam"
+# Earlier versions of this script auto-copied ~/.steam/steam into
+# ~/.local/share/Steam, but every variant of that approach has been wrong:
+#   - rm -rf + mv looped on every restart and wiped login state (#324)
+#   - cp -aT assumes enough free space at $STEAMDIR, which is false when
+#     ~/.steam is bind-mounted from a separate (large) drive that holds
+#     the library while $HOME sits on the small root filesystem
+#   - any data move risks destroying a user's library if it fails partway
+#
+# True Ubuntu→Fedora migrations are rare. Detect the situation, log a
+# clear message, and let the user decide. Steam will still launch — the
+# wrapper's symlink logic refuses to clobber a real legacy directory and
+# will print its own warning.
+if [ -d "$STEAMDIR_LEGACY" ] && [ ! -L "$STEAMDIR_LEGACY" ]; then
+  gow_log "*** Legacy ~/.steam/steam directory detected (not a symlink). ***"
+  gow_log "*** Auto-migration is disabled. If Steam does not find your   ***"
+  gow_log "*** library, move ~/.steam/steam/* into ~/.local/share/Steam/ ***"
+  gow_log "*** manually, then remove ~/.steam so the symlink can be      ***"
+  gow_log "*** recreated on the next boot.                               ***"
+  # Bail before Steam launches: starting Steam against a real (non-symlink)
+  # ~/.steam/steam can confuse the client and a half-broken first run is
+  # the kind of thing that ends in lost data. Better to fail cont-init
+  # loudly so the human notices than to limp on.
+  exit 1
 fi
 
 # Install Decky Loader
