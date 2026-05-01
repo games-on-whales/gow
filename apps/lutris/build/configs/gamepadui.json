@@ -1,0 +1,12 @@
+{
+  "app_config": {
+    "zoomFactor": 1.3,
+    "showRecentlyPlayed": true,
+    "showHiddenGames": true,
+    "doubleConfirmPowerManagement": false,
+    "gamepadAutorepeatMs": 300,
+    "useRemoteDesktopPortal": false,
+    "showRunnerIcon": false,
+    "keepGamesRunningOnQuit": false
+  }
+}

@@ -9,7 +9,7 @@ name = "WolfLutris"
 image = "ghcr.io/games-on-whales/lutris:edge"
 mounts = ["lutris:/var/lutris/:rw"]
 env = [
-    "RUN_SWAY=1",
+    'WOLF_LUTRIS_GAMEPAD_UI_ENABLE=1',
     "GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/",
 ]
 devices = []

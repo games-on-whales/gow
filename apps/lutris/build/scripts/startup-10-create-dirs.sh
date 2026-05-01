@@ -6,6 +6,8 @@
 
 gow_log "[start-create-dirs] Begin"
 
+if [ ${WOLF_LUTRIS_SKIP_CREATE_DIRS:-0} -eq 0 ]; then
+
 # "library" will contain information about available games and installed games.
 if [ ! -d "/var/lutris/library" ]
 then
@@ -55,4 +57,15 @@ then
     cp "/opt/gow/lutris-lutris.conf" "${HOME}/.config/lutris/lutris.conf"
 fi
 
+# configuration file for gamepad-ui
+if [ ! -f "${HOME}/.local/lutris-gamepad-ui/config.json" ]
+then
+    gow_log "[start-create-dirs] Creating gamepad-ui config file."
+    mkdir -p "${HOME}/.local/lutris-gamepad-ui"
+    cp "/opt/gow/gamepadui.json" "${HOME}/.local/lutris-gamepad-ui/config.json"
+fi
+
 gow_log "[start-create-dirs] End"
+else
+gow_log "[start-create-dirs] Skipped"
+fi
