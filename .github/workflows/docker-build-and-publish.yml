@@ -58,7 +58,16 @@ jobs:
 
       - id: set-docker-vars
         run: |
-          if [[ "${{ github.repository }}" == "games-on-whales/gow" ]]; then
+          # github.repository is always the base repo (games-on-whales/gow) even
+          # for fork PRs, so we can't use it to detect forks. Instead compare
+          # the PR head repo against the base repo.
+          IS_FORK_PR=false
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && \
+             [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
+            IS_FORK_PR=true
+          fi
+
+          if [[ "${IS_FORK_PR}" == "false" ]]; then
             IS_FORK=false
             GHCR_NAMESPACE="${{ github.repository_owner }}"
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
@@ -66,16 +75,10 @@ jobs:
           else
             # Forks shall push to <username>/gow/<image-name>
             IS_FORK=true
-            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              # For PRs, we use the forked repository owner as namespace
-              # This allows us to pull build caches from the forked repository
-              owner=$(echo ${{ github.event.pull_request.head.repo.owner.login }} | tr '[:upper:]' '[:lower:]')
-              GHCR_NAMESPACE="${owner}/gow"
-            else
-              # For branches, we use the repository owner as namespace
-              owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
-              GHCR_NAMESPACE="${owner}/gow"
-            fi
+            # For PRs, we use the forked repository owner as namespace
+            # This allows us to pull build caches from the forked repository
+            owner=$(echo ${{ github.event.pull_request.head.repo.owner.login }} | tr '[:upper:]' '[:lower:]')
+            GHCR_NAMESPACE="${owner}/gow"
             DOCKERHUB_NAMESPACE="${{ env.DOCKERHUB_NAMESPACE }}"
             ARM64_RUNNER=${{ env.ARM64_RUNNER != '' && env.ARM64_RUNNER || 'ubuntu-latest' }}
           fi

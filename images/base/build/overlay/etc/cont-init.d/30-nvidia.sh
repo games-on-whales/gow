@@ -37,7 +37,7 @@ if [ -d /usr/nvidia ]; then
   fi
 # Check if there's libnvidia-allocator.so.1
 elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
-  gow_log "Nvidia driver detected, assuming it's using the nvidia driver volume"
+  gow_log "Nvidia driver detected, assuming nvidia container toolkit is installed"
   ldconfig
 
   # Create a symlink to the nvidia-drm_gbm.so (if not present)
@@ -91,5 +91,19 @@ elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
         "library_path": "libnvidia-egl-wayland.so.1"
       }
     }' > /usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json
+  fi
+
+  # gst-cuda loads "libnvrtc.so" via ldconfig. The image ships libnvrtc.so.11.0
+  # (CUDA 11.0) as a fallback, but nvrtcGetCUBIN* were added in CUDA 11.1.
+  # If the toolkit has injected a newer libnvrtc from the host at a standard
+  # system path, symlink it over the baked-in version so ldconfig finds it first.
+  _host_nvrtc=$(ldconfig -p 2>/dev/null \
+    | awk '/libnvrtc\.so[^.0-9]/{print $NF}' \
+    | grep -v '/usr/local/nvidia/lib' \
+    | head -1)
+  if [ -n "$_host_nvrtc" ]; then
+    gow_log "Preferring host nvrtc over baked-in: $_host_nvrtc"
+    ln -sf "$_host_nvrtc" /usr/local/nvidia/lib/libnvrtc.so
+    ldconfig
   fi
 fi
