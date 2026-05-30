@@ -158,12 +158,14 @@ echo "**** Extracting Xenia Canary ****"
 mkdir -p xenia-canary
 tar -xf xenia_canary_linux.tar.xz -C xenia-canary
 rm xenia_canary_linux.tar.xz
+ln -sf build/bin/Linux/Release/xenia_canary xenia-canary/xenia_canary
 
 chmod -v -R 777 $EMULATORS_DIR
 chmod -v -R a+x $EMULATORS_DIR
 _INSTALL_EMULATORS
 
 COPY --chmod=777 launchers /Applications/launchers
+COPY --chmod=755 scripts/rom_platforms.py scripts/generate_rom_library_configs.py scripts/gow_refresh_rom_library.sh scripts/required_cores.py scripts/install_retroarch_cores.sh /opt/gow/rom-config/
 ENV PATH="/Applications/launchers:${PATH}"
 
 RUN \

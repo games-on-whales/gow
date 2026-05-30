@@ -2,5 +2,11 @@
 set -e
 source /opt/gow/bash-lib/utils.sh
 
-gow_log "Starting RPCS3 with DISPLAY=${DISPLAY}"
-/Applications/rpcs3-emu.AppImage --appimage-extract-and-run
+APP="/Applications/rpcs3-emu.AppImage"
+gow_log "Starting RPCS3 DISPLAY=${DISPLAY} args: $*"
+
+if [[ $# -eq 0 ]]; then
+    exec "$APP" --appimage-extract-and-run
+fi
+
+exec "$APP" --appimage-extract-and-run "$@"
