@@ -43,6 +43,7 @@ RUN \
         mkdir -pm755 /ROMs
 
 COPY configs/ /cfg/
+COPY --chmod=755 scripts/rom-config/ /opt/gow/rom-config/
 COPY --chmod=777 scripts/startup.sh /etc/cont-init.d/setup-de.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-app.sh
 

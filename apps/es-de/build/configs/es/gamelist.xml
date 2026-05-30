@@ -3,67 +3,49 @@
 	<game>
 		<path>/Applications/launchers/cemu.sh</path>
 		<name>cemu</name>
-        <desc>Launch cemu</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>Cemu Team</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch cemu</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/citron.sh</path>
+		<name>citron</name>
+		<desc>Launch citron</desc>
+		<genre>Launcher</genre>
 	</game>
 	<game>
 		<path>/Applications/launchers/dolphin.sh</path>
 		<name>dolphin</name>
-        <desc>Launch dolphin</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>Dolphin Team</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch dolphin</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
 		<path>/Applications/launchers/pcsx2.sh</path>
 		<name>pcsx2</name>
-        <desc>Launch pcsx2</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>PCSX2 Team</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch pcsx2</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
 		<path>/Applications/launchers/retroarch.sh</path>
 		<name>retroarch</name>
-        <desc>Launch RetroArch</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>libretro</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch RetroArch</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
 		<path>/Applications/launchers/rpcs3.sh</path>
 		<name>rpcs3</name>
-        <desc>Launch RPCS3</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>RPCS3 Team</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch RPCS3</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
 	</game>
 	<game>
 		<path>/Applications/launchers/xemu.sh</path>
 		<name>xemu</name>
-        <desc>Launch XEMU</desc>
-		<releasedate>20230429T000000</releasedate>
-		<developer>XEMU Team</developer>
-		<publisher>QuaiGoner</publisher>
+		<desc>Launch XEMU</desc>
 		<genre>Launcher</genre>
-		<playcount>1</playcount>
-		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/xenia.sh</path>
+		<name>xenia</name>
+		<desc>Launch Xenia</desc>
+		<genre>Launcher</genre>
 	</game>
 </gameList>
