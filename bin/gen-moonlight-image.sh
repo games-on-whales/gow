@@ -84,6 +84,7 @@ def gen_all_icons():
         {"name": ["Firefox"], "palette": 0, "output": "apps/firefox/assets/icon.png"},
         {"name": ["Kodi"], "palette": 0, "output": "apps/kodi/assets/icon.png"},
         {"name": ["XFCE", "(desktop)"], "palette": 0, "output": "apps/xfce/assets/icon.png"},
+        {"name": ["AudioRelay"], "palette": 0, "output": "apps/audiorelay/assets/icon.png"},
         # Emulators / Games
         {"name": ["Emulation Station"], "palette": 1, "output": "apps/es-de/assets/icon.png"},
         {"name": ["Retroarch"], "palette": 1, "output": "apps/retroarch/assets/icon.png"},
