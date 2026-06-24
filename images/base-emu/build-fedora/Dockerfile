@@ -151,6 +151,13 @@ echo "**** Downloading Citron Emulator AppImage ****"
 # TODO: check why this is failing
 #forgejo_download "https://git.citron-emu.org/citron-emu/Citron" "citron.AppImage" "x86_64"
 
+echo "**** Downloading Eden Emulator AppImage ****"
+# Eden (Switch emulator, yuzu fork) — provides the `switch` ROM platform in
+# place of the currently-unavailable Citron (see games-on-whales/gow#261).
+# Anchor the filter on `.AppImage$` so we don't match the `.AppImage.zsync`
+# update file (listed before the AppImage in the release assets).
+forgejo_download "https://git.eden-emu.dev/eden-emu/eden" "eden.AppImage" "amd64-gcc-standard.AppImage$"
+
 echo "**** Downloading Xenia Canary ****"
 github_download "xenia-canary/xenia-canary-releases" "xenia_canary_linux.tar.xz" "" ""
 

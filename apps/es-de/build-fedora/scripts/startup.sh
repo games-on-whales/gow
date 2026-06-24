@@ -39,6 +39,10 @@ gow_log "Copying custom config - XEMU settings, if not edited"
 mkdir -p $XEMU_CFG_DIR/xemu/
 cp -u /cfg/xemu/xemu.toml $XEMU_CFG_DIR/xemu/xemu.toml
 
+gow_log "Copying custom config - Eden (Switch) qt-config, if not edited"
+mkdir -p $HOME/.config/eden/
+cp -u /cfg/eden/qt-config.ini $HOME/.config/eden/qt-config.ini
+
 gow_log "Copying hdd for XEMU if it is present in bioses or newer"
 if test -f $HOME/bioses/xbox_hdd.qcow2; then
     gow_log "XEMU hdd is present, copy it to XEMU folder"

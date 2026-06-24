@@ -12,7 +12,7 @@ assert_has retroarch ffmpeg
 # 404s, the AppImage is missing here -- a silent failure at image-build
 # time we want to catch.
 for app in pcsx2-emu.AppImage xemu-emu.AppImage rpcs3-emu.AppImage \
-           cemu-emu.AppImage dolphin-emu.AppImage; do
+           cemu-emu.AppImage dolphin-emu.AppImage eden.AppImage; do
   assert_path "/Applications/$app"
 done
 
