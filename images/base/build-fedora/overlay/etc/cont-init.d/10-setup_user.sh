@@ -4,7 +4,17 @@ set -e
 
 gow_log "**** Configure default user ****"
 
-if [[ "${UNAME}" != "root" ]]; then
+if [[ "${UNAME}" != "root" ]] && id -u "${UNAME}" &>/dev/null && [ "$(id -u "${UNAME}")" -lt 1000 ]; then
+    # System user from the image (such as 'pulse'): keep it as it is.
+    # Don't recreate it with PUID and PGID.
+    gow_log "Using existing system user $(id "${UNAME}")"
+
+    if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
+        gow_log "Ensure XDG_RUNTIME_DIR is writable"
+        mkdir -p "${XDG_RUNTIME_DIR}"
+        chown -R "${UNAME}:" "${XDG_RUNTIME_DIR}"
+    fi
+elif [[ "${UNAME}" != "root" ]]; then
     PUID="${PUID:-1000}"
     PGID="${PGID:-1000}"
     UMASK="${UMASK:-000}"
