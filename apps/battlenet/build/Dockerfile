@@ -79,13 +79,17 @@ RUN mkdir -p $XDG_DATA_HOME/Steam/compatibilitytools.d && \
     ls $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
     ln -s $(ls -d $XDG_DATA_HOME/Steam/compatibilitytools.d/GE-Proton* | head -1) $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton
 
-# Download the Steam Linux Runtime. umu fetches it before launching; the launch itself
-# cannot work during a docker build (no CAP_SYS_ADMIN), so only the download is kept.
-RUN PROTONPATH=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton GAMEID=0 \
-    WINEPREFIX=/tmp/umu-dummy-prefix HOME=/root \
-    umu-run /nonexistent.exe || true && \
+# Download the Steam Linux Runtime. umu fetches it before launching (and refuses to run as root);
+# the launch itself cannot work during a docker build (no CAP_SYS_ADMIN), so only the download is kept.
+RUN useradd -m umubuild && \
+    chown -R umubuild /opt/umu-data && \
+    (runuser -u umubuild -- env HOME=/home/umubuild XDG_DATA_HOME=$XDG_DATA_HOME \
+        PROTONPATH=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton GAMEID=0 \
+        WINEPREFIX=/tmp/umu-dummy-prefix umu-run /nonexistent.exe || true) && \
     rm -rf /tmp/umu-dummy-prefix && \
-    test -d $XDG_DATA_HOME/umu/steamrt4/pressure-vessel
+    test -d $XDG_DATA_HOME/umu/steamrt4/pressure-vessel && \
+    chown -R root:root /opt/umu-data && \
+    userdel -r umubuild
 
 # Create the Proton prefix with Proton directly (no pressure-vessel in docker build).
 # 'pfx -> .' is the layout umu-run uses when WINEPREFIX is set.
