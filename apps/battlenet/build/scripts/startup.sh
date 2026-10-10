@@ -78,12 +78,15 @@ export WINE_SIMULATE_WRITECOPY=1
 export WINEFSYNC=1
 
 PERSIST_DIR="/home/retro-persist"
+BNET_FLAGS="--disable-gpu --disable-gpu-compositing"
+# Optional overrides for testing, e.g. BNET_FLAGS="" or unset STAGING_SHARED_MEMORY
+[ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 AGENT_VERSIONED=$(find "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent" -name "Agent.exe" -path "*/Agent.*/Agent.exe" | head -1)
 AGENT_VERSIONED_WIN=$(echo "$AGENT_VERSIONED" | sed "s|${PERSIST_DIR}/drive_c|C:|" | sed 's|/|\\|g')
 
 wine "$AGENT_VERSIONED_WIN" --locale=enGB --region=EU --no-sandbox &
 sleep 3
-exec wine "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe" --disable-gpu --disable-gpu-compositing --locale=enGB --region=EU --no-sandbox
+exec wine "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe" $BNET_FLAGS --locale=enGB --region=EU --no-sandbox
 LAUNCH
 chmod +x /tmp/launch-bnet.sh
 
