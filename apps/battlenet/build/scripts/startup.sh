@@ -13,6 +13,32 @@ fi
 
 rm -f "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent/Agent.dat"
 
+# Battle.net launcher settings, same as Lutris' Battle.net installer (only written when missing)
+BNET_CFG_DIR="$PERSIST_DIR/drive_c/users/$(id -un)/AppData/Roaming/Battle.net"
+if [ ! -f "$BNET_CFG_DIR/Battle.net.config" ]; then
+    mkdir -p "$BNET_CFG_DIR"
+    cat > "$BNET_CFG_DIR/Battle.net.config" << 'BNETCFG'
+{
+  "Client": {
+    "GameLaunchWindowBehavior": "2",
+    "GameSearch": {
+      "BackgroundSearch": "true"
+    },
+    "HardwareAcceleration": "false",
+    "Install": {
+      "DownloadLimitNextPatchInBps": "0"
+    },
+    "Sound": {
+      "Enabled": "false"
+    },
+    "Streaming": {
+      "StreamingEnabled": "false"
+    }
+  }
+}
+BNETCFG
+fi
+
 # Custom Sway rules for Battle.net
 mkdir -p "$HOME/.config/sway"
 cat > "$HOME/.config/sway/custom-cfg" << 'SWAYCFG'
@@ -46,7 +72,8 @@ WAYCSS
 cat > /tmp/launch-bnet.sh << 'LAUNCH'
 #!/bin/bash
 export WINEPREFIX="/home/retro-persist"
-export WINEDLLOVERRIDES="mscoree,mshtml=,wintrust=n,winedbg=d"
+export WINEDLLOVERRIDES="mscoree,mshtml=,wintrust=n,winedbg=d,locationapi=d"
+export STAGING_SHARED_MEMORY=1
 export WINE_SIMULATE_WRITECOPY=1
 export WINEFSYNC=1
 
