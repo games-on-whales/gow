@@ -150,13 +150,13 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     rm -f /tmp/bnet-setup.exe /tmp/.X99-lock && \
     test -f "/opt/battlenet/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
 
-# Battle.net launcher settings, same as Lutris' Battle.net installer (HardwareAcceleration=false for the launcher UI)
+# Battle.net launcher settings (based on the Lutris installer; hardware acceleration is on because DXVK from Proton makes the GPU path work, software rendering gives repaint artifacts)
 RUN mkdir -p /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net && \
     printf '%s\n' '{' \
       '  "Client": {' \
       '    "GameLaunchWindowBehavior": "2",' \
       '    "GameSearch": { "BackgroundSearch": "true" },' \
-      '    "HardwareAcceleration": "false",' \
+      '    "HardwareAcceleration": "true",' \
       '    "Install": { "DownloadLimitNextPatchInBps": "0" },' \
       '    "Sound": { "Enabled": "false" },' \
       '    "Streaming": { "StreamingEnabled": "false" }' \
