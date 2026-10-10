@@ -43,7 +43,7 @@ start_virtual_compositor = true
 
 ## Notes
 
-- First launch copies the ~2 GB prefix to the persistent mount (a few seconds on SSD/ZFS). It is owned by the uid Wolf runs the container with.
+- First launch copies the prefix to the persistent mount (a few seconds on SSD/ZFS). It is owned by the uid Wolf runs the container with.
 - The Battle.net launcher UI is GPU-rendered (`HardwareAcceleration=true`, set in the baked `Battle.net.config`); games use the GPU through Proton.
 - `/dev/shm` needs about 1.5 GB free for the runtime copy; with less (e.g. without `IpcMode: host`, Docker's default is 64 MB) the image falls back to a slow directory in the persistent mount.
 - Extra environment can be set in `bnet.env` in the persistent mount (sourced by the start script before launching).
