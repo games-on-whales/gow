@@ -93,6 +93,19 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     rm -f /tmp/bnet-setup.exe /tmp/.X99-lock && \
     chmod -R a+rX /opt/battlenet
 
+# Install Arial like Lutris' Battle.net installer does (prefix has no fonts otherwise)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends winetricks && \
+    rm -rf /var/lib/apt/lists/* && \
+    Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
+    until xdpyinfo -display :99 >/dev/null 2>&1; do sleep 0.5; done && \
+    HOME=/root DISPLAY=:99 WINEPREFIX=/opt/battlenet WINEDEBUG=-all \
+    WINEDLLOVERRIDES="mscoree,mshtml=" winetricks -q arial && \
+    /opt/wine-staging/bin/wineserver -w && \
+    pkill Xvfb || true && \
+    rm -f /tmp/.X99-lock && \
+    chmod -R a+rX /opt/battlenet
+
 # Show Sway title bars with close button
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
     sed -i 's/default_floating_border pixel 2/default_floating_border normal 2/' /cfg/sway/config
