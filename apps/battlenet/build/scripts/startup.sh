@@ -13,32 +13,6 @@ fi
 
 rm -f "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent/Agent.dat"
 
-# Battle.net launcher settings, same as Lutris' Battle.net installer (only written when missing)
-BNET_CFG_DIR="$PERSIST_DIR/drive_c/users/$(id -un)/AppData/Roaming/Battle.net"
-if [ ! -f "$BNET_CFG_DIR/Battle.net.config" ]; then
-    mkdir -p "$BNET_CFG_DIR"
-    cat > "$BNET_CFG_DIR/Battle.net.config" << 'BNETCFG'
-{
-  "Client": {
-    "GameLaunchWindowBehavior": "2",
-    "GameSearch": {
-      "BackgroundSearch": "true"
-    },
-    "HardwareAcceleration": "false",
-    "Install": {
-      "DownloadLimitNextPatchInBps": "0"
-    },
-    "Sound": {
-      "Enabled": "false"
-    },
-    "Streaming": {
-      "StreamingEnabled": "false"
-    }
-  }
-}
-BNETCFG
-fi
-
 # Custom Sway rules for Battle.net
 mkdir -p "$HOME/.config/sway"
 cat > "$HOME/.config/sway/custom-cfg" << 'SWAYCFG'
@@ -68,29 +42,27 @@ window#waybar { background: rgba(0,0,0,0.7); color: #ffffff; }
 #custom-quit:hover { background: #ff5555; color: #ffffff; }
 WAYCSS
 
-# Create wrapper with all env vars inside
+# Create wrapper with all env vars inside. Battle.net runs through umu-run (Proton-GE in the
+# Steam Linux Runtime), the same way Lutris runs it. Proton-GE and the runtime are baked in the image.
 cat > /tmp/launch-bnet.sh << 'LAUNCH'
 #!/bin/bash
-export WINEPREFIX="/home/retro-persist"
-export WINEDLLOVERRIDES="mscoree,mshtml=,wintrust=n,winedbg=d,locationapi=d"
-export STAGING_SHARED_MEMORY=1
-export WINE_SIMULATE_WRITECOPY=1
-export WINEFSYNC=1
-
 PERSIST_DIR="/home/retro-persist"
-BNET_FLAGS="--disable-gpu --disable-gpu-compositing"
-# Optional overrides for testing, e.g. BNET_FLAGS="" or unset STAGING_SHARED_MEMORY
-[ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
-# Optional: run Battle.net through another runner, e.g. BNET_RUNNER=umu-run (Proton-GE like Lutris)
-if [ -n "${BNET_RUNNER:-}" ]; then
-    exec $BNET_RUNNER "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net.exe" $BNET_FLAGS --locale=enGB --region=EU --no-sandbox
-fi
-AGENT_VERSIONED=$(find "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent" -name "Agent.exe" -path "*/Agent.*/Agent.exe" | head -1)
-AGENT_VERSIONED_WIN=$(echo "$AGENT_VERSIONED" | sed "s|${PERSIST_DIR}/drive_c|C:|" | sed 's|/|\\|g')
+export XDG_DATA_HOME=/opt/umu-data
+export PROTONPATH="$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton"
+export UMU_RUNTIME_UPDATE=0
+export WINEPREFIX="$PERSIST_DIR"
+export GAMEID=0
+export WINEDLLOVERRIDES="locationapi=d"
+export STAGING_SHARED_MEMORY=1
+export DXVK_STATE_CACHE_PATH="$PERSIST_DIR"
+export __GL_SHADER_DISK_CACHE=1
+export __GL_SHADER_DISK_CACHE_PATH="$PERSIST_DIR"
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
 
-wine "$AGENT_VERSIONED_WIN" --locale=enGB --region=EU --no-sandbox &
-sleep 3
-exec wine "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe" $BNET_FLAGS --locale=enGB --region=EU --no-sandbox
+# Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
+[ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
+
+exec umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
 LAUNCH
 chmod +x /tmp/launch-bnet.sh
 

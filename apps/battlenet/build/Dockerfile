@@ -36,6 +36,7 @@ ARG REQUIRED_PACKAGES=" \
     python3-zstandard \
     python3-xlib \
     xvfb \
+    x11-utils \
     cabextract \
     ca-certificates \
     gnupg \
@@ -53,18 +54,10 @@ ARG REQUIRED_PACKAGES=" \
     mesa-vulkan-drivers:i386 \
     "
 
-# Install Wine Staging and dependencies
+# Build umu-launcher (runs Proton-GE inside the Steam Linux Runtime, like Lutris does)
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
-    mkdir -pm755 /etc/apt/keyrings && \
-    wget -qO- https://dl.winehq.org/wine-builds/winehq.key | \
-        gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key && \
-    . /etc/os-release && \
-    echo "deb [arch=amd64,i386 signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" \
-        > /etc/apt/sources.list.d/winehq.list && \
-    apt-get update && \
-    apt-get install -y --install-recommends winehq-staging && \
     git clone --depth 1 --branch 1.4.4 https://github.com/Open-Wine-Components/umu-launcher.git /tmp/umu && \
     cd /tmp/umu && \
     python3 -m build --wheel --no-isolation && \
@@ -73,39 +66,55 @@ RUN dpkg --add-architecture i386 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Initialize Wine prefix and replace wintrust.dll with Proton-GE version
+# Proton-GE and the Steam Linux Runtime live in the image so nothing is downloaded at start.
+ARG GE_PROTON_VERSION=GE-Proton11-7
+ENV XDG_DATA_HOME=/opt/umu-data
+
+# Download Proton-GE (pinned version)
+RUN mkdir -p $XDG_DATA_HOME/Steam/compatibilitytools.d && \
+    URL=$(curl -s https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/tags/${GE_PROTON_VERSION} \
+        | grep browser_download_url | grep "\.tar\.gz" | grep -v aarch64 | head -1 | cut -d\" -f4) && \
+    echo "Downloading $URL" && \
+    curl -sL "$URL" | tar -xz -C $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
+    ls $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
+    ln -s $(ls -d $XDG_DATA_HOME/Steam/compatibilitytools.d/GE-Proton* | head -1) $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton
+
+# Download the Steam Linux Runtime. umu fetches it before launching; the launch itself
+# cannot work during a docker build (no CAP_SYS_ADMIN), so only the download is kept.
+RUN PROTONPATH=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton GAMEID=0 \
+    WINEPREFIX=/tmp/umu-dummy-prefix HOME=/root \
+    umu-run /nonexistent.exe || true && \
+    rm -rf /tmp/umu-dummy-prefix && \
+    test -d $XDG_DATA_HOME/umu/steamrt4/pressure-vessel
+
+# Create the Proton prefix with Proton directly (no pressure-vessel in docker build).
+# 'pfx -> .' is the layout umu-run uses when WINEPREFIX is set.
 RUN mkdir -p /opt/battlenet /tmp/.X11-unix && \
-    chmod 1777 /tmp/.X11-unix
+    chmod 1777 /tmp/.X11-unix && \
+    ln -s . /opt/battlenet/pfx
 
 RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     until xdpyinfo -display :99 >/dev/null 2>&1; do sleep 0.5; done && \
-    HOME=/root DISPLAY=:99 WINEPREFIX=/opt/battlenet WINEARCH=win64 WINEDEBUG=-all \
-    WINEDLLOVERRIDES="mscoree,mshtml=" wine wineboot && \
-    /opt/wine-staging/bin/wineserver -w && \
-    LATEST=$(curl -s https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest \
-        | grep browser_download_url | grep "\.tar\.gz" | grep -v aarch64 | head -1 | cut -d\" -f4) && \
-    echo "Extracting wintrust.dll from $LATEST" && \
-    mkdir -p /tmp/proton-extract && \
-    curl -sL "$LATEST" | tar -xz -C /tmp/proton-extract/ \
-        --wildcards "*/lib/wine/x86_64-windows/wintrust.dll" \
-                   "*/lib/wine/i386-windows/wintrust.dll" 2>/dev/null || true && \
-    find /tmp/proton-extract -path "*/x86_64-windows/wintrust.dll" -exec \
-        cp {} /opt/battlenet/drive_c/windows/system32/wintrust.dll \; && \
-    find /tmp/proton-extract -path "*/i386-windows/wintrust.dll" -exec \
-        cp {} /opt/battlenet/drive_c/windows/syswow64/wintrust.dll \; && \
-    rm -rf /tmp/proton-extract && \
+    export HOME=/root DISPLAY=:99 STEAM_COMPAT_DATA_PATH=/opt/battlenet \
+        STEAM_COMPAT_CLIENT_INSTALL_PATH=$XDG_DATA_HOME/Steam SteamAppId=0 GAMEID=0 && \
+    P=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton && \
+    python3 $P/proton run wineboot -u && \
+    WINEPREFIX=/opt/battlenet $P/files/bin/wineserver -w && \
+    python3 $P/proton run reg add 'HKCU\Software\Wine\DXVA2' /v backend /d va /f && \
+    WINEPREFIX=/opt/battlenet $P/files/bin/wineserver -w && \
     pkill Xvfb || true && \
     rm -f /tmp/.X99-lock
 
-# Install Battle.net (Agent + Battle.net.exe)
+# Install Battle.net (Agent + Battle.net.exe) into the Proton prefix
 RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     until xdpyinfo -display :99 >/dev/null 2>&1; do sleep 0.5; done && \
     curl -L "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&id=bnetdesk" \
          -o /tmp/bnet-setup.exe && \
-    HOME=/root DISPLAY=:99 WINEPREFIX=/opt/battlenet WINEDEBUG=-all \
-    WINE_SIMULATE_WRITECOPY=1 WINEFSYNC=1 \
-    WINEDLLOVERRIDES="mscoree,mshtml=,wintrust=n" \
-    wine /tmp/bnet-setup.exe --lang=enUS --installpath="C:\\Program Files (x86)\\Battle.net" & \
+    export HOME=/root DISPLAY=:99 STEAM_COMPAT_DATA_PATH=/opt/battlenet \
+        STEAM_COMPAT_CLIENT_INSTALL_PATH=$XDG_DATA_HOME/Steam SteamAppId=0 GAMEID=0 \
+        STAGING_SHARED_MEMORY=1 WINEDLLOVERRIDES="locationapi=d" && \
+    P=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton && \
+    python3 $P/proton run /tmp/bnet-setup.exe --lang=enUS --installpath="C:\\Program Files (x86)\\Battle.net" & \
     for i in $(seq 1 120); do \
         AGENT_LOG=$(ls /opt/battlenet/drive_c/ProgramData/Battle.net/Agent/Agent.*/Logs/Agent-*.log 2>/dev/null | head -1) && \
         if [ -n "$AGENT_LOG" ] && \
@@ -117,24 +126,25 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
         echo "Waiting... ($i/120)"; \
         sleep 5; \
     done && \
-    /opt/wine-staging/bin/wineserver -k 2>/dev/null || true && \
+    WINEPREFIX=/opt/battlenet $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton/files/bin/wineserver -k 2>/dev/null || true && \
     pkill Xvfb || true && \
     rm -f /tmp/bnet-setup.exe /tmp/.X99-lock && \
-    chmod -R a+rX /opt/battlenet
+    test -f "/opt/battlenet/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
 
-# Install Arial like Lutris' Battle.net installer does (prefix has no fonts otherwise)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends winetricks && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
-    until xdpyinfo -display :99 >/dev/null 2>&1; do sleep 0.5; done && \
-    HOME=/root DISPLAY=:99 WINEPREFIX=/opt/battlenet WINEDEBUG=-all \
-    WINEDLLOVERRIDES="mscoree,mshtml=" winetricks -q arial && \
-    /opt/wine-staging/bin/wineserver -w && \
-    pkill Xvfb || true && \
-    rm -f /tmp/.X99-lock && \
-    chmod -R a+rX /opt/battlenet
+# Battle.net launcher settings, same as Lutris' Battle.net installer (HardwareAcceleration=false for the launcher UI)
+RUN mkdir -p /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net && \
+    printf '%s\n' '{' \
+      '  "Client": {' \
+      '    "GameLaunchWindowBehavior": "2",' \
+      '    "GameSearch": { "BackgroundSearch": "true" },' \
+      '    "HardwareAcceleration": "false",' \
+      '    "Install": { "DownloadLimitNextPatchInBps": "0" },' \
+      '    "Sound": { "Enabled": "false" },' \
+      '    "Streaming": { "StreamingEnabled": "false" }' \
+      '  }' \
+      '}' > /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net/Battle.net.config && \
+    chmod -R a+rX /opt/battlenet && \
+    chmod -R a+rwX /opt/umu-data
 
 # Replace system bwrap with the patched version
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
@@ -145,11 +155,6 @@ RUN mkdir -p /run/udev
 # Show Sway title bars with close button
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
     sed -i 's/default_floating_border pixel 2/default_floating_border normal 2/' /cfg/sway/config
-
-# Disable Wine crash dialog
-RUN rm -f /opt/wine-staging/bin/winedbg \
-         /opt/wine-staging/lib/wine/x86_64-windows/winedbg.exe \
-         /opt/wine-staging/lib/wine/i386-windows/winedbg.exe
 
 COPY scripts/startup.sh /opt/gow/startup-app.sh
 RUN chmod +x /opt/gow/startup-app.sh
