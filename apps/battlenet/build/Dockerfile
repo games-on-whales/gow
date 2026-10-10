@@ -94,6 +94,9 @@ RUN (runuser -u umubuild -- env HOME=/home/umubuild XDG_DATA_HOME=$XDG_DATA_HOME
     rm -rf /tmp/umu-dummy-prefix && \
     test -d $XDG_DATA_HOME/umu/steamrt4/pressure-vessel && \
     chmod a+rwx $XDG_DATA_HOME $XDG_DATA_HOME/umu $XDG_DATA_HOME/Steam $XDG_DATA_HOME/Steam/compatibilitytools.d && \
+    for f in $XDG_DATA_HOME/umu/steamrt4/steamrt4_platform_*/files; do \
+        touch $f/.ref && chmod a+rw $f/.ref && chmod a+w $f; \
+    done && \
     userdel umubuild
 
 # Host libraries Proton's Wine needs for the build-time prefix and installer run
