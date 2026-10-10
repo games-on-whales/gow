@@ -6,30 +6,45 @@ Blizzard's game launcher for World of Warcraft, Diablo, Overwatch, Call of Duty,
 
 ## How it works
 
-The image bakes a full Battle.net installation (Agent + Battle.net.exe) into the Docker image at build time using Wine Staging 11.1. On first launch, the prefix is copied to persistent storage so login credentials and game installations survive container restarts.
+Battle.net runs through [umu-launcher](https://github.com/Open-Wine-Components/umu-launcher) with GE-Proton in the Steam Linux Runtime (the same stack the Lutris image uses), so games get Proton's DXVK and vkd3d-proton (DX11 and DX12).
+
+Everything is baked into the image at build time, so nothing is downloaded when the app starts: GE-Proton (pinned), the Steam Linux Runtime, a Proton-created prefix and a complete Battle.net installation. On first launch the prefix is copied to the persistent mount, so logins and installed games survive restarts. The image is run by any uid:gid Wolf is configured with (`run_uid`/`run_gid` of the paired client); the persistent mount must be writable for that uid.
 
 ## Configuration
 
+pressure-vessel (the Steam Linux Runtime sandbox) needs more than the default Wolf runner settings: no seccomp/AppArmor confinement, a few capabilities and the host IPC namespace. With the host IPC namespace `/dev/shm` is a large tmpfs, which the image uses for pressure-vessel's per-launch runtime copy; it is what makes start-up take seconds instead of minutes.
+
 ```toml
-[[apps]]
+[[profiles.apps]]
 title = "Battle.net"
 start_virtual_compositor = true
 
-[apps.runner]
-type = "docker"
-image = "ghcr.io/games-on-whales/battlenet:edge"
-mounts = ["/path/to/battlenet-persist:/home/retro-persist:rw"]
-env = [
-    "GOW_REQUIRED_DEVICES=/dev/dri/* /dev/nvidia*",
-    "XDG_RUNTIME_DIR=/tmp/runtime-retro",
-    "RUN_SWAY=true"
-]
+    [profiles.apps.runner]
+    type = "docker"
+    name = "WolfBattlenet"
+    image = "ghcr.io/games-on-whales/battlenet:edge"
+    mounts = ["/path/to/battlenet-persist:/home/retro-persist:rw"]
+    env = [
+        "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*",
+        "XDG_RUNTIME_DIR=/tmp/runtime-retro",
+        "RUN_SWAY=true"
+    ]
+    base_create_json = """
+    {
+      "HostConfig": {
+        "IpcMode": "host",
+        "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+        "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+        "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+      }
+    }
+    """
 ```
 
 ## Notes
 
-- First launch copies ~1.5GB Wine prefix to persistent storage (takes a few seconds on SSD/ZFS)
-- Battle.net UI uses `--disable-gpu` for CEF rendering compatibility; games themselves use GPU normally
-- Login persists across restarts via the persistent mount
-- Tested with Diablo III, should work with other Blizzard/Activision titles
-- Region/locale configurable in startup.sh (default: enGB, EU)
+- First launch copies the ~2 GB prefix to the persistent mount (a few seconds on SSD/ZFS). It is owned by the uid Wolf runs the container with.
+- The Battle.net launcher UI is GPU-rendered (`HardwareAcceleration=true`, set in the baked `Battle.net.config`); games use the GPU through Proton.
+- `/dev/shm` needs about 1.5 GB free for the runtime copy; with less (e.g. without `IpcMode: host`, Docker's default is 64 MB) the image falls back to a slow directory in the persistent mount.
+- Extra environment can be set in `bnet.env` in the persistent mount (sourced by the start script before launching).
+- Tested on AMD (Mesa/radv). The image is installed with the `enUS` language; the in-app region and language can be changed after logging in.
