@@ -183,5 +183,6 @@ RUN mkdir -p /run/udev
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
     sed -i 's/default_floating_border pixel 2/default_floating_border normal 2/' /cfg/sway/config
 
+COPY --chmod=755 scripts/20-fix-home-perms.sh /etc/cont-init.d/20-fix-home-perms.sh
 COPY scripts/startup.sh /opt/gow/startup-app.sh
 RUN chmod +x /opt/gow/startup-app.sh
