@@ -81,6 +81,10 @@ PERSIST_DIR="/home/retro-persist"
 BNET_FLAGS="--disable-gpu --disable-gpu-compositing"
 # Optional overrides for testing, e.g. BNET_FLAGS="" or unset STAGING_SHARED_MEMORY
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
+# Optional: run Battle.net through another runner, e.g. BNET_RUNNER=umu-run (Proton-GE like Lutris)
+if [ -n "${BNET_RUNNER:-}" ]; then
+    exec $BNET_RUNNER "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net.exe" $BNET_FLAGS --locale=enGB --region=EU --no-sandbox
+fi
 AGENT_VERSIONED=$(find "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent" -name "Agent.exe" -path "*/Agent.*/Agent.exe" | head -1)
 AGENT_VERSIONED_WIN=$(echo "$AGENT_VERSIONED" | sed "s|${PERSIST_DIR}/drive_c|C:|" | sed 's|/|\\|g')
 
