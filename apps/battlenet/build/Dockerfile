@@ -139,6 +139,9 @@ RUN Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
 # Replace system bwrap with the patched version
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
+# pressure-vessel (umu-run) bind-mounts /run/udev; Wolf only creates it when a controller is attached
+RUN mkdir -p /run/udev
+
 # Show Sway title bars with close button
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
     sed -i 's/default_floating_border pixel 2/default_floating_border normal 2/' /cfg/sway/config
