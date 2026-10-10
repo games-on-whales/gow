@@ -22,6 +22,16 @@ ARG REQUIRED_PACKAGES=" \
     gnupg \
     xwayland \
     wl-clipboard \
+    libgl1 \
+    libegl1 \
+    libvulkan1 \
+    libgl1:i386 \
+    libglx-mesa0:i386 \
+    libgl1-mesa-dri:i386 \
+    libegl1:i386 \
+    libegl-mesa0:i386 \
+    libvulkan1:i386 \
+    mesa-vulkan-drivers:i386 \
     "
 
 # Install Wine Staging and dependencies
