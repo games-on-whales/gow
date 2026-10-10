@@ -91,7 +91,7 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     /opt/wine-staging/bin/wineserver -k 2>/dev/null || true && \
     pkill Xvfb || true && \
     rm -f /tmp/bnet-setup.exe /tmp/.X99-lock && \
-    chown -R 1000:1000 /opt/battlenet
+    chmod -R a+rX /opt/battlenet
 
 # Show Sway title bars with close button
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
