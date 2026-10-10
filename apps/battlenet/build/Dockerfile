@@ -96,8 +96,9 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
 # Install Arial like Lutris' Battle.net installer does (prefix has no fonts otherwise)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends winetricks && \
-    rm -rf /var/lib/apt/lists/* && \
-    Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
+    rm -rf /var/lib/apt/lists/*
+
+RUN Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
     until xdpyinfo -display :99 >/dev/null 2>&1; do sleep 0.5; done && \
     HOME=/root DISPLAY=:99 WINEPREFIX=/opt/battlenet WINEDEBUG=-all \
     WINEDLLOVERRIDES="mscoree,mshtml=" winetricks -q arial && \
