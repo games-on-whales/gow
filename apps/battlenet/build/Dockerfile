@@ -91,6 +91,21 @@ RUN useradd -m umubuild && \
     chown -R root:root /opt/umu-data && \
     userdel -r umubuild
 
+# Host libraries Proton's Wine needs for the build-time prefix and installer run
+# (at runtime the Steam Linux Runtime provides these).
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libfreetype6 libfreetype6:i386 \
+        libfontconfig1 libfontconfig1:i386 \
+        libgnutls30t64 libgnutls30t64:i386 \
+        libx11-6 libx11-6:i386 libxext6 libxext6:i386 \
+        libxcursor1 libxcursor1:i386 libxrandr2 libxrandr2:i386 \
+        libxi6 libxi6:i386 libxcomposite1 libxcomposite1:i386 \
+        libxfixes3 libxfixes3:i386 libxrender1 libxrender1:i386 \
+        libxinerama1 libxinerama1:i386 \
+        libpulse0 libpulse0:i386 libasound2t64 libasound2t64:i386 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Create the Proton prefix with Proton directly (no pressure-vessel in docker build).
 # 'pfx -> .' is the layout umu-run uses when WINEPREFIX is set.
 RUN mkdir -p /opt/battlenet /tmp/.X11-unix && \
