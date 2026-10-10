@@ -59,6 +59,15 @@ export __GL_SHADER_DISK_CACHE=1
 export __GL_SHADER_DISK_CACHE_PATH="$PERSIST_DIR"
 export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
 
+# pressure-vessel copies the Steam runtime on every launch; that is ~5 s on tmpfs but minutes on a
+# ZFS/overlay disk. Use /dev/shm when it is big enough (Wolf runs apps with IpcMode host), else the persistent mount.
+SHM_FREE_KB=$(df -Pk /dev/shm 2>/dev/null | awk 'NR==2{print $4}')
+if [ "${SHM_FREE_KB:-0}" -gt 1500000 ]; then
+    export PRESSURE_VESSEL_VARIABLE_DIR="/dev/shm/bnet-pv-$(id -u)"
+else
+    export PRESSURE_VESSEL_VARIABLE_DIR="$PERSIST_DIR/.pv-var"
+fi
+
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 
