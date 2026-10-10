@@ -7,7 +7,7 @@ AGENT_EXE_LINUX="$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent/Agent.exe"
 
 if [ ! -f "$AGENT_EXE_LINUX" ]; then
     gow_log "First run: copying Battle.net prefix to persistent storage..."
-    cp -a /opt/battlenet/. "$PERSIST_DIR/"
+    cp -a --no-preserve=ownership /opt/battlenet/. "$PERSIST_DIR/"
     gow_log "Copy complete."
 fi
 
