@@ -70,26 +70,31 @@ RUN dpkg --add-architecture i386 && \
 ARG GE_PROTON_VERSION=GE-Proton11-7
 ENV XDG_DATA_HOME=/opt/umu-data
 
-# Download Proton-GE (pinned version)
-RUN mkdir -p $XDG_DATA_HOME/Steam/compatibilitytools.d && \
-    URL=$(curl -s https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/tags/${GE_PROTON_VERSION} \
-        | grep browser_download_url | grep "\.tar\.gz" | grep -v aarch64 | head -1 | cut -d\" -f4) && \
-    echo "Downloading $URL" && \
-    curl -sL "$URL" | tar -xz -C $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
-    ls $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
-    ln -s $(ls -d $XDG_DATA_HOME/Steam/compatibilitytools.d/GE-Proton* | head -1) $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton
-
-# Download the Steam Linux Runtime. umu fetches it before launching (and refuses to run as root);
-# the launch itself cannot work during a docker build (no CAP_SYS_ADMIN), so only the download is kept.
+# Everything below is owned by an unprivileged build user: umu-run refuses to run as root, and
+# not needing a recursive chown/chmod afterwards keeps these multi-GB trees out of a duplicate layer.
 RUN useradd -m umubuild && \
-    chown -R umubuild /opt/umu-data && \
-    (runuser -u umubuild -- env HOME=/home/umubuild XDG_DATA_HOME=$XDG_DATA_HOME \
+    mkdir -p $XDG_DATA_HOME && chown umubuild $XDG_DATA_HOME
+
+# Download Proton-GE (pinned version)
+RUN runuser -u umubuild -- sh -c ' \
+        mkdir -p $XDG_DATA_HOME/Steam/compatibilitytools.d && \
+        URL=$(curl -s https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/tags/'"${GE_PROTON_VERSION}"' \
+            | grep browser_download_url | grep "\.tar\.gz" | grep -v aarch64 | head -1 | cut -d\" -f4) && \
+        echo "Downloading $URL" && \
+        curl -sL "$URL" | tar -xz -C $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
+        ls $XDG_DATA_HOME/Steam/compatibilitytools.d/ && \
+        ln -s $(ls -d $XDG_DATA_HOME/Steam/compatibilitytools.d/GE-Proton* | head -1) $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton'
+
+# Download the Steam Linux Runtime. umu fetches it before launching; the launch itself cannot work
+# during a docker build (no CAP_SYS_ADMIN), so only the download is kept.
+# Afterwards open up the (non-recursive) directories umu writes lock files to at runtime.
+RUN (runuser -u umubuild -- env HOME=/home/umubuild XDG_DATA_HOME=$XDG_DATA_HOME \
         PROTONPATH=$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton GAMEID=0 \
         WINEPREFIX=/tmp/umu-dummy-prefix umu-run /nonexistent.exe || true) && \
     rm -rf /tmp/umu-dummy-prefix && \
     test -d $XDG_DATA_HOME/umu/steamrt4/pressure-vessel && \
-    chown -R root:root /opt/umu-data && \
-    userdel -r umubuild
+    chmod a+rwx $XDG_DATA_HOME $XDG_DATA_HOME/umu $XDG_DATA_HOME/Steam $XDG_DATA_HOME/Steam/compatibilitytools.d && \
+    userdel umubuild
 
 # Host libraries Proton's Wine needs for the build-time prefix and installer run
 # (at runtime the Steam Linux Runtime provides these).
@@ -148,10 +153,8 @@ RUN Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp & \
     WINEPREFIX=/opt/battlenet $XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton/files/bin/wineserver -k 2>/dev/null || true && \
     pkill Xvfb || true && \
     rm -f /tmp/bnet-setup.exe /tmp/.X99-lock && \
-    test -f "/opt/battlenet/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
-
-# Battle.net launcher settings (based on the Lutris installer; hardware acceleration is on because DXVK from Proton makes the GPU path work, software rendering gives repaint artifacts)
-RUN mkdir -p /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net && \
+    test -f "/opt/battlenet/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" && \
+    mkdir -p /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net && \
     printf '%s\n' '{' \
       '  "Client": {' \
       '    "GameLaunchWindowBehavior": "2",' \
@@ -162,8 +165,9 @@ RUN mkdir -p /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net &
       '    "Streaming": { "StreamingEnabled": "false" }' \
       '  }' \
       '}' > /opt/battlenet/drive_c/users/steamuser/AppData/Roaming/Battle.net/Battle.net.config && \
-    chmod -R a+rX /opt/battlenet && \
-    chmod -R a+rwX /opt/umu-data
+    chmod -R a+rX /opt/battlenet
+# (Battle.net.config above follows the Lutris installer; HardwareAcceleration is on because DXVK from
+# Proton makes the GPU path work, software rendering gives repaint artifacts in the login window.)
 
 # Replace system bwrap with the patched version
 COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
