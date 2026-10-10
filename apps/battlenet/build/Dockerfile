@@ -1,5 +1,24 @@
 ARG BASE_APP_IMAGE
 
+######################################
+# Patched bubblewrap that works with CAP_SYS_ADMIN in containers (same as the Lutris and Steam images).
+# Needed by pressure-vessel when running Battle.net through Proton (umu-run).
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /root
+COPY ignore_capabilities.patch /root/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends git meson ca-certificates dpkg-dev && \
+    git clone https://github.com/containers/bubblewrap && \
+    cd bubblewrap && \
+    ./ci/builddeps.sh && \
+    patch -p1 < ../ignore_capabilities.patch && \
+    meson _builddir && \
+    meson compile -C _builddir
+
+######################################
+
 FROM ${BASE_APP_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -116,6 +135,9 @@ RUN Xvfb :99 -screen 0 1280x720x24 -nolisten tcp & \
     pkill Xvfb || true && \
     rm -f /tmp/.X99-lock && \
     chmod -R a+rX /opt/battlenet
+
+# Replace system bwrap with the patched version
+COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
 
 # Show Sway title bars with close button
 RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config && \
