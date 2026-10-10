@@ -46,5 +46,6 @@ start_virtual_compositor = true
 - First launch copies the prefix to the persistent mount (a few seconds on SSD/ZFS). It is owned by the uid Wolf runs the container with.
 - The Battle.net launcher UI is GPU-rendered (`HardwareAcceleration=true`, set in the baked `Battle.net.config`); games use the GPU through Proton.
 - `/dev/shm` needs about 1.5 GB free for the runtime copy; with less (e.g. without `IpcMode: host`, Docker's default is 64 MB) the image falls back to a slow directory in the persistent mount.
+- Optional shared game library: mount a host directory at `/games` (e.g. `/path/to/games:/games:rw`) and it appears as drive `D:` in the prefix, also inside the Steam Linux Runtime sandbox. Install games to `D:\` in Battle.net. Several users can mount the same directory, but only one should run or update the games at a time.
 - Extra environment can be set in `bnet.env` in the persistent mount (sourced by the start script before launching).
 - Tested on AMD (Mesa/radv). The image is installed with the `enUS` language; the in-app region and language can be changed after logging in.

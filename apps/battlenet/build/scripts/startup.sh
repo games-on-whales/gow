@@ -13,6 +13,11 @@ fi
 
 rm -f "$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent/Agent.dat"
 
+# Optional shared game library: mount a host directory at /games and it shows up as drive D:
+if [ -d /games ]; then
+    ln -sfn /games "$PERSIST_DIR/dosdevices/d:"
+fi
+
 # Custom Sway rules for Battle.net
 mkdir -p "$HOME/.config/sway"
 cat > "$HOME/.config/sway/custom-cfg" << 'SWAYCFG'
@@ -67,6 +72,9 @@ if [ "${SHM_FREE_KB:-0}" -gt 1500000 ]; then
 else
     export PRESSURE_VESSEL_VARIABLE_DIR="$PERSIST_DIR/.pv-var"
 fi
+
+# pressure-vessel only shares a few host paths with the game; make the optional game library visible
+[ -d /games ] && export PRESSURE_VESSEL_FILESYSTEMS_RW="/games"
 
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
