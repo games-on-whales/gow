@@ -105,7 +105,11 @@ if [ "${BNET_TRACE:-1}" = "1" ]; then
     trace "wrapper started"
 fi
 
-umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" &
+# Output of the launcher goes to a file (previous run: umu-last.log.1). A failed start prints the end of it
+# to the container log, without the pressure-vessel hard-link warnings that hide the real error.
+UMU_LOG="$PERSIST_DIR/umu-last.log"
+[ -f "$UMU_LOG" ] && mv -f "$UMU_LOG" "$UMU_LOG.1"
+umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" > "$UMU_LOG" 2>&1 &
 UMU_PID=$!
 
 # Timeline of the session in $PERSIST_DIR/session-trace.log (previous run: session-trace.log.1):
@@ -167,6 +171,10 @@ fi
 wait "$UMU_PID"
 rc=$?
 [ "${BNET_TRACE:-1}" = "1" ] && trace "umu-run exited rc=$rc"
+if [ "$rc" != 0 ] && [ ! -f /tmp/bnet-auto-exit ]; then
+    echo "umu-run failed (rc=$rc), end of $UMU_LOG:"
+    grep -vE 'W: (For best|Unable to create|Falling back)' "$UMU_LOG" 2>/dev/null | tail -n 40
+fi
 # Exit 0 after a requested stop so the compositor wrapper (exec ... && killall sway) ends the session
 [ -f /tmp/bnet-auto-exit ] && exit 0
 exit $rc
