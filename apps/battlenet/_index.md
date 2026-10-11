@@ -23,7 +23,9 @@ start_virtual_compositor = true
     type = "docker"
     name = "WolfBattlenet"
     image = "ghcr.io/games-on-whales/battlenet:edge"
-    mounts = ["/path/to/battlenet-persist:/home/retro-persist:rw"]
+    # Optional: a shared games folder (see below). Without any mount the prefix and the
+    # login live in Wolf's per-profile home folder, so each profile is separate by default.
+    mounts = ["/path/to/games:/games:rw"]
     env = [
         "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*",
         "XDG_RUNTIME_DIR=/tmp/runtime-retro",
@@ -43,12 +45,12 @@ start_virtual_compositor = true
 
 ## Notes
 
-- First launch copies the prefix to the persistent mount (a few seconds on SSD/ZFS). It is owned by the uid Wolf runs the container with.
+- First launch copies the prefix to a persistent folder (a few seconds on SSD/ZFS): `/home/retro-persist` when that is mounted, otherwise `~/.bnet` in the per-profile home that Wolf mounts at `/home/retro`, so a new profile needs no extra setup. It is owned by the uid Wolf runs the container with.
 - The Battle.net launcher UI is GPU-rendered (`HardwareAcceleration=true`, set in the baked `Battle.net.config`); games use the GPU through Proton.
 - `/dev/shm` needs about 1.5 GB free for the runtime copy; with less (e.g. without `IpcMode: host`, Docker's default is 64 MB) the image falls back to a slow directory in the persistent mount.
 - Optional shared game library: mount a host directory at `/games` (e.g. `/path/to/games:/games:rw`) and it appears as drive `D:` in the prefix, also inside the Steam Linux Runtime sandbox. Install games to `D:\` in Battle.net. Several users can mount the same directory, but only one should run or update the games at a time.
-- Optional per-user World of Warcraft data: mount a host directory per user at `/userdata` (e.g. `/path/to/users/alice:/userdata:rw`). For every installed WoW flavor (found by its `.flavor.info`, wherever it is installed) the container bind-mounts `/userdata/wow/<flavor>/WTF` and `/userdata/wow/<flavor>/AddOns` over the game's `WTF` and `Interface/AddOns`, inside that container only, so users share the game files but not settings or addons. Needs `CAP_SYS_ADMIN` (already in the runner settings above). A new user starts with empty folders. Applied when the container starts, so a game installed in this session is picked up at the next start.
+- Per-user World of Warcraft data: every installed WoW flavor (found by its `.flavor.info`, wherever it is installed) gets its own `WTF` and `Interface/AddOns`, bind-mounted from `/userdata/wow/<flavor>/{WTF,AddOns}` when a folder is mounted at `/userdata`, otherwise from `~/userdata` in the per-profile home. The mounts exist inside that container only, so users share the game files but not settings or addons. Needs `CAP_SYS_ADMIN` (already in the runner settings above). A new user starts with empty folders. Applied when the container starts, so a game installed in this session is picked up at the next start.
 - In Battle.net, set Settings > App > "When I close Battle.net" to "Exit Battle.net completely" (the default minimizes to the system tray, and a client in the tray keeps the session open).
 - The session ends on its own once the Battle.net client has been closed for 4 s and no game is left running (a helper a game leaves behind would otherwise keep the container open). Disable with `BNET_AUTO_EXIT=0`, change the wait with `BNET_EXIT_GRACE` (seconds) or the helper processes to ignore with `BNET_EXIT_IGNORE` (regex) in `bnet.env`; blockers are logged to `auto-exit.log` in the persistent mount.
-- Extra environment can be set in `bnet.env` in the persistent mount (sourced by the start script before launching).
+- Extra environment can be set in `bnet.env` in the persistent folder (sourced by the start script before launching).
 - Tested on AMD (Mesa/radv). The image is installed with the `enUS` language; the in-app region and language can be changed after logging in.

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Optional per-user WoW data. When a folder is mounted at /userdata (override with
-# BNET_USERDATA), every installed WoW flavor gets that user's own WTF and
+# Per-user WoW data. The folder is /userdata when mounted (override with BNET_USERDATA),
+# otherwise ~/userdata in Wolf's per-profile home, so new profiles need no setup. Every
+# installed WoW flavor gets that user's own WTF and
 # Interface/AddOns bind-mounted over the shared game folder, inside this container
 # only. The game files stay shared; settings, addons and saved variables do not.
 # Installs are found by their .flavor.info marker, so the install location does not
@@ -10,10 +11,17 @@
 # NOTE: entrypoint.sh SOURCES this file under `set -e`: never `exit`, and never let a
 # command fail unhandled. Everything lives in a function that always returns 0.
 _bnet_wow_userdata() {
+    # An explicit mount at /userdata wins; otherwise use a folder in Wolf's per-profile home.
     local userdata="${BNET_USERDATA:-/userdata}"
-    [ -d "$userdata" ] || return 0
+    if ! mountpoint -q "$userdata" 2>/dev/null; then
+        [ -n "${BNET_USERDATA:-}" ] && [ -d "$userdata" ] || userdata="${HOME}/userdata"
+    fi
+    mkdir -p "$userdata" 2>/dev/null || return 0
 
-    local persist="${PERSIST_DIR:-/home/retro-persist}"
+    local persist="${PERSIST_DIR:-}"
+    if [ -z "$persist" ]; then
+        if mountpoint -q /home/retro-persist 2>/dev/null; then persist=/home/retro-persist; else persist="${HOME}/.bnet"; fi
+    fi
     local run_uid="${PUID:-1000}" run_gid="${PGID:-1000}"
     _bnet_log() { if declare -F gow_log >/dev/null; then gow_log "$*"; else echo "$*"; fi; }
 
@@ -48,7 +56,7 @@ _bnet_wow_userdata() {
                 continue
             fi
             mkdir -p "$src" "$dst" 2>/dev/null || { _bnet_log "WoW $flavor: cannot create $src or $dst"; continue; }
-            chown "$run_uid:$run_gid" "$userdata/wow" "$userdata/wow/$flavor" "$src" 2>/dev/null || true
+            chown "$run_uid:$run_gid" "$userdata" "$userdata/wow" "$userdata/wow/$flavor" "$src" 2>/dev/null || true
             if mountpoint -q "$dst"; then continue; fi
             if mount --bind "$src" "$dst"; then
                 _bnet_log "WoW $flavor: $name from $src"

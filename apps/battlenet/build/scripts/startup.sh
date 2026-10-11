@@ -2,7 +2,14 @@
 set -e
 source /opt/gow/bash-lib/utils.sh
 
-PERSIST_DIR="/home/retro-persist"
+# An explicit mount at /home/retro-persist wins; otherwise the prefix lives inside Wolf's
+# per-profile home (/home/retro), so a new profile needs no extra mount.
+if mountpoint -q /home/retro-persist 2>/dev/null; then
+    PERSIST_DIR="/home/retro-persist"
+else
+    PERSIST_DIR="$HOME/.bnet"
+fi
+mkdir -p "$PERSIST_DIR"
 AGENT_EXE_LINUX="$PERSIST_DIR/drive_c/ProgramData/Battle.net/Agent/Agent.exe"
 
 if [ ! -f "$AGENT_EXE_LINUX" ]; then
@@ -51,7 +58,12 @@ WAYCSS
 # Steam Linux Runtime), the same way Lutris runs it. Proton-GE and the runtime are baked in the image.
 cat > /tmp/launch-bnet.sh << 'LAUNCH'
 #!/bin/bash
-PERSIST_DIR="/home/retro-persist"
+if mountpoint -q /home/retro-persist 2>/dev/null; then
+    PERSIST_DIR="/home/retro-persist"
+else
+    PERSIST_DIR="$HOME/.bnet"
+fi
+mkdir -p "$PERSIST_DIR"
 export XDG_DATA_HOME=/opt/umu-data
 export PROTONPATH="$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton"
 export UMU_RUNTIME_UPDATE=0
