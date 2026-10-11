@@ -121,7 +121,7 @@ fi
 # processes to ignore) can be set in bnet.env.
 if [ "${BNET_AUTO_EXIT:-1}" = "1" ]; then
     (
-        GRACE="${BNET_EXIT_GRACE:-30}"
+        GRACE="${BNET_EXIT_GRACE:-4}"
         IGNORE="${BNET_EXIT_IGNORE:-Blizzard.*(Error|Crash)|Crash.?Handler}"
         LOG="$PERSIST_DIR/auto-exit.log"
         seen=0; gone=0; logged=0
