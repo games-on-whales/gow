@@ -79,7 +79,51 @@ fi
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 
-exec umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
+umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" &
+UMU_PID=$!
+
+# umu-run only returns when every Wine process in the prefix is gone, so a helper that a game leaves
+# behind (crash handler, ...) would keep the session open after Battle.net and the game are closed.
+# End the session once the Battle.net client is gone for a while and no game is left running.
+# Disable with BNET_AUTO_EXIT=0; BNET_EXIT_GRACE (seconds) and BNET_EXIT_IGNORE (regex of helper
+# processes to ignore) can be set in bnet.env.
+if [ "${BNET_AUTO_EXIT:-1}" = "1" ]; then
+    (
+        GRACE="${BNET_EXIT_GRACE:-30}"
+        IGNORE="${BNET_EXIT_IGNORE:-Blizzard.*(Error|Crash)|Crash.?Handler}"
+        LOG="$PERSIST_DIR/auto-exit.log"
+        seen=0; gone=0; logged=0
+        while kill -0 "$UMU_PID" 2>/dev/null; do
+            sleep 5
+            procs=$(ps -eo args= 2>/dev/null)
+            if printf '%s\n' "$procs" | grep -F 'Battle.net.exe' | grep -qv -- '--type='; then
+                seen=1; gone=0; logged=0
+                continue
+            fi
+            [ "$seen" = 1 ] || continue
+            gone=$((gone + 5))
+            [ "$gone" -ge "$GRACE" ] || continue
+            left=$(printf '%s\n' "$procs" | grep -E '^[A-Za-z]:[\\/]' \
+                | grep -viE '^[a-z]:[\\/]windows[\\/]|Battle\.net[\\/]|Battle\.net\.exe|Agent' \
+                | grep -viE "$IGNORE" || true)
+            if [ -z "$left" ]; then
+                echo "$(date '+%F %T') Battle.net client gone for ${gone}s and no game left: ending session" >> "$LOG"
+                touch /tmp/bnet-auto-exit
+                kill "$UMU_PID"
+                break
+            elif [ "$logged" = 0 ]; then
+                { echo "$(date '+%F %T') Battle.net client gone, but these processes are still running:"; printf '%s\n' "$left"; } >> "$LOG"
+                logged=1
+            fi
+        done
+    ) &
+fi
+
+wait "$UMU_PID"
+rc=$?
+# Exit 0 after a requested stop so the compositor wrapper (exec ... && killall sway) ends the session
+[ -f /tmp/bnet-auto-exit ] && exit 0
+exit $rc
 LAUNCH
 chmod +x /tmp/launch-bnet.sh
 
