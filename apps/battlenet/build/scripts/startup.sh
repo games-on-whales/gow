@@ -66,9 +66,15 @@ export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
 
 # pressure-vessel copies the Steam runtime on every launch; that is ~5 s on tmpfs but minutes on a
 # ZFS/overlay disk. Use /dev/shm when it is big enough (Wolf runs apps with IpcMode host), else the persistent mount.
+# /dev/shm is shared by all containers with IpcMode host, so every start gets its own random directory
+# (a second container must not touch the copy of one that is still starting or stopping), and
+# leftovers of containers that were killed are removed at the next start.
 SHM_FREE_KB=$(df -Pk /dev/shm 2>/dev/null | awk 'NR==2{print $4}')
 if [ "${SHM_FREE_KB:-0}" -gt 1500000 ]; then
-    export PRESSURE_VESSEL_VARIABLE_DIR="/dev/shm/bnet-pv-$(id -u)"
+    find /dev/shm -maxdepth 1 -name 'bnet-pv-*' -user "$(id -u)" -mmin +120 -exec rm -rf {} + 2>/dev/null
+    PV_DIR=$(mktemp -d /dev/shm/bnet-pv-XXXXXX)
+    export PRESSURE_VESSEL_VARIABLE_DIR="$PV_DIR"
+    trap 'rm -rf "$PV_DIR"' EXIT
 else
     export PRESSURE_VESSEL_VARIABLE_DIR="$PERSIST_DIR/.pv-var"
 fi
