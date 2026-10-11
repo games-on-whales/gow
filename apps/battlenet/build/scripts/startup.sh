@@ -85,8 +85,34 @@ fi
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 
+TRACE="$PERSIST_DIR/session-trace.log"
+T0=$(date +%s)
+trace() { printf '%s +%ss %s\n' "$(date +%T)" "$(( $(date +%s) - T0 ))" "$*" >> "$TRACE"; }
+if [ "${BNET_TRACE:-1}" = "1" ]; then
+    [ -f "$TRACE" ] && mv -f "$TRACE" "$TRACE.1"
+    trace "wrapper started"
+fi
+
 umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" &
 UMU_PID=$!
+
+# Timeline of the session in $PERSIST_DIR/session-trace.log (previous run: session-trace.log.1):
+# a line whenever the set of running Windows processes or of windows changes. Disable with BNET_TRACE=0.
+if [ "${BNET_TRACE:-1}" = "1" ]; then
+    (
+        last=""
+        while kill -0 "$UMU_PID" 2>/dev/null; do
+            procs=$(ps -eo args= 2>/dev/null | grep -E '^[A-Za-z]:[\\/]' | grep -viE '^[a-z]:[\\/]windows[\\/]' \
+                | sed -E 's/\.[eE][xX][eE].*/.exe/; s#^.*[\\/]##' | sort | uniq -c | awk '{printf "%s x%s  ", $2, $1}')
+            pgrep -x wineserver >/dev/null 2>&1 && procs="${procs}[wineserver]"
+            wins=$(SWAYSOCK="${SWAYSOCK:-/run/user/wolf/sway.socket}" swaymsg -t get_tree 2>/dev/null \
+                | grep -o '"name": "[^"]*"' | sed 's/"name": //' | grep -vE '^"(root|__i3|__i3_scratch|WL-1|main)"$' | tr '\n' ' ')
+            state="procs: ${procs:-none} | windows: ${wins:-none}"
+            if [ "$state" != "$last" ]; then trace "$state"; last="$state"; fi
+            sleep 2
+        done
+    ) &
+fi
 
 # umu-run only returns when every Wine process in the prefix is gone, so a helper that a game leaves
 # behind (crash handler, ...) would keep the session open after Battle.net and the game are closed.
@@ -115,6 +141,7 @@ if [ "${BNET_AUTO_EXIT:-1}" = "1" ]; then
             if [ -z "$left" ]; then
                 echo "$(date '+%F %T') Battle.net client gone for ${gone}s and no game left: ending session" >> "$LOG"
                 touch /tmp/bnet-auto-exit
+                [ "${BNET_TRACE:-1}" = "1" ] && trace "auto-exit: client gone for ${gone}s, no game left, stopping umu-run"
                 kill "$UMU_PID"
                 break
             elif [ "$logged" = 0 ]; then
@@ -127,6 +154,7 @@ fi
 
 wait "$UMU_PID"
 rc=$?
+[ "${BNET_TRACE:-1}" = "1" ] && trace "umu-run exited rc=$rc"
 # Exit 0 after a requested stop so the compositor wrapper (exec ... && killall sway) ends the session
 [ -f /tmp/bnet-auto-exit ] && exit 0
 exit $rc
