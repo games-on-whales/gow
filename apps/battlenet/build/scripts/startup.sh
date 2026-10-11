@@ -97,24 +97,32 @@ fi
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 
+# BNET_DEBUG=1 (e.g. `export BNET_DEBUG=1` in bnet.env) turns on the diagnostics: session-trace.log (timeline of
+# processes and windows) and umu-last.log (output of the launcher, end printed when a start fails). Off by default.
+BNET_DEBUG="${BNET_DEBUG:-0}"
+
 TRACE="$PERSIST_DIR/session-trace.log"
 T0=$(date +%s)
 trace() { printf '%s +%ss %s\n' "$(date +%T)" "$(( $(date +%s) - T0 ))" "$*" >> "$TRACE"; }
-if [ "${BNET_TRACE:-1}" = "1" ]; then
+if [ "$BNET_DEBUG" = "1" ]; then
     [ -f "$TRACE" ] && mv -f "$TRACE" "$TRACE.1"
     trace "wrapper started"
 fi
 
-# Output of the launcher goes to a file (previous run: umu-last.log.1). A failed start prints the end of it
-# to the container log, without the pressure-vessel hard-link warnings that hide the real error.
+# With BNET_DEBUG=1 the launcher output goes to umu-last.log (previous run: umu-last.log.1) and a failed start
+# prints the end of it to the container log, without the pressure-vessel hard-link warnings that hide the real error.
 UMU_LOG="$PERSIST_DIR/umu-last.log"
-[ -f "$UMU_LOG" ] && mv -f "$UMU_LOG" "$UMU_LOG.1"
-umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" > "$UMU_LOG" 2>&1 &
+if [ "$BNET_DEBUG" = "1" ]; then
+    [ -f "$UMU_LOG" ] && mv -f "$UMU_LOG" "$UMU_LOG.1"
+    umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" > "$UMU_LOG" 2>&1 &
+else
+    umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" &
+fi
 UMU_PID=$!
 
 # Timeline of the session in $PERSIST_DIR/session-trace.log (previous run: session-trace.log.1):
-# a line whenever the set of running Windows processes or of windows changes. Disable with BNET_TRACE=0.
-if [ "${BNET_TRACE:-1}" = "1" ]; then
+# a line whenever the set of running Windows processes or of windows changes. Only with BNET_DEBUG=1.
+if [ "$BNET_DEBUG" = "1" ]; then
     (
         last=""
         while kill -0 "$UMU_PID" 2>/dev/null; do
@@ -157,7 +165,7 @@ if [ "${BNET_AUTO_EXIT:-1}" = "1" ]; then
             if [ -z "$left" ]; then
                 echo "$(date '+%F %T') Battle.net client gone for ${gone}s and no game left: ending session" >> "$LOG"
                 touch /tmp/bnet-auto-exit
-                [ "${BNET_TRACE:-1}" = "1" ] && trace "auto-exit: client gone for ${gone}s, no game left, stopping umu-run"
+                [ "$BNET_DEBUG" = "1" ] && trace "auto-exit: client gone for ${gone}s, no game left, stopping umu-run"
                 kill "$UMU_PID"
                 break
             elif [ "$logged" = 0 ]; then
@@ -170,8 +178,8 @@ fi
 
 wait "$UMU_PID"
 rc=$?
-[ "${BNET_TRACE:-1}" = "1" ] && trace "umu-run exited rc=$rc"
-if [ "$rc" != 0 ] && [ ! -f /tmp/bnet-auto-exit ]; then
+[ "$BNET_DEBUG" = "1" ] && trace "umu-run exited rc=$rc"
+if [ "$BNET_DEBUG" = "1" ] && [ "$rc" != 0 ] && [ ! -f /tmp/bnet-auto-exit ]; then
     echo "umu-run failed (rc=$rc), end of $UMU_LOG:"
     grep -vE 'W: (For best|Unable to create|Falling back)' "$UMU_LOG" 2>/dev/null | tail -n 40
 fi
