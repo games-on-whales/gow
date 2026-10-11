@@ -9,7 +9,7 @@
 # (found on /games and every Wine drive, so the install location does not matter). It is
 # checked at start and then every BNET_USERDATA_INTERVAL seconds (default 5), so a game
 # installed during the session is picked up before its first launch. Disable the watcher
-# with BNET_USERDATA_WATCH=0. BNET_USERDATA_DRYRUN=1 only prints what would be mounted.
+# with BNET_USERDATA_WATCH=0, and the whole feature with BNET_USERDATA_DISABLE=1. BNET_USERDATA_DRYRUN=1 only prints what would be mounted.
 #
 # NOTE: entrypoint.sh SOURCES this file under `set -e`: never `exit`, and never let a
 # command fail unhandled. Everything lives in functions that always return 0.
@@ -77,15 +77,18 @@ _bnet_log() {
     if declare -F gow_log >/dev/null; then gow_log "$*"; else echo "$*"; fi
 }
 
-_bnet_wow_userdata_pass || true
+# BNET_USERDATA_DISABLE=1 (environment variable of the app) turns the whole feature off.
+if [ "${BNET_USERDATA_DISABLE:-0}" != "1" ]; then
+    _bnet_wow_userdata_pass || true
 
-if [ -z "${BNET_USERDATA_DRYRUN:-}" ] && [ "${BNET_USERDATA_WATCH:-1}" != "0" ]; then
-    (
-        set +e
-        exec >>/tmp/bnet-userdata.log 2>&1
-        while sleep "${BNET_USERDATA_INTERVAL:-5}"; do
-            _bnet_wow_userdata_pass
-        done
-    ) &
-    disown 2>/dev/null || true
+    if [ -z "${BNET_USERDATA_DRYRUN:-}" ] && [ "${BNET_USERDATA_WATCH:-1}" != "0" ]; then
+        (
+            set +e
+            exec >>/tmp/bnet-userdata.log 2>&1
+            while sleep "${BNET_USERDATA_INTERVAL:-5}"; do
+                _bnet_wow_userdata_pass
+            done
+        ) &
+        disown 2>/dev/null || true
+    fi
 fi
