@@ -184,6 +184,17 @@ fi
 wait "$UMU_PID"
 rc=$?
 [ "$BNET_DEBUG" = "1" ] && trace "umu-run exited rc=$rc"
+if [ "$BNET_DEBUG" = "1" ]; then
+    # One line per session in session-summary.log, to compare good and bad starts.
+    CEFLOG=$(ls -t "$PERSIST_DIR"/drive_c/users/steamuser/AppData/Local/Battle.net/Logs/libcef-*.log 2>/dev/null | head -1)
+    ERRDIR="$PERSIST_DIR/drive_c/users/steamuser/AppData/Local/Battle.net/Errors"
+    printf '%s rc=%s up=%ss nofile=%s host=%s freetype_warn=%s gpu_fail=%s crash_reports=%s\n' \
+        "$(date '+%F %T')" "$rc" "$(( $(date +%s) - T0 ))" "$(ulimit -n)" "$(hostname)" \
+        "$(grep -c 'FreeType' "$UMU_LOG" 2>/dev/null || true)" \
+        "$( [ -n "$CEFLOG" ] && grep -a -c 'GPU process launch failed' "$CEFLOG" || echo 0)" \
+        "$(find "$ERRDIR" -name '*Crash.txt' -newermt "@$T0" 2>/dev/null | wc -l)" \
+        >> "$PERSIST_DIR/session-summary.log"
+fi
 if [ "$BNET_DEBUG" = "1" ] && [ "$rc" != 0 ] && [ ! -f /tmp/bnet-auto-exit ]; then
     echo "umu-run failed (rc=$rc), end of $UMU_LOG:"
     grep -vE 'W: (For best|Unable to create|Falling back)' "$UMU_LOG" 2>/dev/null | tail -n 40
