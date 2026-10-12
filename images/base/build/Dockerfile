@@ -52,7 +52,9 @@ echo
 _INSTALL_PACKAGES
 
 # Import overlay
-COPY overlay /
+# Fixed modes: overlay dirs map onto /, /etc and /opt, so they must not inherit
+# a restrictive builder umask (COPY applies source dir modes to existing dirs).
+COPY --chmod=755 overlay /
 
 # Set entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]

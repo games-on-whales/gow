@@ -190,6 +190,8 @@ RUN install -d -m 1777 /var/lib/xkb
 RUN locale-gen en_US.UTF-8
 
 COPY configs /cfg
+# Normalise modes so they don't depend on the builder's umask; retro reads these.
+RUN chmod -R a+rX /cfg
 
 COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
 COPY --chmod=777 scripts/launch-comp.sh /opt/gow/launch-comp.sh
