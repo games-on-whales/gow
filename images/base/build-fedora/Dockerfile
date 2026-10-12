@@ -43,6 +43,14 @@ dnf clean all
 echo
 _INSTALL_PACKAGES
 
+# Create the user at build time, so the container can also start directly as
+# it (`--user retro`, like `--user pulse`), skipping the root-only init and gosu.
+# Starting as root is unchanged: 10-setup_user.sh moves it to PUID/PGID.
+# dnf above already created $HOME (as root), and useradd -m won't take it over
+RUN groupadd -g "${PGID}" "${UNAME}" && \
+    useradd -m -d "${HOME}" -u "${PUID}" -g "${PGID}" -s /bin/bash "${UNAME}" && \
+    chown -R "${PUID}:${PGID}" "${HOME}"
+
 # Import overlay
 COPY overlay /
 

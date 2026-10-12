@@ -13,15 +13,23 @@ assert_has gosu curl wget jq fusermount
 # breakage (e.g. capability stripping by a future base-image rebase).
 assert_version gosu nobody true
 
-# User setup (10-setup_user.sh) should have created the retro user.
+# The retro user is baked in at build time (1000:1000) and owns its home, so
+# the container can also start directly as it (`--user retro`).
 assert_path /home/retro
-if id retro >/dev/null 2>&1; then
-  ok "user 'retro' exists"
+if [[ "$(id -u retro 2>/dev/null):$(id -g retro 2>/dev/null)" == 1000:1000 ]]; then
+  ok "user 'retro' exists as 1000:1000"
 else
-  bad "user 'retro' exists"
+  bad "user 'retro' exists as 1000:1000 (got $(id retro 2>&1))"
+fi
+if [[ "$(stat -c %U /home/retro)" == retro ]]; then
+  ok "/home/retro owned by retro"
+else
+  bad "/home/retro owned by retro"
 fi
 
-# The entrypoint + bash-lib that every derived image sources.
+# The entrypoint + bash-lib that every derived image sources, and the init
+# scripts for containers started as the user.
 assert_path /entrypoint.sh /opt/gow/startup.sh /opt/gow/bash-lib/utils.sh
+assert_path /opt/gow/init.d/10-check_user.sh /opt/gow/init.d/15-check_devices.sh /opt/gow/init.d/30-nvidia.sh
 
 smoke_report

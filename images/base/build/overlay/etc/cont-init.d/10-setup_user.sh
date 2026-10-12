@@ -20,15 +20,25 @@ elif [[ "${UNAME}" != "root" ]]; then
     UMASK="${UMASK:-000}"
 
     gow_log "Setting default user uid=${PUID}(${UNAME}) gid=${PGID}(${UNAME})"
-    if id -u "${PUID}" &>/dev/null; then
-        # need to delete the old user $PUID then change $UNAME's UID
-        # default ubuntu image comes with user `ubuntu` and UID 1000
+    if id -u "${PUID}" &>/dev/null && [ "$(id -nu "${PUID}")" != "${UNAME}" ]; then
+        # Another user has $PUID: delete it, then give $UNAME that UID
         oldname=$(id -nu "${PUID}")
         userdel -r "${oldname}"
     fi
 
-    groupadd -f -g "${PGID}" ${UNAME}
-    useradd -m -d ${HOME} -u "${PUID}" -g "${PGID}" -s /bin/bash ${UNAME}
+    if id -u "${UNAME}" &>/dev/null; then
+        # Created at build time with 1000:1000. Change the IDs in place: userdel
+        # -r would wipe $HOME, which is usually a mounted volume.
+        if [ "$(getent group "${UNAME}" | cut -d: -f3)" != "${PGID}" ]; then
+            groupmod -o -g "${PGID}" "${UNAME}"
+        fi
+        if [ "$(id -u "${UNAME}")" != "${PUID}" ] || [ "$(id -g "${UNAME}")" != "${PGID}" ]; then
+            usermod -o -u "${PUID}" -g "${PGID}" "${UNAME}"
+        fi
+    else
+        groupadd -f -g "${PGID}" ${UNAME}
+        useradd -m -d ${HOME} -u "${PUID}" -g "${PGID}" -s /bin/bash ${UNAME}
+    fi
 
     gow_log "Setting umask to ${UMASK}"
     umask "${UMASK}"
