@@ -78,7 +78,7 @@ COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
 
 # 
 # Fix locals
-COPY scripts/locale /etc/default/locale
+COPY --chmod=644 scripts/locale /etc/default/locale
 
 # 
 # Allow anyone to start dbus without password

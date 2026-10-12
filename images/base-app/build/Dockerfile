@@ -84,15 +84,21 @@ RUN apt-get update -y && \
 
 WORKDIR /build
 
+# Release series to track; the newest stable patch release in it is built.
+# Newer series can need a libwayland newer than the base distro ships (26.1
+# needs wayland-client >= 1.26, Ubuntu 25.04 has 1.23), so bump this together
+# with the base image. Pre-release tags (X.Y.99.90N) never match.
+ARG XWAYLAND_SERIES=24.1
+
 RUN <<_BUILD_XWAYLAND
     set -eux
 
     LATEST_TAG=$(git ls-remote --tags --refs --sort='version:refname' \
-      https://gitlab.freedesktop.org/xorg/xserver.git 'refs/tags/xwayland-*' \
-      | awk -F/ '{print $NF}' \
-      | grep -E '^xwayland-[0-9]+(\.[0-9]+)+$' \
+      https://gitlab.freedesktop.org/xorg/xserver.git "refs/tags/xwayland-${XWAYLAND_SERIES}.*" \
+      | awk -F/ -v prefix="xwayland-${XWAYLAND_SERIES}." 'index($NF, prefix) == 1 { print $NF }' \
+      | grep -E '^xwayland-[0-9]+\.[0-9]+\.[0-9]+$' \
       | tail -1)
-    test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
+    test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland ${XWAYLAND_SERIES}.x tag"; exit 1; }
     echo "Building $LATEST_TAG"
 
     # Fetch sources from the same host the ls-remote above talked to.
@@ -184,6 +190,8 @@ RUN install -d -m 1777 /var/lib/xkb
 RUN locale-gen en_US.UTF-8
 
 COPY configs /cfg
+# Normalise modes so they don't depend on the builder's umask; retro reads these.
+RUN chmod -R a+rX /cfg
 
 COPY --chmod=777 scripts/init-gamescope.sh /etc/cont-init.d/init-gamescope.sh
 COPY --chmod=777 scripts/launch-comp.sh /opt/gow/launch-comp.sh

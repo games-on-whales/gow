@@ -28,7 +28,7 @@ fi
 
 # Custom bwrap built from source with ignore_capabilities.patch.
 assert_shared_ok /usr/bin/bwrap
-assert_version bwrap --version
+assert_runs bwrap --version
 
 # SteamOS compatibility shims the Dockerfile installs.
 assert_path /usr/bin/steamos-session-select \

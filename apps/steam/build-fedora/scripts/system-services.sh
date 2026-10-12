@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 source /opt/gow/bash-lib/utils.sh
 
@@ -67,6 +67,6 @@ fi
 
 # Start Decky Loader
 gow_log "*** Decky Loader started ***"
-$HOME/homebrew/services/PluginLoader &
+"$HOME/homebrew/services/PluginLoader" &
 
 disown

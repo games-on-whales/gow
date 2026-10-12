@@ -89,9 +89,9 @@ RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
-COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
-COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
-COPY configs/gamepadui.json /opt/gow/gamepadui.json
+COPY --chmod=644 configs/lutris-system.yml /opt/gow/lutris-system.yml
+COPY --chmod=644 configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
+COPY --chmod=644 configs/gamepadui.json /opt/gow/gamepadui.json
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 ENV LUTRIS_GAMEPAD_UI_ENABLE_SDL_INPUT=1

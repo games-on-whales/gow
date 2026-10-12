@@ -40,7 +40,7 @@ do
   THEME_URL=${PEGASUS_THEMES[$CURR_THEME]}
   if [[ ! -d ${PEGASUS_THEMES_DIR}/${THEME_NAME}-master ]] ; then
     echo "Downloading Pegasus Theme: ${THEME_NAME} from ${THEME_URL}"
-    wget -q --show-progress ${THEME_URL} --output-document=/tmp/theme.zip
+    wget -q --show-progress "${THEME_URL}" --output-document=/tmp/theme.zip
     echo "Extracting"
     7z x /tmp/theme.zip -bso0 -bse0 -bsp1 -o"$PEGASUS_THEMES_DIR"
     echo "Cleanup"

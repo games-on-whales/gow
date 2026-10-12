@@ -28,9 +28,9 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
     rm -rf /var/lib/apt/lists/*
 
-COPY configs/default.pa /etc/pulse/default.pa
-COPY configs/client.conf /etc/pulse/client.conf
-COPY configs/daemon.conf /etc/pulse/daemon.conf
+COPY --chmod=644 configs/default.pa /etc/pulse/default.pa
+COPY --chmod=644 configs/client.conf /etc/pulse/client.conf
+COPY --chmod=644 configs/daemon.conf /etc/pulse/daemon.conf
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup.sh
 

@@ -6,7 +6,7 @@ source /opt/gow/bash-lib/utils.sh
 for file in /opt/gow/startup.d/* ; do
     if [ -f "$file" ] ; then
         gow_log "[start] Sourcing $file"
-        source $file
+        source "$file"
     fi
 done
 

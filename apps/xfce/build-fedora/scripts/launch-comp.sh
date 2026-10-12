@@ -8,8 +8,8 @@ function launcher() {
 
   if [ ! -d "$HOME/.config/xfce4" ]; then
     # set default config
-    mkdir -p $HOME/.config/xfce4
-    cp -r /opt/gow/xfce4/* $HOME/.config/xfce4/
+    mkdir -p "$HOME/.config/xfce4"
+    cp -r /opt/gow/xfce4/* "$HOME/.config/xfce4/"
     
     # add flathub repo (skip if flatpak is not installed in this image)
     if command -v flatpak >/dev/null 2>&1; then
@@ -39,7 +39,8 @@ function launcher() {
   export QT_AUTO_SCREEN_SCALE_FACTOR=1
   export QT_ENABLE_HIGHDPI_SCALING=1
   export DISPLAY=:0
-  export $(dbus-launch)
+  eval "$(dbus-launch --sh-syntax)"
+  export DBUS_SESSION_BUS_PID
   export REAL_WAYLAND_DISPLAY=$WAYLAND_DISPLAY
   export GTK_THEME=Arc-Dark:dark
   unset WAYLAND_DISPLAY

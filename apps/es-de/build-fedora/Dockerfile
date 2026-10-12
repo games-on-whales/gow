@@ -43,6 +43,8 @@ RUN \
         mkdir -pm755 /ROMs
 
 COPY configs/ /cfg/
+# Normalise modes so they don't depend on the builder's umask; retro reads these.
+RUN chmod -R a+rX /cfg
 COPY --chmod=777 scripts/startup.sh /etc/cont-init.d/setup-de.sh
 COPY --chmod=777 scripts/startup-es.sh /opt/gow/startup-app.sh
 

@@ -50,8 +50,10 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/pegasus.sh /bin/pegasus.sh
 
 # Copy Pegasus related files
-COPY scripts/tools/*.sh /bin/
+COPY --chmod=755 scripts/tools/*.sh /bin/
 COPY configs /cfg
+# Normalise modes so they don't depend on the builder's umask; retro reads these.
+RUN chmod -R a+rX /cfg
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 

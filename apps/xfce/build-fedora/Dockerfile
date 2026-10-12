@@ -61,7 +61,7 @@ COPY --chmod=777 scripts/startdbus.sh /opt/gow/startdbus
 COPY --chmod=777 --chown=retro:retro scripts/xfce4 /opt/gow/xfce4
 
 # Fix locales
-COPY scripts/locale /etc/default/locale
+COPY --chmod=644 scripts/locale /etc/default/locale
 
 # Allow anyone to start dbus without password
 RUN echo -e "\nALL ALL=NOPASSWD: /opt/gow/startdbus" >> /etc/sudoers
