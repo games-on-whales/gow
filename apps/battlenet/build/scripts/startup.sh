@@ -191,7 +191,7 @@ if [ "$BNET_DEBUG" = "1" ]; then
     printf '%s rc=%s up=%ss nofile=%s host=%s freetype_warn=%s gpu_fail=%s crash_reports=%s\n' \
         "$(date '+%F %T')" "$rc" "$(( $(date +%s) - T0 ))" "$(ulimit -n)" "$(hostname)" \
         "$(grep -c 'FreeType' "$UMU_LOG" 2>/dev/null || true)" \
-        "$( [ -n "$CEFLOG" ] && grep -a -c 'GPU process launch failed' "$CEFLOG" || true)" \
+        "$( [ -n "$CEFLOG" ] && grep -a -c -E 'GPU process launch failed|gpu_init.cc.*(Passthrough|GL is disabled)' "$CEFLOG" || true)" \
         "$(find "$ERRDIR" -name '*Crash.txt' -newermt "@$T0" 2>/dev/null | wc -l)" \
         >> "$PERSIST_DIR/session-summary.log"
 fi
