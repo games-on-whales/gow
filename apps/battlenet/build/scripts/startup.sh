@@ -67,6 +67,11 @@ mkdir -p "$PERSIST_DIR"
 export XDG_DATA_HOME=/opt/umu-data
 export PROTONPATH="$XDG_DATA_HOME/Steam/compatibilitytools.d/bnet-proton"
 export UMU_RUNTIME_UPDATE=0
+
+# Many hosts start containers with a soft open-files limit of 1024 (hard limit far higher). pressure-vessel
+# needs more while it assembles the runtime and sometimes fails with "Too many open files", which leaves a
+# gray Sway; Wine's esync also wants a high limit. Raise the soft limit to the hard limit.
+ulimit -n "$(ulimit -Hn)" 2>/dev/null || true
 export WINEPREFIX="$PERSIST_DIR"
 export GAMEID=0
 export WINEDLLOVERRIDES="locationapi=d"
