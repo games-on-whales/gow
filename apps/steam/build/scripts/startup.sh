@@ -18,7 +18,8 @@ export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 # Note: Ubuntus Mangoapp doesn't support Presets, so disable this for now
 #export STEAM_MANGOAPP_PRESETS_SUPPORTED=1
 export STEAM_USE_MANGOAPP=1
-export MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
+MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
+export MANGOHUD_CONFIGFILE
 # Enable horizontal mangoapp bar
 export STEAM_MANGOAPP_HORIZONTAL_SUPPORTED=1
 
@@ -26,7 +27,8 @@ export STEAM_MANGOAPP_HORIZONTAL_SUPPORTED=1
 # Note: this only works on gallium drivers and with new enough mesa
 #       unfortunately there is no good way to check and disable this flag otherwise
 export STEAM_USE_DYNAMIC_VRS=1
-export RADV_FORCE_VRS_CONFIG_FILE=$(mktemp /tmp/radv_vrs.XXXXXXXX)
+RADV_FORCE_VRS_CONFIG_FILE=$(mktemp /tmp/radv_vrs.XXXXXXXX)
+export RADV_FORCE_VRS_CONFIG_FILE
 # To expose vram info from radv
 export WINEDLLOVERRIDES=dxgi=n
 
@@ -141,6 +143,7 @@ elif [ -n "$RUN_SWAY" ]; then
 
   # Start Steam
   source /opt/gow/launch-comp.sh
+  # shellcheck disable=SC2086
   launcher /usr/games/steam ${STEAM_STARTUP_FLAGS}
 else
   # shellcheck disable=SC2086

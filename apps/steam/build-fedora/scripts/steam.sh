@@ -7,7 +7,7 @@ echo "Steam directory: $STEAMDIR"
 
 if [[ ! -f "$STEAMDIR/steam.sh" ]]; then
     mkdir -p "$STEAMDIR"
-    cd "$STEAMDIR"
+    cd "$STEAMDIR" || exit 1
     tar xJf /usr/lib/steam/bootstraplinux_ubuntu12_32.tar.xz
 fi
 
@@ -26,10 +26,10 @@ else
 fi
 
 
-cd "$STEAMDIR"
+cd "$STEAMDIR" || exit 1
 
 while true; do
-    echo "Steam arguments received: $@"
+    echo "Steam arguments received: $*"
     ./steam.sh "$@"
     EXIT_CODE=$?
 

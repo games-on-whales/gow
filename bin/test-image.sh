@@ -89,6 +89,7 @@ COMMON_ENV=(
 
 INIT_LOG=$(mktemp)
 SMOKE_LOG=$(mktemp)
+# shellcheck disable=SC2329 # invoked by the EXIT trap below
 cleanup() {
   if [[ -n "$KEEP_LOGS" ]]; then
     echo "   (logs kept: $INIT_LOG $SMOKE_LOG)" >&2

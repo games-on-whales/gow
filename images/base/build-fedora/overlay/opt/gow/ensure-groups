@@ -38,6 +38,9 @@ for dev in "$@"; do
         if [ "$(stat -c "%a" "$dev" | cut -c2)" -lt 6 ]; then
             chmod g+rw "$dev"
         fi
+    elif [[ "$dev" == *[*?[]* ]]; then
+      # an unmatched glob stays literal (e.g. /dev/input/event*)
+      gow_log "No devices match '$dev'."
     else
       gow_log "Path '$dev' is not present."
     fi

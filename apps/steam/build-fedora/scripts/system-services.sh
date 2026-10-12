@@ -67,6 +67,6 @@ fi
 
 # Start Decky Loader
 gow_log "*** Decky Loader started ***"
-$HOME/homebrew/services/PluginLoader &
+"$HOME/homebrew/services/PluginLoader" &
 
 disown

@@ -6,7 +6,7 @@
 
 gow_log "[start-create-dirs] Begin"
 
-if [ ${WOLF_LUTRIS_SKIP_CREATE_DIRS:-0} -eq 0 ]; then
+if [ "${WOLF_LUTRIS_SKIP_CREATE_DIRS:-0}" -eq 0 ]; then
 
 # "library" will contain information about available games and installed games.
 if [ ! -d "/var/lutris/library" ]

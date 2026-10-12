@@ -5,7 +5,7 @@ set -e
 output_file="website/public/apps.toml"
 
 # Clear the output file if it exists
-> "$output_file"
+: > "$output_file"
 
 # Iterate over each subfolder in apps/
 for dir in apps/*; do

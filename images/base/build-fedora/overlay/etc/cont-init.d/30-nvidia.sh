@@ -92,18 +92,4 @@ elif [ -e /usr/lib64/libnvidia-allocator.so.1 ]; then
       }
     }' > /usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json
   fi
-
-  # gst-cuda loads "libnvrtc.so" via ldconfig. The image ships libnvrtc.so.11.0
-  # (CUDA 11.0) as a fallback, but nvrtcGetCUBIN* were added in CUDA 11.1.
-  # If the toolkit has injected a newer libnvrtc from the host at a standard
-  # system path, symlink it over the baked-in version so ldconfig finds it first.
-  _host_nvrtc=$(ldconfig -p 2>/dev/null \
-    | awk '/libnvrtc\.so[^.0-9]/{print $NF}' \
-    | grep -v '/usr/local/nvidia/lib' \
-    | head -1)
-  if [ -n "$_host_nvrtc" ]; then
-    gow_log "Preferring host nvrtc over baked-in: $_host_nvrtc"
-    ln -sf "$_host_nvrtc" /usr/local/nvidia/lib/libnvrtc.so
-    ldconfig
-  fi
 fi

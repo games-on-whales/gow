@@ -19,7 +19,7 @@ function launcher() {
   export GAMESCOPE_REFRESH=${GAMESCOPE_REFRESH:-60}
 
   if [ -n "$RUN_GAMESCOPE" ]; then
-    gow_log "[Gamescope] - Starting: \`$@\`"
+    gow_log "[Gamescope] - Starting: \`$*\`"
 
     GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
     # -w/-h pin the internal (XWayland) mode list to the output resolution so
@@ -27,7 +27,7 @@ function launcher() {
     # letterboxes into a non-16:9 output.
     "$(command -v gamescope)" "${GAMESCOPE_MODE}" -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" -- "$@"
   elif [ -n "$RUN_SWAY" ]; then
-    gow_log "[Sway] - Starting: \`$@\`"
+    gow_log "[Sway] - Starting: \`$*\`"
 
     export SWAYSOCK=${XDG_RUNTIME_DIR}/sway.socket  # Enables the sway socket
     export SWAY_STOP_ON_APP_EXIT=${SWAY_STOP_ON_APP_EXIT:-"yes"}
@@ -36,30 +36,30 @@ function launcher() {
     export XDG_SESSION_TYPE=wayland # xdg/systemd
 
     # Only copy waybar default config if it doesn't exist
-    mkdir -p $HOME/.config/waybar
-    cp -u /cfg/waybar/* $HOME/.config/waybar/
+    mkdir -p "$HOME/.config/waybar"
+    cp -u /cfg/waybar/* "$HOME/.config/waybar/"
 
     # Sway needs to be overridden since we are going to change the resolution and app start
-    mkdir -p $HOME/.config/sway/
-    cp /cfg/sway/config $HOME/.config/sway/config
+    mkdir -p "$HOME/.config/sway/"
+    cp /cfg/sway/config "$HOME/.config/sway/config"
     # Modify the config file for res and to launch the app at the end
-    echo "output * resolution ${GAMESCOPE_WIDTH}x${GAMESCOPE_HEIGHT} position 0,0" >> $HOME/.config/sway/config
+    echo "output * resolution ${GAMESCOPE_WIDTH}x${GAMESCOPE_HEIGHT} position 0,0" >> "$HOME/.config/sway/config"
     # Quote each argument so ones with spaces survive sway's `sh -c`
     local app_cmd="" arg
     for arg in "$@"; do
       app_cmd+="${app_cmd:+ }$(sway_quote "$arg")"
     done
-    echo -n "workspace main; exec ${app_cmd}" >> $HOME/.config/sway/config
+    echo -n "workspace main; exec ${app_cmd}" >> "$HOME/.config/sway/config"
 
     # if SWAY_STOP_ON_APP_EXIT == "yes" then kill sway when the app exits
     if [ "$SWAY_STOP_ON_APP_EXIT" == "yes" ]; then
-      echo -n " && killall sway" >> $HOME/.config/sway/config
+      echo -n " && killall sway" >> "$HOME/.config/sway/config"
     fi
 
     # Start sway
     dbus-run-session -- sway --unsupported-gpu
   else
-    gow_log "[exec] Starting: $@"
+    gow_log "[exec] Starting: $*"
 
     exec "$@"
   fi

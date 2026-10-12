@@ -9,7 +9,8 @@
 #
 #     source /smoke-common/lib.sh
 #     assert_has       xwayland gamescope sway
-#     assert_version   Xwayland -version
+#     assert_runs      Xwayland -version
+#     assert_version   kodi --version
 #     assert_shared_ok /usr/bin/firefox
 #     run_as_user      firefox --version
 #     smoke_report
@@ -60,18 +61,32 @@ assert_path() {
   done
 }
 
+# assert_runs <argv...>
+#   Runs the given command with a short timeout and requires exit 0. Use this
+#   for anything that's expected to succeed; assert_version below tolerates
+#   failures, so a broken or mistyped invocation would still pass there.
+assert_runs() {
+  local out rc=0
+  out=$(timeout 10 "$@" 2>&1) || rc=$?
+  if [[ "$rc" -eq 0 ]]; then
+    ok "runs: $* => $(printf '%s' "$out" | head -1)"
+    return 0
+  fi
+  bad "runs: $* (exit $rc; $(printf '%s' "$out" | head -1))"
+  return 1
+}
+
 # assert_version <argv...>
 #   Runs the given command with a short timeout. Any exit code is tolerated
 #   (some binaries exit 1 on --version), but missing shared libs and SIGSEGV
 #   fail the check. Stdout/stderr get captured and dumped on failure.
 assert_version() {
-  local name="$1"
-  local out
-  if out=$(timeout 10 "$@" 2>&1); then
+  local out rc=0
+  out=$(timeout 10 "$@" 2>&1) || rc=$?
+  if [[ "$rc" -eq 0 ]]; then
     ok "runs: $* => $(printf '%s' "$out" | head -1)"
     return 0
   fi
-  local rc=$?
   # Exit 1/2 is common for --version on CLIs that print usage; still catch
   # the load-failure patterns that actually matter.
   if printf '%s' "$out" | grep -Eiq 'error while loading shared libraries|cannot open shared object|segmentation fault|command not found'; then
@@ -111,12 +126,12 @@ assert_shared_ok() {
 #   Useful for binaries that refuse to run as root (e.g. steam).
 run_as_user() {
   local user="${UNAME:-retro}"
-  local out
-  if out=$(timeout 10 gosu "$user" "$@" 2>&1); then
+  local out rc=0
+  out=$(timeout 10 gosu "$user" "$@" 2>&1) || rc=$?
+  if [[ "$rc" -eq 0 ]]; then
     ok "as $user: $* => $(printf '%s' "$out" | head -1)"
     return 0
   fi
-  local rc=$?
   if printf '%s' "$out" | grep -Eiq 'error while loading shared libraries|cannot open shared object|segmentation fault|command not found'; then
     bad "as $user: $* (fatal: $(printf '%s' "$out" | head -1))"
     return 1

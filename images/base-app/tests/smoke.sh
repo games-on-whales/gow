@@ -20,11 +20,11 @@ assert_shared_ok /usr/local/bin/Xwayland
 
 # Each binary must at least load + print its banner. 10s timeout in lib.sh
 # protects against anything that decides to wait for a display.
-assert_version Xwayland -version
-assert_version gamescope --help
-assert_version sway --version
-assert_version mangohud --version
-assert_version sdl2-jstest --help
+assert_runs Xwayland -version
+assert_runs gamescope --help
+assert_runs sway --version
+assert_runs mangohud --version
+assert_runs sdl2-jstest --help
 
 # Keymap compile dir must be writable by non-root (retro), or Xwayland
 # blows up with EACCES at runtime. Covered by the Dockerfile but easy to
@@ -38,6 +38,16 @@ if [[ -d /var/lib/xkb ]]; then
   fi
 else
   bad "/var/lib/xkb exists"
+fi
+
+# Root build steps leave files in the image's home (wget2's HSTS cache,
+# add-apt-repository's launchpadlib cache). 10-setup_user.sh must hand them
+# to retro, or retro can't write e.g. ~/.local/share.
+root_owned=$(find /home/retro -xdev -user 0 2>/dev/null | head -3)
+if [[ -z "$root_owned" ]]; then
+  ok "nothing under /home/retro is owned by root"
+else
+  bad "nothing under /home/retro is owned by root (${root_owned//$'\n'/ })"
 fi
 
 # The helper scripts the app layer sources.

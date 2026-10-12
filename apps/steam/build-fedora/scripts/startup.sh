@@ -23,7 +23,8 @@ export STEAM_USE_MANGOAPP=1
 # Check if MANGOHUD_CONFIGFILE is not set already by Wolf
 if [ -z "${MANGOHUD_CONFIGFILE:-}" ]; then
     # Not set
-    export MANGOHUD_CONFIGFILE="$(mktemp /tmp/mangohud.XXXXXXXX)"
+    MANGOHUD_CONFIGFILE=$(mktemp /tmp/mangohud.XXXXXXXX)
+    export MANGOHUD_CONFIGFILE
 
     # Initially write no_display to our config file
     # so we don't get mangoapp showing up before Steam initializes
@@ -42,7 +43,8 @@ export STEAM_MANGOAPP_HORIZONTAL_SUPPORTED=1
 # Note: this only works on gallium drivers and with new enough mesa
 #       unfortunately there is no good way to check and disable this flag otherwise
 export STEAM_USE_DYNAMIC_VRS=1
-export RADV_FORCE_VRS_CONFIG_FILE=$(mktemp /tmp/radv_vrs.XXXXXXXX)
+RADV_FORCE_VRS_CONFIG_FILE=$(mktemp /tmp/radv_vrs.XXXXXXXX)
+export RADV_FORCE_VRS_CONFIG_FILE
 # To expose vram info from radv
 export WINEDLLOVERRIDES=dxgi=n
 
@@ -139,6 +141,7 @@ elif [ -n "$RUN_SWAY" ]; then
 
   # Start Steam
   source /opt/gow/launch-comp.sh
+  # shellcheck disable=SC2086
   launcher steam ${STEAM_STARTUP_FLAGS}
 else
   # shellcheck disable=SC2086
