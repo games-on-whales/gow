@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 source /opt/gow/bash-lib/utils.sh
 

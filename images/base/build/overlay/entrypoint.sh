@@ -16,11 +16,13 @@ if [ "$(id -u)" = "0" ]; then
     done
 fi
 
-# If a command was passed, run that instead of the usual init startup script
-# shellcheck disable=SC2198
-if [ -n "${@:-}" ]; then
-    /bin/bash -c "$@"
-    exit $?
+# If a command was passed, run that instead of the usual init startup script.
+# A single argument is a shell snippet (`docker run img "cmd && cmd"`), and
+# several arguments are an argv (`docker run img ls -la`).
+if [ $# -eq 1 ]; then
+    exec /bin/bash -c "$1"
+elif [ $# -gt 1 ]; then
+    exec "$@"
 fi
 
 # Launch startup script as 'UNAME' user (some services will run as root)

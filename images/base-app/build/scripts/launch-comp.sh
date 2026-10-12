@@ -3,6 +3,16 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+# Quote one argument for the POSIX shell that sway runs `exec` through.
+# Plain words stay unquoted so the generated config reads the same as before.
+function sway_quote() {
+  if [[ $1 =~ ^[[:alnum:]_./:=+@%-]+$ ]]; then
+    printf '%s' "$1"
+  else
+    printf "'%s'" "${1//\'/\'\\\'\'}"
+  fi
+}
+
 function launcher() {
   export GAMESCOPE_WIDTH=${GAMESCOPE_WIDTH:-1920}
   export GAMESCOPE_HEIGHT=${GAMESCOPE_HEIGHT:-1080}
@@ -34,7 +44,12 @@ function launcher() {
     cp /cfg/sway/config $HOME/.config/sway/config
     # Modify the config file for res and to launch the app at the end
     echo "output * resolution ${GAMESCOPE_WIDTH}x${GAMESCOPE_HEIGHT} position 0,0" >> $HOME/.config/sway/config
-    echo -n "workspace main; exec $@" >> $HOME/.config/sway/config
+    # Quote each argument so ones with spaces survive sway's `sh -c`
+    local app_cmd="" arg
+    for arg in "$@"; do
+      app_cmd+="${app_cmd:+ }$(sway_quote "$arg")"
+    done
+    echo -n "workspace main; exec ${app_cmd}" >> $HOME/.config/sway/config
 
     # if SWAY_STOP_ON_APP_EXIT == "yes" then kill sway when the app exits
     if [ "$SWAY_STOP_ON_APP_EXIT" == "yes" ]; then
@@ -46,6 +61,6 @@ function launcher() {
   else
     gow_log "[exec] Starting: $@"
 
-    exec $@
+    exec "$@"
   fi
 }

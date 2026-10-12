@@ -6,6 +6,10 @@ set -e
 
 source /opt/gow/bash-lib/utils.sh
 
+# Debian multiarch library dir, e.g. /usr/lib/x86_64-linux-gnu or
+# /usr/lib/aarch64-linux-gnu (the base image is also built for arm64).
+_nv_libdir="/usr/lib/$(uname -m)-linux-gnu"
+
 # Check if our custom volume is mounted
 if [ -d /usr/nvidia ]; then
   gow_log "Nvidia driver volume detected"
@@ -32,19 +36,19 @@ if [ -d /usr/nvidia ]; then
 
   if [ -d /usr/nvidia/lib/gbm ]; then
     gow_log "[nvidia] Add gbm backend"
-    mkdir -p /usr/lib/x86_64-linux-gnu/gbm/
-    cp /usr/nvidia/lib/gbm/* /usr/lib/x86_64-linux-gnu/gbm/
+    mkdir -p "${_nv_libdir}/gbm/"
+    cp /usr/nvidia/lib/gbm/* "${_nv_libdir}/gbm/"
   fi
 # Check if there's libnvidia-allocator.so.1
-elif [ -e /usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1 ]; then
+elif [ -e "${_nv_libdir}/libnvidia-allocator.so.1" ]; then
   gow_log "Nvidia driver detected, assuming nvidia container toolkit is installed"
   ldconfig
 
   # Create a symlink to the nvidia-drm_gbm.so (if not present)
-  if [ ! -e /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so ]; then
+  if [ ! -e "${_nv_libdir}/gbm/nvidia-drm_gbm.so" ]; then
     gow_log "Creating symlink to nvidia-drm_gbm.so"
-    mkdir -p /usr/lib/x86_64-linux-gnu/gbm
-    ln -sv ../libnvidia-allocator.so.1 /usr/lib/x86_64-linux-gnu/gbm/nvidia-drm_gbm.so
+    mkdir -p "${_nv_libdir}/gbm"
+    ln -sv ../libnvidia-allocator.so.1 "${_nv_libdir}/gbm/nvidia-drm_gbm.so"
   fi
 
   # Create json config files

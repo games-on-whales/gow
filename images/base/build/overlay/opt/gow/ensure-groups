@@ -46,7 +46,7 @@ done
 groups=$(join_by "," "${!group_map[@]}")
 if [ "$groups" != "" ]; then
     gow_log "Adding user '${UNAME}' to groups: $groups"
-    usermod -G "$groups" "${UNAME}"
+    usermod -aG "$groups" "${UNAME}"
 else
     gow_log "Not modifying user groups ($groups)"
 fi
