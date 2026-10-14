@@ -315,7 +315,9 @@ jobs:
         uses: docker/setup-buildx-action@v4
         with:
           version: latest
-          driver-opts: image=moby/buildkit:master${{ github.event_name == 'pull_request' && ',network=host' || '' }}
+          driver-opts: |
+            image=moby/buildkit:master
+            ${{ github.event_name == 'pull_request' && 'network=host' || '' }}
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != ''
