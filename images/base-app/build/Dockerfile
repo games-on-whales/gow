@@ -37,11 +37,13 @@ _BUILD_SDL_JSTEST
 # announces via wl_output.mode. Unlocks arbitrary native resolutions
 # (e.g. 2256x1504) and per-player tile sizes for party/split-screen mode.
 #
-# Pulls the latest upstream xwayland-* stable tag at build time. The patch
-# targets the sentinel symbol `xwl_output_fake_modes` rather than line
-# numbers, so it survives upstream refactors. Build fails loudly if the
-# sentinel is gone.
+# Pin the stable 24.1 series to match the base image's Wayland libraries.
+# Newer upstream releases can require a newer Wayland than Ubuntu ships.
+# The patch targets the sentinel symbol `xwl_output_fake_modes` rather
+# than line numbers. Build fails loudly if the sentinel is gone.
 FROM ${BASE_IMAGE} AS xwayland-builder
+
+ARG XWAYLAND_VERSION=24.1.14
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -87,20 +89,14 @@ WORKDIR /build
 RUN <<_BUILD_XWAYLAND
     set -eux
 
-    LATEST_TAG=$(git ls-remote --tags --refs --sort='version:refname' \
-      https://gitlab.freedesktop.org/xorg/xserver.git 'refs/tags/xwayland-*' \
-      | awk -F/ '{print $NF}' \
-      | grep -E '^xwayland-[0-9]+(\.[0-9]+)+$' \
-      | tail -1)
-    test -n "$LATEST_TAG" || { echo "Failed to resolve latest xwayland tag"; exit 1; }
-    echo "Building $LATEST_TAG"
+    XWAYLAND_TAG="xwayland-${XWAYLAND_VERSION}"
+    echo "Building $XWAYLAND_TAG"
 
-    # Fetch sources from the same host the ls-remote above talked to.
     # xorg.freedesktop.org's archive mirror has gone down intermittently
     # and taken CI with it; gitlab.freedesktop.org hosts the same tags.
-    git clone --depth 1 --branch "${LATEST_TAG}" \
-      https://gitlab.freedesktop.org/xorg/xserver.git "${LATEST_TAG}"
-    cd "${LATEST_TAG}"
+    git clone --depth 1 --branch "${XWAYLAND_TAG}" \
+      https://gitlab.freedesktop.org/xorg/xserver.git "${XWAYLAND_TAG}"
+    cd "${XWAYLAND_TAG}"
     pwd
 
     TARGET=hw/xwayland/xwayland-output.c
