@@ -300,7 +300,7 @@ jobs:
             type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora' || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-43' || '' }}
+            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-44' || '' }}
           flavor: |
             latest=auto
 
@@ -315,7 +315,9 @@ jobs:
         uses: docker/setup-buildx-action@v4
         with:
           version: latest
-          driver-opts: image=moby/buildkit:master${{ github.event_name == 'pull_request' && ',network=host' || '' }}
+          driver-opts: |
+            image=moby/buildkit:master
+            ${{ github.event_name == 'pull_request' && 'network=host' || '' }}
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != ''
@@ -490,7 +492,7 @@ jobs:
             type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
             ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora' || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-43' || '' }}
+            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-44' || '' }}
           flavor: |
             latest=auto
 
