@@ -56,12 +56,16 @@ fi
 gow_log "Checking RA Assets presence, if none - install them"
 if [ ! -d "$RA_CFG_DIR/assets" ]; then
     gow_log "No assets found, starting install"
-    wget -q -P /tmp https://buildbot.libretro.com/assets/frontend/assets.zip
-    # Use `7za`, not `7z` -- Fedora's `p7zip` ships only 7za; the `7z`
-    # alias requires `p7zip-plugins`. Ubuntu's `p7zip-full` provides both,
-    # so 7za works on either base and keeps the script portable.
-    7za x /tmp/assets.zip -bso0 -bse0 -bsp1 -o"$RA_CFG_DIR/assets"
-    rm /tmp/assets.zip
+    # Extract into a temporary directory so a failed download/extraction
+    # cannot leave an assets directory that makes the next startup skip it.
+    assets_tmp=$(mktemp -d)
+    curl -fL --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 60 \
+        -o "$assets_tmp/assets.zip" https://buildbot.libretro.com/assets/frontend/assets.zip
+    # 7za is provided by 7zip-standalone on Fedora and p7zip-full on Ubuntu.
+    # Keep stderr enabled so corrupt or missing archives are visible.
+    7za x "$assets_tmp/assets.zip" -bso0 -bsp0 -o"$assets_tmp/assets"
+    mv "$assets_tmp/assets" "$RA_CFG_DIR/assets"
+    rm -rf -- "$assets_tmp"
 fi
 
 gow_log "Giving permissions to user"
