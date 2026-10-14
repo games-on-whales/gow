@@ -20,7 +20,7 @@ on:
 #    - cron: "0 0 * * *" # nightly
 
 # Serialize runs that share a ref so concurrent builds cannot race when
-# pushing mutable tags (e.g. the `fedora-43` raw tag) to the registry.
+# pushing mutable tags (e.g. the `fedora-44` raw tag) to the registry.
 # `cancel-in-progress: false` ensures an in-flight master build always
 # completes before the next one starts.
 concurrency:
