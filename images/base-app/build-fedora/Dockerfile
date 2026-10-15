@@ -48,6 +48,7 @@ ARG REQUIRED_PACKAGES="\
     mangohud \
     sdl2-compat ncurses \
     procps-ng \
+    util-linux \
     dbus-daemon \
     "
 
