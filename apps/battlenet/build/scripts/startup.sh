@@ -32,6 +32,27 @@ for_window [class=".*"] floating enable
 for_window [class="explorer.exe"] move scratchpad
 SWAYCFG
 
+# Moonlight's paste (Ctrl+Alt+Shift+V) arrives as Ctrl+Shift+U <hex digits> per character, which GTK understands and
+# Wine does not. Sway catches those keys and /opt/gow/bnet-paste.sh turns them into a real clipboard paste.
+# BNET_PASTE_HELPER=0 (environment variable of the app) turns this off.
+if [ "${BNET_PASTE_HELPER:-1}" != "0" ]; then
+    mkdir -p /tmp/bnet-paste && chmod 777 /tmp/bnet-paste
+    KEY='exec sh -c "printf %s >> /tmp/bnet-paste/cur; /opt/gow/bnet-paste.sh arm"'
+    {
+        echo "bindcode --no-repeat Control+Shift+30 mode \"bnet-unicode\", ${KEY/\%s/\' \'}"
+        echo 'mode "bnet-unicode" {'
+        echo "    bindcode --no-repeat Control+Shift+30 ${KEY/\%s/\' \'}"
+        n=0
+        for code in 19 10 11 12 13 14 15 16 17 18; do
+            echo "    bindcode --no-repeat Control+Shift+$code ${KEY/\%s/$n}"; n=$((n + 1))
+        done
+        for pair in 38:a 56:b 54:c 40:d 26:e 41:f; do
+            echo "    bindcode --no-repeat Control+Shift+${pair%%:*} ${KEY/\%s/${pair##*:}}"
+        done
+        echo '}'
+    } >> "$HOME/.config/sway/custom-cfg"
+fi
+
 # Minimal waybar with just a quit button
 mkdir -p "$HOME/.config/waybar"
 cat > "$HOME/.config/waybar/config" << 'WAYBAR'

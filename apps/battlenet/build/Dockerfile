@@ -42,6 +42,8 @@ ARG REQUIRED_PACKAGES=" \
     gnupg \
     xwayland \
     wl-clipboard \
+    xclip \
+    xdotool \
     libgl1 \
     libegl1 \
     libvulkan1 \
@@ -185,5 +187,6 @@ RUN sed -i 's/default_border pixel 2/default_border normal 2/' /cfg/sway/config 
 
 COPY --chmod=755 scripts/20-fix-home-perms.sh /etc/cont-init.d/20-fix-home-perms.sh
 COPY --chmod=755 scripts/30-wow-userdata.sh /etc/cont-init.d/30-wow-userdata.sh
+COPY --chmod=755 scripts/bnet-paste.sh /opt/gow/bnet-paste.sh
 COPY scripts/startup.sh /opt/gow/startup-app.sh
 RUN chmod +x /opt/gow/startup-app.sh
