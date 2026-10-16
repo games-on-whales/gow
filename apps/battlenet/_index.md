@@ -1,7 +1,5 @@
 # Battle.net
 
-![Battle.net screenshot](assets/screenshot.png)
-
 Blizzard's game launcher for World of Warcraft, Diablo, Overwatch, Call of Duty, and more.
 
 ## How it works
