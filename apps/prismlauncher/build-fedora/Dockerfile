@@ -18,5 +18,12 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
+# Same as the Ubuntu variant: without LANG the JVM maps paths as ASCII and
+# skips any resource pack whose file name has a non-ASCII byte
+# ("InvalidPathException: Malformed input or input contains unmappable
+# characters"). C.UTF-8 is built into glibc, so no langpack is needed.
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source=$IMAGE_SOURCE
