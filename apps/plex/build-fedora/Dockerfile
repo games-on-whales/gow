@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora-44
 
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}

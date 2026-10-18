@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ghcr.io/games-on-whales/base:fedora
+ARG BASE_IMAGE=ghcr.io/games-on-whales/base:fedora-44
 
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}

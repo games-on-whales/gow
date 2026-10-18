@@ -20,7 +20,7 @@ docker run --name=steam --rm -it \
 -e WAYLAND_DISPLAY=${WAYLAND_DISPLAY} \
 -e RUN_SWAY=true \
 -v /tmp/SteamGOWData:/home/retro/ \
-ghcr.io/games-on-whales/steam:edge
+ghcr.io/games-on-whales/steam:fedora-44
 ```
 
 {{% figure

@@ -3,8 +3,12 @@ set -euo pipefail
 
 # First argument controls the app to build (ex: steam)
 APP_NAME=${1:-"steam"}
-# Second argument controls the variant of the image (ex: -fedora)
-IMAGE_VARIANT=${2:-"-fedora"}
+# Fedora 44 is primary; Ubuntu is an explicit backup.
+case "${2:-fedora44}" in
+  fedora44|fedora|-fedora) IMAGE_VARIANT=-fedora ;;
+  ubuntu) IMAGE_VARIANT= ;;
+  *) echo "Usage: $0 [app] [fedora44|ubuntu]" >&2; exit 1 ;;
+esac
 
 echo "======================================"
 echo "🔨 Building gow/base${IMAGE_VARIANT}..."

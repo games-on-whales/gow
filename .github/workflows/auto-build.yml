@@ -3,12 +3,18 @@ name: Automated builds
 on:
   push:
     branches:
-      - master
+      - beta
+      - stable
+    tags:
+      - "v[0-9][0-9][0-9][0-9].[0-9][0-9]"
     paths:
       - "images/**"
       - ".github/workflows/*"
       - "apps/**"
       - "bin/**"
+  release:
+    types: [published]
+  workflow_dispatch:
   pull_request:
     paths:
       - "images/**"
@@ -21,7 +27,7 @@ on:
 
 # Serialize runs that share a ref so concurrent builds cannot race when
 # pushing mutable tags (e.g. the `fedora-44` raw tag) to the registry.
-# `cancel-in-progress: false` ensures an in-flight master build always
+# `cancel-in-progress: false` ensures an in-flight beta build always
 # completes before the next one starts.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,6 +39,7 @@ jobs:
     with:
       docker_path: "images"
       image_name: "base"
+      variant: "" # Ubuntu fallback; the reusable default is Fedora 44.
       platforms: "linux/amd64"
     secrets: inherit
 
@@ -42,6 +49,7 @@ jobs:
     with:
       docker_path: "images"
       image_name: "base-app"
+      variant: "" # Ubuntu fallback; the reusable default is Fedora 44.
       base_image: "${{ needs.base.outputs.image_tag }}"
       platforms: "linux/amd64"
     secrets: inherit
@@ -52,6 +60,7 @@ jobs:
     with:
       docker_path: "images"
       image_name: "base-emu"
+      variant: "" # Ubuntu fallback; the reusable default is Fedora 44.
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
       platforms: "linux/amd64"
@@ -69,6 +78,7 @@ jobs:
     with:
       docker_path: "apps"
       image_name: "${{ matrix.image.name }}"
+      variant: "" # Ubuntu fallback; the reusable default is Fedora 44.
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-emu.outputs.image_tag }}"
       platforms: "${{ matrix.image.platforms }}"
@@ -96,6 +106,7 @@ jobs:
     with:
       docker_path: "${{ matrix.image.docker_path }}"
       image_name: "${{ matrix.image.name }}"
+      variant: "" # Ubuntu fallback; the reusable default is Fedora 44.
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
       platforms: "${{ matrix.image.platforms }}"

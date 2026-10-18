@@ -34,9 +34,9 @@ Usage: $0 <image-name> <image-tag> \\
          [--docker-path images|apps] [--variant <name>] [--keep-logs]
 
 Examples:
-  $0 base    ghcr.io/games-on-whales/base:edge
+  $0 base    ghcr.io/games-on-whales/base:fedora-44
   $0 firefox localhost:5000/firefox:pr-42 --docker-path apps
-  $0 base-app ghcr.io/games-on-whales/base-app:fedora --variant fedora
+  $0 base-app ghcr.io/games-on-whales/base-app:fedora-44 --variant fedora
 EOF
   exit 64
 }

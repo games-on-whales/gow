@@ -5,7 +5,7 @@ icon_png_path = "https://games-on-whales.github.io/wildlife/apps/kodi/assets/ico
 [apps.runner]
 type = 'docker'
 name = 'WolfKodi'
-image = 'ghcr.io/games-on-whales/kodi:edge'
+image = 'ghcr.io/games-on-whales/kodi:fedora-44'
 env = ['RUN_SWAY=true', 'GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*']
 devices = []
 mounts = []

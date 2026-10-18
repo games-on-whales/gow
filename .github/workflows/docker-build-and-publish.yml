@@ -25,10 +25,10 @@ on:
         type: string
         required: false
       variant:
-        description: "Image variant (e.g. 'fedora'). Affects build dir and tag suffix."
+        description: "fedora (Fedora 44, default), or empty for the Ubuntu fallback."
         type: string
         required: false
-        default: ""
+        default: "fedora"
     outputs:
       image_tag:
         description: "The highest-priority tag assigned to the built image"
@@ -44,12 +44,25 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
+      latest_release: ${{ steps.release.outputs.latest }}
       platforms: ${{ steps.set-platforms.outputs.platforms }}
       is_fork: ${{ steps.set-docker-vars.outputs.is_fork }}
       ghcr_namespace: ${{ steps.set-docker-vars.outputs.ghcr_namespace }}
       dockerhub_namespace: ${{ steps.set-docker-vars.outputs.dockerhub_namespace }}
       arm64_runner: ${{ steps.set-docker-vars.outputs.arm64_runner }}
     steps:
+      - id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          latest=false
+          if [[ "$GITHUB_EVENT_NAME" == release ]]; then
+            tag=$(gh api "repos/${GH_REPO}/releases/latest" --jq .tag_name)
+            [[ "$tag" != "$EVENT_TAG" ]] || latest=true
+          fi
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
       - id: set-platforms
         run: |
           platforms=$(echo "${{ inputs.platforms }}" | tr ',' '\n' | jq -R -s -c 'split("\n")[:-1]')
@@ -294,15 +307,14 @@ jobs:
           images: ${{ steps.prep.outputs.images }}
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora' || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-44' || '' }}
+            type=raw,value=beta,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=1000,enable=${{ github.ref == 'refs/heads/beta' }}
+            type=match,pattern=^(v[0-9]{4}\.[0-9]{2})$,group=1,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=900
+            type=raw,value=stable,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=800,enable=${{ needs.prepare.outputs.latest_release == 'true' }}
+            type=ref,event=pr,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
+            type=sha,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
+            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=fedora-44,priority=200' || '' }}
           flavor: |
-            latest=auto
+            latest=false
 
       # Prepare for multi-arch
       - name: Set up QEMU
@@ -486,15 +498,14 @@ jobs:
         with:
           images: ${{ needs.docker.outputs.images }}
           tags: |
-            type=semver,pattern={{version}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=semver,pattern={{major}},suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=edge,branch=master,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=ref,event=branch,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            type=sha,suffix=${{ inputs.variant != '' && format('-{0}', inputs.variant) || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora' || '' }}
-            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'type=raw,value=fedora-44' || '' }}
+            type=raw,value=beta,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=1000,enable=${{ github.ref == 'refs/heads/beta' }}
+            type=match,pattern=^(v[0-9]{4}\.[0-9]{2})$,group=1,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=900
+            type=raw,value=stable,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }},priority=800,enable=${{ needs.prepare.outputs.latest_release == 'true' }}
+            type=ref,event=pr,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
+            type=sha,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
+            ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=fedora-44,priority=200' || '' }}
           flavor: |
-            latest=auto
+            latest=false
 
       - name: Create ghcr manifest list and push
         if: needs.docker.outputs.has_github_token != ''

@@ -5,7 +5,7 @@ icon_png_path = "https://games-on-whales.github.io/wildlife/apps/emby/assets/ico
 [apps.runner]
 type = "docker"
 name = "WolfEmby"
-image = "ghcr.io/games-on-whales/emby:edge"
+image = "ghcr.io/games-on-whales/emby:fedora-44"
 mounts = []
 env = ["RUN_SWAY=1", "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"]
 devices = []

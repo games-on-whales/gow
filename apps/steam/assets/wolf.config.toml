@@ -5,7 +5,7 @@ icon_png_path = "https://games-on-whales.github.io/wildlife/apps/steam/assets/ic
 [apps.runner]
 type = "docker"
 name = "WolfSteam"
-image = "ghcr.io/games-on-whales/steam:edge"
+image = "ghcr.io/games-on-whales/steam:fedora-44"
 mounts = []
 env = [
     "RUN_SWAY=true",

@@ -6,7 +6,7 @@ start_virtual_compositor = true
 [apps.runner]
 type = "docker"
 name = "WolfLutris"
-image = "ghcr.io/games-on-whales/lutris:edge"
+image = "ghcr.io/games-on-whales/lutris:fedora-44"
 mounts = ["lutris:/var/lutris/:rw"]
 env = [
     'WOLF_LUTRIS_GAMEPAD_UI_ENABLE=1',

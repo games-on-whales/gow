@@ -1,4 +1,4 @@
-ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora
+ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora-44
 
 ######################################
 # Same as Steam, here we build a patched bubblewrap

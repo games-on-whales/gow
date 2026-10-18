@@ -5,7 +5,7 @@ icon_png_path = "https://games-on-whales.github.io/wildlife/apps/firefox/assets/
 [apps.runner]
 type = "docker"
 name = "WolfFirefox"
-image = "ghcr.io/games-on-whales/firefox:edge"
+image = "ghcr.io/games-on-whales/firefox:fedora-44"
 mounts = []
 env = ["RUN_SWAY=1", "MOZ_ENABLE_WAYLAND=1", "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*", ]
 devices = []

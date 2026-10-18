@@ -23,7 +23,7 @@ For example, say that you want to add another emulator to `ES-DE`:
 - Build the image: open a shell *in the root of the GOW repo*, then use Docker to build with the following command:
 
 ```bash
-docker build -t gow/es-de:custom --build-arg BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge apps/es-de/build .
+docker build -t gow/es-de:custom --build-arg BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:fedora-44 apps/es-de/build .
 ```
 
 This will build the image locally with the tag `gow/es-de:custom`.
