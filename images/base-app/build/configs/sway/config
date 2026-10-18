@@ -109,6 +109,9 @@ for_window [class="steam"] fullscreen disabled
 for_window [class="steam_app_.*"] fullscreen enabled
 # Force ES-DE to start windowed
 for_window [class="es-de"] fullscreen disabled
+# Fix "open litrus" button to show the window
+for_window [app_id="net.lutris.Lutris"] move to workspace lutris, workspace lutris, move position center, focus
+
 
 # Need to autostart something after this line, for example:
 # see: launch-comp.sh

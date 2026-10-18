@@ -86,6 +86,8 @@ ARG REQUIRED_PACKAGES=" \
      libfuse2 \
      libfuse2t64 \
      libgstreamer-gl1.0-0 \
+     libsdl3-0 \
+     dbus-x11 \
     "
 
 
