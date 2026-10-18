@@ -313,6 +313,7 @@ jobs:
             type=ref,event=pr,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
             type=sha,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
             ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=fedora-44,priority=200' || '' }}
+            ${{ inputs.variant == '' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=edge,priority=100' || '' }}
           flavor: |
             latest=false
 
@@ -504,6 +505,7 @@ jobs:
             type=ref,event=pr,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
             type=sha,suffix=${{ inputs.variant == '' && '-ubuntu' || '' }}
             ${{ inputs.variant == 'fedora' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=fedora-44,priority=200' || '' }}
+            ${{ inputs.variant == '' && github.event_name == 'push' && github.ref == 'refs/heads/beta' && 'type=raw,value=edge,priority=100' || '' }}
           flavor: |
             latest=false
 
