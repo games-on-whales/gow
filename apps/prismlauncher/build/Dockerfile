@@ -39,5 +39,15 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
 
+# No LANG is set anywhere in the image chain, so the JVM starts in the POSIX
+# locale and maps file paths as ASCII (sun.jnu.encoding=ANSI_X3.4-1968). Any
+# resource pack, shader or world whose file name has a non-ASCII byte then
+# fails with "InvalidPathException: Malformed input or input contains
+# unmappable characters" and is silently skipped. Modpacks imported from
+# CurseForge routinely ship packs named with "§e"-style colour codes.
+# C.UTF-8 is built into glibc, so no locale-gen step is needed.
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source=$IMAGE_SOURCE

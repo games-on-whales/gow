@@ -20,4 +20,13 @@ fi
 assert_shared_ok /opt/prismlauncher/bin/prismlauncher
 assert_version prismlauncher --version
 
+# Minecraft skips any resource pack whose file name has a non-ASCII byte
+# unless the JVM maps paths as UTF-8, which it derives from LANG at startup.
+jnu_encoding=$(java -XshowSettings:properties -version 2>&1 | awk '/sun.jnu.encoding/ {print $3}')
+if [[ "$jnu_encoding" == "UTF-8" ]]; then
+  ok "JVM path encoding is UTF-8 (sun.jnu.encoding=$jnu_encoding)"
+else
+  bad "JVM path encoding is UTF-8 (sun.jnu.encoding=${jnu_encoding:-unset})"
+fi
+
 smoke_report
