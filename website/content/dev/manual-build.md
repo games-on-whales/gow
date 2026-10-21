@@ -15,6 +15,12 @@ git clone https://github.com/games-on-whales/gow.git
 All the published images are in the `apps/` directory.
 You can edit any of the images or create a new one.
 
+**Ensure Docker BuildKit is installed and used, otherwise some `Dockerfile`s with here-docs will fail to execute some commands, with errors similar to:**
+```log
+/bin/sh: line 1: warning: here-document at line 1 delimited by end-of-file (wanted `_INSTALL_PACKAGES')
+```
+You can enable this by setting `DOCKER_BUILDKIT=1` when running `docker build ...`, or by using `docker buildx build ...`
+
 ## Example: edit an already existing image
 
 For example, say that you want to add another emulator to `ES-DE`:
