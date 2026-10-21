@@ -1,7 +1,9 @@
 FROM ubuntu:22.04 AS nvidia-installer
 
 ARG NV_VERSION
-RUN apt-get update -y && \
+RUN --mount=type=secret,id=nvidia-version,target=/nvidia-version \
+    NV_VERSION="${NV_VERSION:-$(cat /nvidia-version)}" && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools && \
     curl -LO https://download.nvidia.com/XFree86/Linux-x86_64/$NV_VERSION/NVIDIA-Linux-x86_64-$NV_VERSION.run && \
     chmod +x NVIDIA-Linux-x86_64-$NV_VERSION.run && mkdir -p /usr/nvidia && \
@@ -12,8 +14,10 @@ RUN apt-get update -y && \
 RUN echo -e "/usr/nvidia/lib\n/usr/nvidia/lib32" > /etc/ld.so.conf.d/nvidia.conf && ldconfig
 
 ################
-FROM scratch
+FROM nvidia-installer
 
 COPY --from=nvidia-installer /usr/nvidia/ /usr/nvidia
 COPY --from=nvidia-installer /etc/vulkan/icd.d/nvidia_icd.json /usr/nvidia/share/vulkan/icd.d/
-COPY --from=nvidia-installer /bin/sh /bin/sh
+ADD docker-entrypoint.bash /
+
+ENTRYPOINT ["/docker-entrypoint.bash"]
