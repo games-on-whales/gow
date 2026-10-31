@@ -135,9 +135,9 @@ elif [ -n "$RUN_SWAY" ]; then
   # Start IBus to enable showing the steam on-screen keyboard
   /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
 
-  # Enable MangoHud for all vulkan (including Proton) games
-  # unless the user has explicitly disabled it in config.
-  export MANGOHUD=${MANGOHUD:-1}
+  # MangoHud is opt-in, including when its overlay would be hidden.
+  # Preserve an explicit user setting for this Steam session.
+  export MANGOHUD=${MANGOHUD:-0}
 
   # Start Steam
   source /opt/gow/launch-comp.sh

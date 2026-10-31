@@ -45,8 +45,9 @@ excellent [MangoHud](https://github.com/flightlessmango/MangoHud).
 src=assets/mangohud_example.gif
 alt="A GIF showing MangoHud working" %}}
 
-Whilst `mangohud` is already installed, there's no way to globally enable it for all games.
-You can still enable it on a per-game basis by adding `mangohud %command%` to the game's launch options in Steam.
+MangoHud is installed and disabled by default. Enable it for a game by adding
+`MANGOHUD=1 %command%` to the game's launch options in Steam. To enable it for
+all games in a Steam session, set `MANGOHUD=1` in the Steam app's runner environment.
 
 {{% figure
 src=assets/steam_mangohud_config.png
