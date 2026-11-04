@@ -130,7 +130,7 @@ fi
 # the baked one, so only releases that use the same runtime generation will work.
 if [ -n "${BNET_PROTON_VERSION:-}" ]; then
     PLOG="$PERSIST_DIR/bnet-proton.log"
-    BAKED_PROTON=$(basename "$(readlink -f "$PROTONPATH")")
+    BAKED_PROTON=$(basename "$(readlink -f "$PROTONPATH")"); BAKED_PROTON=${BAKED_PROTON%-x86_64}
     PROTON_DIR="$PERSIST_DIR/proton/$BNET_PROTON_VERSION"
     if [ "$BNET_PROTON_VERSION" = "$BAKED_PROTON" ]; then
         echo "$(date '+%F %T') $BNET_PROTON_VERSION is the version baked into the image" >> "$PLOG"
@@ -143,9 +143,9 @@ if [ -n "${BNET_PROTON_VERSION:-}" ]; then
             rm -rf "$PTMP"; mkdir -p "$PTMP"
             PURL=$(curl -fsSL "https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/tags/$BNET_PROTON_VERSION" 2>>"$PLOG" \
                 | grep browser_download_url | grep '\.tar\.gz' | grep -v aarch64 | head -1 | cut -d'"' -f4) || PURL=""
-            if [ -n "$PURL" ] && curl -fsSL "$PURL" 2>>"$PLOG" | tar -xz -C "$PTMP" 2>>"$PLOG" && [ -x "$PTMP/$BNET_PROTON_VERSION/proton" ]; then
+            if [ -n "$PURL" ] && curl -fsSL "$PURL" 2>>"$PLOG" | tar -xz -C "$PTMP" 2>>"$PLOG" && PEXTRACTED=$(ls -d "$PTMP"/*/ 2>/dev/null | head -1) && [ -x "${PEXTRACTED}proton" ]; then
                 rm -rf "$PROTON_DIR"
-                mv "$PTMP/$BNET_PROTON_VERSION" "$PROTON_DIR"
+                mv "${PEXTRACTED%/}" "$PROTON_DIR"
                 echo "$(date '+%F %T') $BNET_PROTON_VERSION installed in $PROTON_DIR" >> "$PLOG"
             else
                 echo "$(date '+%F %T') download of $BNET_PROTON_VERSION failed (release not found or no network), using $BAKED_PROTON" | tee -a "$PLOG"
