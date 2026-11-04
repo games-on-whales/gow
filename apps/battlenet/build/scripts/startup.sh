@@ -123,6 +123,42 @@ fi
 # Optional overrides/debugging (e.g. export PROTON_LOG=1 PROTON_LOG_DIR=/home/retro-persist)
 [ -f "$PERSIST_DIR/bnet.env" ] && . "$PERSIST_DIR/bnet.env"
 
+# BNET_PROTON_VERSION (environment variable of the app or bnet.env), e.g. BNET_PROTON_VERSION=GE-Proton11-12: use that
+# GE-Proton release instead of the one baked into the image. It is downloaded once into $PERSIST_DIR/proton and
+# reused at the next starts. Unset, or equal to the baked version, nothing is downloaded. If the download fails the
+# baked version is used. Progress goes to bnet-proton.log in the persistent folder. The Steam Linux Runtime stays
+# the baked one, so only releases that use the same runtime generation will work.
+if [ -n "${BNET_PROTON_VERSION:-}" ]; then
+    PLOG="$PERSIST_DIR/bnet-proton.log"
+    BAKED_PROTON=$(basename "$(readlink -f "$PROTONPATH")")
+    PROTON_DIR="$PERSIST_DIR/proton/$BNET_PROTON_VERSION"
+    if [ "$BNET_PROTON_VERSION" = "$BAKED_PROTON" ]; then
+        echo "$(date '+%F %T') $BNET_PROTON_VERSION is the version baked into the image" >> "$PLOG"
+    elif ! [[ "$BNET_PROTON_VERSION" =~ ^GE-Proton[0-9A-Za-z._-]+$ ]]; then
+        echo "$(date '+%F %T') BNET_PROTON_VERSION='$BNET_PROTON_VERSION' is not a GE-Proton tag, using $BAKED_PROTON" | tee -a "$PLOG"
+    else
+        if [ ! -x "$PROTON_DIR/proton" ]; then
+            echo "$(date '+%F %T') downloading $BNET_PROTON_VERSION" | tee -a "$PLOG"
+            PTMP="$PERSIST_DIR/proton/.tmp-$$"
+            rm -rf "$PTMP"; mkdir -p "$PTMP"
+            PURL=$(curl -fsSL "https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/tags/$BNET_PROTON_VERSION" 2>>"$PLOG" \
+                | grep browser_download_url | grep '\.tar\.gz' | grep -v aarch64 | head -1 | cut -d'"' -f4) || PURL=""
+            if [ -n "$PURL" ] && curl -fsSL "$PURL" 2>>"$PLOG" | tar -xz -C "$PTMP" 2>>"$PLOG" && [ -x "$PTMP/$BNET_PROTON_VERSION/proton" ]; then
+                rm -rf "$PROTON_DIR"
+                mv "$PTMP/$BNET_PROTON_VERSION" "$PROTON_DIR"
+                echo "$(date '+%F %T') $BNET_PROTON_VERSION installed in $PROTON_DIR" >> "$PLOG"
+            else
+                echo "$(date '+%F %T') download of $BNET_PROTON_VERSION failed (release not found or no network), using $BAKED_PROTON" | tee -a "$PLOG"
+            fi
+            rm -rf "$PTMP"
+        fi
+        if [ -x "$PROTON_DIR/proton" ]; then
+            export PROTONPATH="$PROTON_DIR"
+            echo "$(date '+%F %T') using $BNET_PROTON_VERSION" >> "$PLOG"
+        fi
+    fi
+fi
+
 # BNET_DEBUG=1 (e.g. `export BNET_DEBUG=1` in bnet.env) turns on the diagnostics: session-trace.log (timeline of
 # processes and windows) and umu-last.log (output of the launcher, end printed when a start fails). Off by default.
 BNET_DEBUG="${BNET_DEBUG:-0}"
@@ -135,16 +171,65 @@ if [ "$BNET_DEBUG" = "1" ]; then
     trace "wrapper started"
 fi
 
+# BNET_EXEC (environment variable of the app or bnet.env), e.g. BNET_EXEC="launch Fen" for Diablo IV: start
+# Battle.net.exe --exec="<value>" instead of the launcher so the app goes straight into that game (see below).
+BNET_DIR="$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net"
+if [ -n "${BNET_EXEC:-}" ]; then
+    BNET_CMD=("$BNET_DIR/Battle.net.exe" "--exec=$BNET_EXEC")
+else
+    BNET_CMD=("$BNET_DIR/Battle.net Launcher.exe")
+fi
+
 # With BNET_DEBUG=1 the launcher output goes to umu-last.log (previous run: umu-last.log.1) and a failed start
 # prints the end of it to the container log, without the pressure-vessel hard-link warnings that hide the real error.
 UMU_LOG="$PERSIST_DIR/umu-last.log"
 if [ "$BNET_DEBUG" = "1" ]; then
     [ -f "$UMU_LOG" ] && mv -f "$UMU_LOG" "$UMU_LOG.1"
-    umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" > "$UMU_LOG" 2>&1 &
+    umu-run "${BNET_CMD[@]}" > "$UMU_LOG" 2>&1 &
 else
-    umu-run "$PERSIST_DIR/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe" &
+    umu-run "${BNET_CMD[@]}" &
 fi
 UMU_PID=$!
+
+# A cold-started client logs the --exec argument but does not act on it. Sent to a running, logged-in client
+# (a second Battle.net.exe hands its arguments over and exits) it starts the game. So once this session's
+# client log shows the account loaded and the version checks done, send BNET_EXEC again (at most twice).
+# Progress goes to bnet-exec.log in the persistent folder. (Idea and first version: a Diablo IV user on NVIDIA.)
+if [ -n "${BNET_EXEC:-}" ]; then
+    (
+        EXLOG="$PERSIST_DIR/bnet-exec.log"
+        LOGDIR="$PERSIST_DIR/drive_c/users/steamuser/AppData/Local/Battle.net/Logs"
+        T0X=$(date +%s)
+        LOGF=""
+        launched() { [ -n "$LOGF" ] && grep -q 'InstallManager.*Launched ' "$LOGF"; }
+        for attempt in 1 2; do
+            for i in $(seq 1 300); do   # up to 10 minutes, enough for a login with 2FA
+                kill -0 "$UMU_PID" 2>/dev/null || exit 0
+                LOGF=$(ls -t "$LOGDIR"/battle.net-*.log 2>/dev/null | head -1)
+                if [ -n "$LOGF" ] && [ "$(stat -c %Y "$LOGF")" -ge "$T0X" ]; then
+                    launched && exit 0
+                    grep -q 'Received GameLevelInfo' "$LOGF" && break
+                fi
+                LOGF=""
+                sleep 2
+            done
+            [ -n "$LOGF" ] || exit 0
+            for i in $(seq 1 15); do grep -q 'Game finished versioning' "$LOGF" && break; sleep 2; done
+            sleep 3
+            launched && exit 0
+            echo "$(date '+%F %T') client ready, no game started: sending --exec=$BNET_EXEC again (attempt $attempt)" >> "$EXLOG"
+            # umu-run defaults to Proton's "waitforexitandrun" verb, which first waits until every Wine process of
+            # the prefix has exited, i.e. until the session is over; "run" starts the second Battle.net.exe now.
+            # Without PROTON_LOG: Proton would replace the running session's log file with a new one.
+            PROTON_VERB=run env -u PROTON_LOG umu-run "$BNET_DIR/Battle.net.exe" "--exec=$BNET_EXEC" > "$PERSIST_DIR/bnet-exec-umu.log" 2>&1 &
+            for i in $(seq 1 30); do
+                sleep 2
+                if launched; then echo "$(date '+%F %T') game launched" >> "$EXLOG"; exit 0; fi
+            done
+        done
+        echo "$(date '+%F %T') game still not launched after 2 attempts, giving up" >> "$EXLOG"
+    ) &
+fi
 
 # Timeline of the session in $PERSIST_DIR/session-trace.log (previous run: session-trace.log.1):
 # a line whenever the set of running Windows processes or of windows changes. Only with BNET_DEBUG=1.

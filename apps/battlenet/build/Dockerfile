@@ -69,7 +69,8 @@ RUN dpkg --add-architecture i386 && \
     rm -rf /var/lib/apt/lists/*
 
 # Proton-GE and the Steam Linux Runtime live in the image so nothing is downloaded at start.
-ARG GE_PROTON_VERSION=GE-Proton11-7
+# Another GE-Proton can be baked in with --build-arg GE_PROTON_VERSION=<tag>, or chosen at run time with BNET_PROTON_VERSION (see README).
+ARG GE_PROTON_VERSION=GE-Proton11-12
 ENV XDG_DATA_HOME=/opt/umu-data
 
 # Everything below is owned by an unprivileged build user: umu-run refuses to run as root, and
