@@ -9,7 +9,7 @@ FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
-RUN dnf install -y git meson ca-certificates dpkg-dev && \
+RUN dnf install -y git meson ca-certificates dpkg-dev /usr/bin/getopt && \
     git clone https://github.com/containers/bubblewrap && \
     cd bubblewrap && \
     ./ci/builddeps.sh && \
