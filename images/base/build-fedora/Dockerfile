@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM quay.io/fedora/fedora:44
+FROM quay.io/fedora/fedora:45
 
 # Configure default user and set env
 # The users UID and GID will be set on container startup
