@@ -88,6 +88,7 @@ jobs:
           - { name: prismlauncher,         docker_path: apps,   platforms: "linux/amd64" }
           - { name: kodi,                  docker_path: apps,   platforms: "linux/amd64" }
           - { name: xfce,                  docker_path: apps,   platforms: "linux/amd64" }
+          - { name: kde,                   docker_path: apps,   platforms: "linux/amd64" }
           - { name: plex,                  docker_path: apps,   platforms: "linux/amd64" }
           - { name: emby,                  docker_path: apps,   platforms: "linux/amd64" }
           - { name: youtube,               docker_path: apps,   platforms: "linux/amd64" }
