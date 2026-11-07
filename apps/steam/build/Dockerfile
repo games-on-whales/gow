@@ -5,9 +5,9 @@ ARG BASE_APP_IMAGE
 # but bwrap needs CAP_SYS_ADMIN.
 # However if you explicitly give CAP_SYS_ADMIN, bwrap throws an error,
 # because it detects that capabilities have been tempered with
-FROM ubuntu:25.04 AS bwrap-builder
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
 
-ENV DEBIAN_FRONTEND=non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 COPY ignore_capabilities.patch /root/
 RUN apt-get update -y && \
@@ -64,6 +64,22 @@ RUN fc-cache -f -v
 
 # create symlink for improved decky loader compatibility
 RUN ln -sf "$HOME" /home/deck
+
+# Bake Decky Loader at build time. Previously system-services.sh fetched
+# the latest release on every container start via api.github.com, which
+# rate-limited (60 unauth req/h per IP) and broke cont-init smoke tests
+# and fresh-user logins non-deterministically. Pinning + baking removes
+# the runtime API dependency. Bump DECKY_LOADER_VERSION to update.
+ARG DECKY_LOADER_VERSION=v3.2.3
+# --retry-all-errors covers HTTP 4xx/5xx (curl --retry alone only retries
+# transport-layer errors). The release-asset CDN occasionally returns 4xx
+# briefly; without this flag, curl exits 22 on the first hit and fails the
+# build. --retry-max-time bounds the overall wait.
+RUN mkdir -p /opt/decky && \
+    curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 60 \
+      -o /opt/decky/PluginLoader \
+      "https://github.com/SteamDeckHomebrew/decky-loader/releases/download/${DECKY_LOADER_VERSION}/PluginLoader" && \
+    chmod 755 /opt/decky/PluginLoader
 
 COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/system-services.sh /etc/cont-init.d/system-services.sh

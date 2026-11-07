@@ -55,10 +55,18 @@ wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubun
 apt-get install -y ./libssl1.1.deb
 
 # Pegasus doesn't tag releases, they have a rolling weekly release
-# so we have to parse the Github APIs to get the link
-curl -s https://api.github.com/repos/mmatyas/pegasus-frontend/releases/tags/continuous | \
-jq -r '.assets[] | select(.name | contains(".deb")) | .browser_download_url' | \
-xargs curl -fsSL -o pegasus.deb
+# so we have to parse the Github APIs to get the link.
+# Capture, validate, then download; otherwise a transient API blip lets
+# `xargs curl -o pegasus.deb` run with no URL and overwrite pegasus.deb
+# with curl's help text, then `apt-get install` fails opaquely later.
+release_json=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 60 \
+    https://api.github.com/repos/mmatyas/pegasus-frontend/releases/tags/continuous)
+download_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | contains(".deb")) | .browser_download_url' | head -n 1)
+if [ -z "$download_url" ] || [ "$download_url" = "null" ]; then
+    echo "pegasus: no .deb asset in continuous release" >&2
+    exit 1
+fi
+curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 120 -o pegasus.deb "$download_url"
 
 apt-get install -y ./pegasus.deb
 

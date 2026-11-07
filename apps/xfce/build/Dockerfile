@@ -9,7 +9,6 @@ ARG CORE_PACKAGES=" \
     wget \
     gnupg2 \
     dbus-x11 \
-    firefox \
     flatpak \
     sudo \
     "
@@ -33,17 +32,16 @@ ARG ADDITIONAL_PACKAGES=" \
     zip unzip p7zip-full \
     gnome-software gnome-software-plugin-flatpak \
     "
-# 
-# Prevent firefox snap
-COPY scripts/ff-unsnap /etc/apt/preferences.d/ff-unsnap
-
 RUN \
     # \
-    # Setup Firefox PPA \
+    # Setup Mozilla official APT repo (mozillateam PPA dropped Plucky support) \
     apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common gpg-agent && \
-    add-apt-repository -y ppa:mozillateam/ppa && \
+    install -d -m 0755 /etc/apt/keyrings && \
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list && \
+    printf 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n' > /etc/apt/preferences.d/mozilla && \
     apt-get update && \
+    apt-get install -y --no-install-recommends firefox && \
     # \
     # Install core packages \
     apt-get install -y $CORE_PACKAGES && \

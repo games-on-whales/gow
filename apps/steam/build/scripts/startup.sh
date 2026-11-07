@@ -56,6 +56,8 @@ export GTK_IM_MODULE=Steam
 
 
 if [ -n "$RUN_GAMESCOPE" ]; then
+  GAMESCOPE_BIN="$(command -v gamescope)"
+
   # Enable support for xwayland isolation per-game in Steam
   # Note: This breaks without the additional steamdeck flags
   #export STEAM_MULTIPLE_XWAYLANDS=1
@@ -98,7 +100,10 @@ if [ -n "$RUN_GAMESCOPE" ]; then
   GAMESCOPE_MODE=${GAMESCOPE_MODE:-"-b"}
 
   # shellcheck disable=SC2086
-  /usr/games/gamescope -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
+  # -w/-h pin the internal (XWayland) mode list to the output resolution so
+  # games don't pick a standard preset (e.g. 1440p) that gamescope then
+  # letterboxes into a non-16:9 output.
+  "${GAMESCOPE_BIN}" -e ${GAMESCOPE_MODE} -R $socket -T $stats -W "${GAMESCOPE_WIDTH}" -H "${GAMESCOPE_HEIGHT}" -w "${GAMESCOPE_WIDTH}" -h "${GAMESCOPE_HEIGHT}" -r "${GAMESCOPE_REFRESH}" &
 
   # Read the variables we need from the socket
   if read -r -t 3 response_x_display response_wl_display <> "$socket"; then
@@ -113,7 +118,13 @@ if [ -n "$RUN_GAMESCOPE" ]; then
 
   # Start IBus to enable showing the steam on-screen keyboard
   /usr/bin/ibus-daemon -d -r --panel=disable --emoji-extension=disable
-  # Launch mango
+  # Launch mango.
+  # NOTE: on the Ubuntu base-app, `mangoapp` is not installed (upstream
+  # MangoHud's release tarball ships only mangohud + mangoplot). On the
+  # Fedora base-app, `mangoapp` is part of the mangohud RPM. Bash will
+  # print "command not found" on Ubuntu and carry on; the gamescope stats
+  # overlay is silently disabled there. See images/base-app/build/Dockerfile
+  # (_INSTALL_MANGO block) for the full context.
   mangoapp &
 
   # Start Steam

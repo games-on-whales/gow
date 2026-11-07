@@ -32,9 +32,104 @@ RUN <<_BUILD_SDL_JSTEST
 _BUILD_SDL_JSTEST
 
 #################################
+# Build patched Xwayland: neutralizes the hardcoded xwl_output_fake_modes
+# table so Xwayland advertises only the modes the Wayland compositor
+# announces via wl_output.mode. Unlocks arbitrary native resolutions
+# (e.g. 2256x1504) and per-player tile sizes for party/split-screen mode.
+#
+# Pin the stable 24.1 series to match the base image's Wayland libraries.
+# Newer upstream releases can require a newer Wayland than Ubuntu ships.
+# The patch targets the sentinel symbol `xwl_output_fake_modes` rather
+# than line numbers. Build fails loudly if the sentinel is gone.
+FROM ${BASE_IMAGE} AS xwayland-builder
+
+ARG XWAYLAND_VERSION=24.1.14
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      meson \
+      ninja-build \
+      pkg-config \
+      ca-certificates \
+      curl \
+      git \
+      xutils-dev \
+      xtrans-dev \
+      libxfont-dev \
+      libxkbfile-dev \
+      libxcvt-dev \
+      libxshmfence-dev \
+      libbsd-dev \
+      libepoxy-dev \
+      libpixman-1-dev \
+      libdrm-dev \
+      libgbm-dev \
+      libegl-dev \
+      libgles-dev \
+      mesa-common-dev \
+      libwayland-dev \
+      wayland-protocols \
+      libxkbcommon-dev \
+      libtirpc-dev \
+      nettle-dev \
+      libei-dev \
+      libdecor-0-dev \
+      libaudit-dev \
+      libsystemd-dev \
+      x11proto-dev \
+      python3-mako \
+      xfonts-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+RUN <<_BUILD_XWAYLAND
+    set -eux
+
+    XWAYLAND_TAG="xwayland-${XWAYLAND_VERSION}"
+    echo "Building $XWAYLAND_TAG"
+
+    # xorg.freedesktop.org's archive mirror has gone down intermittently
+    # and taken CI with it; gitlab.freedesktop.org hosts the same tags.
+    git clone --depth 1 --branch "${XWAYLAND_TAG}" \
+      https://gitlab.freedesktop.org/xorg/xserver.git "${XWAYLAND_TAG}"
+    cd "${XWAYLAND_TAG}"
+    pwd
+
+    TARGET=hw/xwayland/xwayland-output.c
+    ls -la "$TARGET"
+    BEFORE=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET" || true)
+    echo "BEFORE sentinel count: $BEFORE"
+    test "$BEFORE" -ge 1 || { echo "Sentinel ARRAY_SIZE(xwl_output_fake_modes) not found in $TARGET — upstream structure may have changed, refresh the patch."; exit 1; }
+    sed -i 's/ARRAY_SIZE(xwl_output_fake_modes)/0/g' "$TARGET"
+    AFTER=$(grep -c 'ARRAY_SIZE(xwl_output_fake_modes)' "$TARGET" || true)
+    echo "AFTER sentinel count: $AFTER"
+    test "$AFTER" -eq 0 || { echo "sed transformation incomplete (still $AFTER matches)"; exit 1; }
+    echo "Neutralized $BEFORE fake-mode iteration site(s)"
+
+    meson setup build . \
+      -Dprefix=/usr/local \
+      -Dipv6=true \
+      -Dxvfb=false \
+      -Dxdmcp=false \
+      -Dxcsecurity=true \
+      -Ddri3=true \
+      -Dglamor=true \
+      -Dlibdecor=true \
+      -Dxkb_dir=/usr/share/X11/xkb \
+      -Dxkb_output_dir=/var/lib/xkb \
+      -Dxkb_bin_dir=/usr/bin
+    ninja -C build
+    DESTDIR=/out ninja -C build install
+_BUILD_XWAYLAND
+
+#################################
 FROM ${BASE_IMAGE}
 
-ARG GAMESCOPE_VERSION="3.15.14"
+ARG GAMESCOPE_VERSION="3.16.22"
 ENV GAMESCOPE_VERSION=$GAMESCOPE_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -53,14 +148,31 @@ ARG REQUIRED_PACKAGES="\
     fonts-noto-cjk \
     locales \
     gamescope \
-    xwayland kitty nano \
+    xwayland libei1 kitty nano \
     waybar fonts-font-awesome xdg-desktop-portal xdg-desktop-portal-gtk psmisc \
     "
 
 RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository -y ppa:kisak/kisak-mesa && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
     $REQUIRED_PACKAGES && \
+    apt-get remove -y --purge software-properties-common && \
+    rm -f /etc/apt/sources.list.d/kisak-ubuntu-kisak-mesa-*.sources && \
     rm -rf /var/lib/apt/lists/*
+
+# Install patched Xwayland into /usr/local (wins over distro /usr/bin/Xwayland
+# via PATH order) and shadow /usr/bin/Xwayland via symlink so anything that
+# hardcodes the distro path also gets the patched binary. See the
+# xwayland-builder stage above for the patch details.
+COPY --from=xwayland-builder /out/usr/local /usr/local
+RUN ln -sf /usr/local/bin/Xwayland /usr/bin/Xwayland && \
+    Xwayland -version 2>&1 | head -2
+# Xwayland writes compiled keymaps to /var/lib/xkb at runtime. The app
+# processes run as uid 1000 (retro), not root, so the directory needs
+# to be world-writable or keymap compilation fails with EACCES.
+RUN install -d -m 1777 /var/lib/xkb
 
 # Some games with native Linux ports require en_US.UTF-8
 # to be generated regardless of user locale settings
@@ -99,6 +211,16 @@ _INSTALL_SWAY
 #################################
 # Install MangoHuD
 #################################
+# The upstream release tarball ships only `mangohud` and `mangoplot`;
+# `mangoapp` is an opt-in meson build (`-Dmangoapp=true`) and is NOT in
+# the prebuilt package. Steam's startup script calls `mangoapp &` to show
+# the gamescope stats overlay -- on this Ubuntu image it silently no-ops
+# because the binary isn't present. The Fedora variant gets mangoapp for
+# free via Fedora's `mangohud` RPM (built with -Dmangoapp=true), so we
+# accept the Ubuntu gap rather than add a from-source MangoHud build
+# stage here. If the overlay becomes important, swap this block for a
+# `FROM base AS mangohud-builder` stage matching the xwayland/sdl-jstest
+# pattern above.
 RUN <<_INSTALL_MANGO
 #!/bin/bash
 set -e

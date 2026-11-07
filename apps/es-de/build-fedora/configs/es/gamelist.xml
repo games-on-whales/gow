@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<gameList>
+	<game>
+		<path>/Applications/launchers/cemu.sh</path>
+		<name>cemu</name>
+        <desc>Launch cemu</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Cemu Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/dolphin.sh</path>
+		<name>dolphin</name>
+        <desc>Launch dolphin</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>Dolphin Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/pcsx2.sh</path>
+		<name>pcsx2</name>
+        <desc>Launch pcsx2</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>PCSX2 Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/retroarch.sh</path>
+		<name>retroarch</name>
+        <desc>Launch RetroArch</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>libretro</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/rpcs3.sh</path>
+		<name>rpcs3</name>
+        <desc>Launch RPCS3</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>RPCS3 Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+	<game>
+		<path>/Applications/launchers/xemu.sh</path>
+		<name>xemu</name>
+        <desc>Launch XEMU</desc>
+		<releasedate>20230429T000000</releasedate>
+		<developer>XEMU Team</developer>
+		<publisher>QuaiGoner</publisher>
+		<genre>Launcher</genre>
+		<playcount>1</playcount>
+		<lastplayed>20230429T164623</lastplayed>
+	</game>
+</gameList>

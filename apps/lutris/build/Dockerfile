@@ -1,14 +1,49 @@
 ARG BASE_APP_IMAGE=ghcr.io/games-on-whales/base-app:edge
 
+######################################
+# Same as Steam, here we build a patched bubblewrap
+# that works with CAP_SYS_ADMIN in containers.
+# bwrap detects explicit capabilities and aborts; this patch removes that check.
+FROM ${BASE_APP_IMAGE} AS bwrap-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /root
+COPY ignore_capabilities.patch /root/
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends git meson ca-certificates dpkg-dev && \
+    git clone https://github.com/containers/bubblewrap && \
+    cd bubblewrap && \
+    ./ci/builddeps.sh && \
+    patch -p1 < ../ignore_capabilities.patch && \
+    meson _builddir && \
+    meson compile -C _builddir
+
+######################################
+
 # hadolint ignore=DL3006
 FROM ${BASE_APP_IMAGE}
 
+# Hardcoded the version to prevent image builder using cached old packages when newer version comes out
+ARG LUTRIS_VERSION=0.5.22
+ARG GAMEPAD_UI_VERSION=v0.2.0
+
 ARG DEBIAN_FRONTEND=noninteractive
 
-# The following list of packages is informed by these articles;
+# The following list of packages was informed by these articles;
 #   - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
 #   - https://github.com/lutris/docs/blob/master/WineDependencies.md
+#
+# Also added libegl1:i386 which is required for winegstreamer.so (32-bit)
+# to load inside the pressure-vessel sniper runtime.
+# Without it, Wine's quartz.dll crashes during DirectShow initialization,
+# causing Themida-protected games to raise SIGTRAP via direct Linux syscall.
+#
+# Also added libavfilter10:i386 which is required for gstreamer-1.0/libgstlibav.so (32-bit)
+# which is required by some games in decoding WMV/WMA assets
+#
+# Also added fonts-noto-color-emoji for Gamepad-UI to show symbols on top bar.
 ARG REQUIRED_PACKAGES=" \
+     fonts-noto-color-emoji \
      cabextract \
      curl \
      fluid-soundfont-gs \
@@ -21,10 +56,12 @@ ARG REQUIRED_PACKAGES=" \
      libdbus-1-3:i386 \
      libfreetype6:i386 \
      libgl1:i386 \
+     libegl1:i386 \
      libsdl2-2.0-0:i386 \
      libsqlite3-0:i386 \
      libvulkan1 \
      libvulkan1:i386 \
+     libavfilter10:i386 \
      mesa-utils \
      mesa-vulkan-drivers \
      mesa-vulkan-drivers:i386 \
@@ -46,21 +83,40 @@ ARG REQUIRED_PACKAGES=" \
      winetricks \
      x11-xserver-utils \
      zenity \
+     libfuse2 \
+     libfuse2t64 \
+     libgstreamer-gl1.0-0 \
     "
+
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES
+    apt-get install -y --no-install-recommends $REQUIRED_PACKAGES && \
+# Cleanup \
+    apt-get autoremove -y
 
-RUN <<_INSTALL_LUTRIS
-#!/bin/bash
-set -e
-source /opt/gow/bash-lib/utils.sh
+RUN curl -fsSL -o /tmp/lutris.deb \
+        "https://github.com/lutris/lutris/releases/download/v${LUTRIS_VERSION}/lutris_${LUTRIS_VERSION}_all.deb" && \
+    dpkg -i /tmp/lutris.deb && \
+    rm -f /tmp/lutris.deb && \
+    rm -rf /var/lib/apt/lists/*
 
-github_download "lutris/lutris" ".assets[]|select(.name|endswith(\".deb\")).browser_download_url" "lutris.deb"
-dpkg -i lutris.deb
-rm lutris.deb
-_INSTALL_LUTRIS
+# Replace system bwrap with patched version that works with CAP_SYS_ADMIN
+COPY --from=bwrap-builder --chmod=755 /root/bubblewrap/_builddir/bwrap /usr/bin/bwrap
+
+# Install Lutris Gamepad UI
+ENV APPIMAGE_URL="https://github.com/andrew-ld/lutris-gamepad-ui/releases/download/${GAMEPAD_UI_VERSION}/lutris-gamepad-ui-x64.AppImage"
+ENV APP_DIR="/opt/gow/app"
+# see: https://github.com/AppImage/AppImageKit/wiki/FUSE#docker
+ENV APPIMAGE_EXTRACT_AND_RUN=1
+
+# Download and extract AppImage
+RUN curl -LJ ${APPIMAGE_URL} -o /tmp/app.AppImage && \
+    chmod +x /tmp/app.AppImage && \
+    /tmp/app.AppImage --appimage-extract && \
+    mv squashfs-root ${APP_DIR} && \
+    rm -rf /tmp/app.AppImage && \
+    chown -R 1000:1000 ${APP_DIR}
 
 RUN mkdir -pm 777 /var/lutris/ && \
     mkdir /opt/gow/startup.d/
@@ -68,8 +124,17 @@ COPY --chmod=777 scripts/startup.sh /opt/gow/startup-app.sh
 COPY --chmod=777 scripts/startup-10-create-dirs.sh /opt/gow/startup.d/10-create-dirs.sh
 COPY configs/lutris-system.yml /opt/gow/lutris-system.yml
 COPY configs/lutris-lutris.conf /opt/gow/lutris-lutris.conf
+COPY configs/gamepadui.json /opt/gow/gamepadui.json
 
 ENV XDG_RUNTIME_DIR=/tmp/.X11-unix
+ENV LUTRIS_GAMEPAD_UI_ENABLE_SDL_INPUT=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_AUDIO_SETTINGS=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_DISPLAY_SETTINGS=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_BLUETOOTH_SETTINGS=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_REBOOT_SYSTEM=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_POWER_OFF_SYSTEM=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_UPDATE_CHECKER=1
+ENV LUTRIS_GAMEPAD_UI_DISABLE_SUSPEND_SYSTEM=1
 
 ARG IMAGE_SOURCE
 LABEL org.opencontainers.image.source=$IMAGE_SOURCE

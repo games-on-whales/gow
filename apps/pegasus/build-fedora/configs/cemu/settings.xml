@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content>
+    <Graphic>
+        <api>1</api>
+    </Graphic>
+    <Audio>
+        <api>3</api>
+        <delay>2</delay>
+        <TVChannels>1</TVChannels>
+        <PadChannels>1</PadChannels>
+        <InputChannels>0</InputChannels>
+        <TVVolume>50</TVVolume>
+        <PadVolume>50</PadVolume>
+        <InputVolume>50</InputVolume>
+        <TVDevice>replace_me</TVDevice>
+        <PadDevice>replace_me</PadDevice>
+        <InputDevice></InputDevice>
+    </Audio>
+</content>

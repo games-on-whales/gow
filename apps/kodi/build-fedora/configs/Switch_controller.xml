@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<buttonmap>
+    <device name="Wolf Nintendo (virtual) pad" provider="linux" buttoncount="14" axiscount="6">
+        <configuration />
+        <controller id="game.controller.default">
+            <feature name="a" button="0" />
+            <feature name="b" button="1" />
+            <feature name="back" button="9" />
+            <feature name="down" axis="+5" />
+            <feature name="guide" button="11" />
+            <feature name="left" axis="-4" />
+            <feature name="leftbumper" button="5" />
+            <feature name="leftstick">
+                <up axis="-1" />
+                <down axis="+1" />
+                <right axis="+0" />
+                <left axis="-0" />
+            </feature>
+            <feature name="leftthumb" button="12" />
+            <feature name="lefttrigger" button="7" />
+            <feature name="right" axis="+4" />
+            <feature name="rightbumper" button="6" />
+            <feature name="rightstick">
+                <up axis="-3" />
+                <down axis="+3" />
+                <right axis="+2" />
+                <left axis="-2" />
+            </feature>
+            <feature name="rightthumb" button="13" />
+            <feature name="righttrigger" button="8" />
+            <feature name="start" button="10" />
+            <feature name="up" axis="-5" />
+            <feature name="x" button="3" />
+            <feature name="y" button="2" />
+        </controller>
+    </device>
+</buttonmap>

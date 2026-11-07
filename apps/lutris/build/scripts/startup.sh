@@ -2,7 +2,7 @@
 
 source /opt/gow/bash-lib/utils.sh
 
-LUTRIS=/usr/games/lutris
+LUTRIS=$(which lutris)
 
 # Run additional startup scripts
 for file in /opt/gow/startup.d/* ; do
@@ -15,4 +15,15 @@ done
 gow_log "[start] Starting Lutris"
 
 source /opt/gow/launch-comp.sh
-launcher "${LUTRIS}" "${LUTRIS_ARGS[@]}"
+
+if [ ${WOLF_LUTRIS_GAMEPAD_UI_ENABLE:-1} -eq 1 ]; then
+    if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
+        export RUN_GAMESCOPE=1
+    fi
+    launcher /opt/gow/app/AppRun
+else
+    if [ -z "$RUN_GAMESCOPE" ] && [ -z "$RUN_SWAY" ]; then
+        export RUN_SWAY=1
+    fi
+    launcher "${LUTRIS}" "${LUTRIS_ARGS[@]}"
+fi
