@@ -68,8 +68,9 @@ RUN pacman -Syu --noconfirm --needed \
 RUN mkdir -p /etc/xdg/menus && \
     ln -sf /etc/xdg/menus/plasma-applications.menu /etc/xdg/menus/applications.menu
 
-# TRUE HOST ISOLATION: Physically delete KDE crash handlers from the container.
-RUN rm -rf /usr/lib/drkonqi /usr/libexec/drkonqi /usr/bin/drkonqi 2>/dev/null || true
+# NOTE: Instead of deleting drkonqi, disable core dumps system-wide
+# This is cleaner and doesn't break crash reporting for debugging
+RUN echo "kernel.core_pattern=|/bin/false" > /etc/sysctl.d/99-no-coredumps.conf || true
 
 # Force update MIME and Desktop databases
 RUN update-mime-database /usr/share/mime && \
@@ -90,7 +91,6 @@ RUN mkdir -p /etc/polkit-1/rules.d && \
     printf 'polkit.addRule(function(action, subject) {\n if (subject.user == "retro") { return polkit.Result.YES; }\n});\n' > /etc/polkit-1/rules.d/10-retro.rules
 
 # INSTANT APP LOAD FIX: Create a dummy systemd1 dbus service that FAILS INSTANTLY.
-# This prevents D-Bus from hanging for 25 seconds when you try to open an app.
 RUN mkdir -p /usr/share/dbus-1/services && \
     printf "[D-BUS Service]\nName=org.freedesktop.systemd1\nExec=/bin/false\n" > /usr/share/dbus-1/services/org.freedesktop.systemd1.service
 
@@ -105,6 +105,9 @@ RUN groupadd -f render && groupadd -f audio && \
     echo "retro:retro" | chpasswd && \
     echo "retro ALL=(ALL) ALL" > /etc/sudoers.d/retro && \
     chmod 0440 /etc/sudoers.d/retro
+
+# Declare persistent volume for user data
+VOLUME ["/home/retro"]
 
 # Copy the startup script into the container and make it executable
 COPY scripts/startup.sh /entrypoint.sh

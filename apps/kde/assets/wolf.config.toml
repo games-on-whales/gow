@@ -1,5 +1,5 @@
 [[apps]]
-icon_png_path = '/etc/wolf/kde/assets/icon.png'
+icon_png_path = '/etc/wolf/icons/kde.png'
 title = 'Desktop (KDE Plasma)'
 
 [apps.runner]

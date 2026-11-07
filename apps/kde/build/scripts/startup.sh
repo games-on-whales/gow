@@ -105,13 +105,29 @@ kwriteconfig6 --file startkderc --group General --key systemdBoot false
 export DBUS_SESSION_BUS_ADDRESS=$(dbus-daemon --session --fork --print-address)
 echo "[START] D-Bus session started at $DBUS_SESSION_BUS_ADDRESS"
 
-rm -rf /home/retro/.cache
-rm -rf /home/retro/.config/session
-rm -rf /home/retro/.config/plasma*
-rm -rf /home/retro/.config/kded6rc
-rm -rf /home/retro/.local/share/kxmlgui5
-rm -rf /home/retro/.local/share/kxmlgui6
-rm -rf /home/retro/.local/share/kscreenlocker
+# ================================================================
+# REMOVED: All the rm -rf lines that were destroying user data
+# ================================================================
+# The following lines were REMOVED because they were causing
+# the desktop to lose ALL settings on every restart:
+#
+# rm -rf /home/retro/.cache
+# rm -rf /home/retro/.config/session
+# rm -rf /home/retro/.config/plasma*
+# rm -rf /home/retro/.config/kded6rc
+# rm -rf /home/retro/.local/share/kxmlgui5
+# rm -rf /home/retro/.local/share/kxmlgui6
+# rm -rf /home/retro/.local/share/kscreenlocker
+#
+# ================================================================
+
+# Only clear cache if it exists AND we're having startup issues
+# This is a safety valve, not the default behavior
+if [ -f "/home/retro/.kde_force_reset" ]; then
+    echo "[START] Force reset requested, clearing cache..."
+    rm -rf /home/retro/.cache
+    rm -f /home/retro/.kde_force_reset
+fi
 
 pipewire >/dev/null 2>&1 &
 wireplumber >/dev/null 2>&1 &
@@ -147,7 +163,6 @@ for i in $(seq 1 50); do
     sleep 0.1
 done
 
-# CRITICAL FIX: Ensure X11/Xwayland is fully ready before launching KDE components
 echo "[START] Waiting for KWin Xwayland socket to prevent crashes..."
 for i in $(seq 1 50); do
     if ls /tmp/.X11-unix/X* 1> /dev/null 2>&1; then
@@ -174,7 +189,6 @@ kded6 >/dev/null 2>&1 &
 sleep 2
 
 echo "[START] Launching Session Manager (ksmserver)..."
-# Wrapping ksmserver in a subshell ensures no core dumps can ever spill, even on failure
 (ulimit -c 0; ksmserver >/dev/null 2>&1 &)
 sleep 1
 
@@ -182,8 +196,6 @@ echo "[START] Launching Plasma Shell..."
 plasmashell
 EXIT_CODE=$?
 
-# If plasmashell crashed with a segfault (139/134), pass it to trigger the 60s sleep.
-# If it exited cleanly (like when you click Log Out), force code 0 to close instantly.
 if [ "$EXIT_CODE" -eq 139 ] || [ "$EXIT_CODE" -eq 134 ]; then
     exit $EXIT_CODE
 else
