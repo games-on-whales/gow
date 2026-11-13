@@ -34,9 +34,9 @@ STEAMDIR_LEGACY="${HOME}/.steam/steam"
 #   - any data move risks destroying a user's library if it fails partway
 #
 # True Ubuntu→Fedora migrations are rare. Detect the situation, log a
-# clear message, and let the user decide. Steam will still launch — the
-# wrapper's symlink logic refuses to clobber a real legacy directory and
-# will print its own warning.
+# clear message, and let the user decide. The check below exits cont-init, so
+# Steam does not start until the directory has been migrated by hand; the
+# warning in steam.sh for this case is not reached.
 if [ -d "$STEAMDIR_LEGACY" ] && [ ! -L "$STEAMDIR_LEGACY" ]; then
   gow_log "*** Legacy ~/.steam/steam directory detected (not a symlink). ***"
   gow_log "*** Auto-migration is disabled. If Steam does not find your   ***"
