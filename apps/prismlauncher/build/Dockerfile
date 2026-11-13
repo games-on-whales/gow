@@ -8,6 +8,7 @@ ARG REQUIRED_PACKAGES=" \
     openjdk-21-jre \
     openjdk-17-jre \
     openjdk-8-jre \
+    libopengl0 \
     "
 
 RUN apt-get update && \
