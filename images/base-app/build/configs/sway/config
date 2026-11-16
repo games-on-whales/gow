@@ -50,7 +50,8 @@ include /etc/sway/config-vars.d/*
     # Despite the name, also works for non-floating windows.
     # Change normal to inverse to use left mouse button for resizing and right
     # mouse button for dragging.
-    floating_modifier $mod normal
+    # Disabled: $mod is Alt, and games need Alt+click (e.g. Dota 2).
+    floating_modifier none
 
     # Reload the configuration file
     bindsym $mod+Shift+c reload
