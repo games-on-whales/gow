@@ -25,5 +25,28 @@ fi
 
 # Launch startup script as 'UNAME' user (some services will run as root)
 gow_log "Launching the container's startup script as user '${UNAME}'"
-chmod +x /opt/gow/startup.sh
+[ -x /opt/gow/startup.sh ] || chmod +x /opt/gow/startup.sh
+
+# Started as a non-root user, so the cont-init.d scripts above were skipped.
+# Do what can be done without root (e.g. nvidia loader env vars) instead.
+if [ "$(id -u)" != "0" ]; then
+    for init_script in /opt/gow/init.d/*.sh ; do
+        [ -e "${init_script}" ] || continue
+        gow_log
+        gow_log "[ ${init_script}: executing... ]"
+        # shellcheck source=/dev/null
+        source "${init_script}"
+    done
+fi
+
+# gosu needs CAP_SETUID and CAP_SETGID, even if the user doesn't change.
+# Skip it when already running as UNAME, so all capabilities can be dropped.
+if [ "$(id -u)" = "$(id -u "${UNAME}" 2>/dev/null)" ]; then
+    exec /opt/gow/startup.sh
+fi
+# Only root can switch users, so stay as the current user.
+if [ "$(id -u)" != "0" ]; then
+    gow_log "Not running as root, staying uid $(id -u) instead of switching to '${UNAME}'"
+    exec /opt/gow/startup.sh
+fi
 exec gosu "${UNAME}" /opt/gow/startup.sh

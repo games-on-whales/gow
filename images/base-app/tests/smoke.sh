@@ -40,6 +40,14 @@ else
   bad "/var/lib/xkb exists"
 fi
 
+# gamescope's file caps are removed at build time; with one left it can't exec
+# in a container started without SYS_NICE.
+if [[ -z "$(getcap "$(command -v gamescope)" 2>/dev/null)" ]]; then
+  ok "gamescope has no file capabilities"
+else
+  bad "gamescope has no file capabilities ($(getcap "$(command -v gamescope)"))"
+fi
+
 # The helper scripts the app layer sources.
 assert_path /opt/gow/launch-comp.sh /opt/gow/wait-x11 /cfg/sway/config
 

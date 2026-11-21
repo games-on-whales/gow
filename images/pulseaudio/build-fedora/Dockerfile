@@ -10,19 +10,28 @@ ARG REQUIRED_PACKAGES=" \
     pulseaudio \
     "
 
-# Configure container to run process as root user
-# Note:
-#   The PulseAudio daemon will refuse to start if the $HOME directory is not
-#   owned by the user who launched it, _EVEN IF THAT USER IS root_.  So we need
-#   to override $HOME to _not_ be /home/retro.  This isn't a big deal because
-#   this dir is entirely inside the container anyway (it's not mounted into
-#   $local_state) so its name is essentially irrelevant.
+# Run the daemon as the 'pulse' system user, not root.
+# - pulseaudio won't start unless its user owns $HOME.
+# - XDG_RUNTIME_DIR matches the socket directory in default.pa. When the
+#   container starts as root, 10-setup_user.sh gives it to 'pulse', even if
+#   it's a mounted host directory.
+# - To drop all capabilities, start the container with `--user pulse`.
 ENV \
-    UNAME="root" \
-    HOME="/root"
+    UNAME="pulse" \
+    HOME="/var/lib/pulse" \
+    XDG_RUNTIME_DIR="/tmp/pulse"
 
 RUN dnf install -y $REQUIRED_PACKAGES && \
     dnf clean all
+
+# The pulseaudio package usually creates 'pulse'. Create it if it's missing,
+# and give it a home directory it owns.
+RUN if ! id -u pulse >/dev/null 2>&1; then \
+        useradd --system --user-group --no-create-home --shell /usr/sbin/nologin pulse; \
+    fi && \
+    usermod --home "$HOME" pulse && \
+    install -d -o pulse -g pulse -m 0700 "$HOME" && \
+    install -d -o pulse -g pulse -m 0755 "$XDG_RUNTIME_DIR"
 
 COPY configs/default.pa /etc/pulse/default.pa
 COPY configs/client.conf /etc/pulse/client.conf

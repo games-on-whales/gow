@@ -64,5 +64,10 @@ COPY --from=sdl-jstest-builder /sdl-jstest/build/sdl2-jstest /usr/local/bin/sdl2
 # Fix Sway cap_sys_nice=ep
 RUN setcap -r /usr/sbin/sway
 
+# Remove gamescope's cap_sys_nice file capability (if the package sets one), so
+# it can exec without SYS_NICE when the container starts as the user and skips
+# init-gamescope.sh. setcap -r fails when there is none to remove.
+RUN setcap -r "$(command -v gamescope)" 2>/dev/null || true
+
 # Configure the default directory to be the 'retro' users home directory
 WORKDIR ${HOME}
